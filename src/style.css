@@ -1,0 +1,164 @@
+/* Philippine Navy Theme Colors */
+:root {
+  --pn-primary: #001F54;
+  --pn-secondary: #0066CC;
+  --pn-accent: #FFD700;
+  --pn-error: #FF5252;
+  --pn-warning: #FFC107;
+  --pn-info: #2196F3;
+  --pn-success: #4CAF50;
+  --pn-surface: #FFFFFF;
+  --pn-background: #F5F5F5;
+  --pn-light-gray: #E8E8E8;
+  --pn-dark-text: #212121;
+  --pn-light-text: #757575;
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  background-color: var(--pn-background);
+  color: var(--pn-dark-text);
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  min-height: 100vh;
+}
+
+
+
+p {
+  color: var(--pn-light-text);
+}
+
+/* Links */
+a {
+  color: var(--pn-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--pn-secondary);
+}
+
+/* Utility Classes - Removed redundant Vuetify component styles */
+.text-gray-600 {
+  color: var(--pn-light-text);
+}
+
+.text-gray-400 {
+  color: #BDBDBD;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.bg-light-gray {
+  background-color: var(--pn-light-gray);
+}
+
+.bg-primary {
+  background: linear-gradient(135deg, var(--pn-primary) 0%, var(--pn-secondary) 100%);
+}
+
+.bg-background {
+  background-color: var(--pn-background);
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hidden-sm-and-down {
+    display: none;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pn-light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pn-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pn-secondary);
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none;
+  }
+}
+
+/* Data Table Styles */
+.data-table {
+  width: 100%;
+}
+
+.data-table thead tr.header-row {
+  background-color: #1976d2;
+  color: white;
+  font-weight: 600;
+}
+
+.data-table thead th {
+  padding: 12px 8px;
+  text-align: center !important;
+  font-size: 12px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #1976d2;
+  
+}
+
+.data-table tbody tr.section-header {
+  background-color: #f5f5f5;
+}
+
+.data-table tbody td.section-title {
+  font-weight: 600;
+  padding: 12px 8px;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.data-table tbody td {
+  padding: 10px 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
