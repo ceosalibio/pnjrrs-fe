@@ -27,16 +27,17 @@
       <div class="d-flex justify-center mb-4">
         <app-button
             label="Log in"
-            color="primary"
+            color="white"
             full-width
             :loading="isLoading"
             type="submit"
+            size="x-large"
         />
       </div>
 
-      <p class="text-center text-xs text-gray-300">
+      <!-- <p class="text-center text-xs text-gray-300">
         <a href="#" class="text-blue-300 hover:text-blue-200">Forgot Password?</a>
-      </p>
+      </p> -->
 
       <v-divider class="my-4" />
 
@@ -148,7 +149,7 @@ const onSubmit = () => {
 
 :deep(.v-field__input) {
   font-size: 0.95rem;
-  background-color: rgba(0, 0, 0, 0.3) !important;
+
   color: #fff !important;
   border-radius: 8px;
 }

@@ -5,6 +5,7 @@
         <v-card
           class="auth-card"
           elevation="4"
+      
         >
           <v-card-text class="pa-8">
             <h2 class="text-h5 font-weight-600 text-white text-center mb-6">Log in</h2>
@@ -36,7 +37,7 @@
 
 .auth-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,6 +52,7 @@
   background: rgba(30, 60, 110, 0.7) !important;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.80;
 }
 
 .auth-card:hover {
