@@ -1,19 +1,6 @@
-import axios from 'axios'
+import api from './axiosConfig'
 import { API_ENDPOINTS } from '@/utils/constants'
 import { mockUsers } from '@/utils/mockData'
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000'
-})
-
-// Add token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
 
 export const login = async (email, password) => {
   try {
