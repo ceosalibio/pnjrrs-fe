@@ -16,18 +16,19 @@
       <v-card-actions class="justify-end ga-2">
         <app-button
           v-if="showCancel"
-          :label="cancelText"
-          variant="plain"
+          :variant="'plain'"
           @click="handleCancel"
-          color="default"
-        />
+          :color="'default'"
+        >
+          {{ cancelText }}
+        </app-button>
         <app-button
-          :label="confirmText"
           :color="confirmColor"
           @click="handleConfirm"
-          variant="plain"
-
-        />
+          :variant="'plain'"
+        >
+          {{ confirmText }}
+        </app-button>
       </v-card-actions>
     </v-card>
   </v-dialog>

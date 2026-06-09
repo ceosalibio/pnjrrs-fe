@@ -24,27 +24,18 @@
 
                 <AppButton
                     color="warning"
-                    :variant="'elevated'"
-                    :size="'small'"
-                    class="mt-2"
                 >
                     Generate Report
                 </AppButton>
 
                 <AppButton
                     color="success"
-                    :variant="'elevated'"
-                    :size="'small'"
-                    class="mt-2"
                 >
                     Submit Report
                 </AppButton>
 
                 <AppButton
                     color="primary"
-                    :variant="'elevated'"
-                    :size="'small'"
-                    class="mt-2"
                 >
                     Print Report
                 </AppButton>

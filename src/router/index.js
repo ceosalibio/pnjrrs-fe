@@ -137,6 +137,26 @@ const routes = [
         name: 'TableOrganization',
         component: () => import('@/views/settings/SettingTableOrganization.vue')
       },
+      {
+        path: 'settings/personnel',
+        name: 'SettingPersonnel',
+        component: () => import('@/views/settings/SettingPersonnel.vue')
+      },
+      {
+        path: 'settings/training',
+        name: 'SettingTraining',
+        component: () => import('@/views/settings/SettingTraining.vue')
+      },
+      {
+        path: 'settings/equipment',
+        name: 'SettingEquipment',
+        component: () => import('@/views/settings/SettingEquipment.vue')
+      },
+      {
+        path: 'settings/facility',
+        name: 'SettingFacility',
+        component: () => import('@/views/settings/SettingFacility.vue')
+      },
       // {
       //   path: 'settings/permissions',
       //   name: 'SettingsPermissions',

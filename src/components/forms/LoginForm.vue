@@ -1,15 +1,13 @@
 <template>
-  <v-form ref="form" @submit.prevent="onSubmit">
+  <v-form ref="formRef" @submit.prevent="onSubmit">
     <v-container>
       <app-text-field
         v-model="formData.email"
         :label="'Email Address'"
         type="email"
         placeholder="Enter your email (e.g., admin@pnay.gov.ph)"
-        :error="errors.email"
+        :rules="emailRules"
         clearable
-        @blur="validateField('email')"
-        @input="clearError('email')"
       />
 
       <app-text-field
@@ -17,22 +15,23 @@
         :label="'Password'"
         type="password"
         placeholder="Enter your password"
-        :error="errors.password"
+        :rules="passwordRules"
         show-password-toggle
         class="mb-4"
-        @blur="validateField('password')"
-        @input="clearError('password')"
       />
 
       <div class="d-flex justify-center mb-4">
         <app-button
-            label="Log in"
             color="white"
             full-width
             :loading="isLoading"
             type="submit"
             size="x-large"
-        />
+            variant="plain"
+        >
+          log in
+        </app-button> 
+        
       </div>
 
       <!-- <p class="text-center text-xs text-gray-300">
@@ -52,7 +51,7 @@
 import { ref, reactive } from 'vue'
 import AppTextField from './AppTextField.vue'
 import AppButton from '../common/AppButton.vue'
-import { validateEmail, validatePassword } from '@/utils/validators'
+import { required, email, minLength, compose } from '@/utils/rules'
 
 const props = defineProps({
   loading: Boolean
@@ -66,50 +65,33 @@ const formData = reactive({
   rememberMe: false
 })
 
-const errors = reactive({
-  email: '',
-  password: ''
-})
-
 const isLoading = ref(props.loading)
 
-const clearError = (field) => {
-  errors[field] = ''
-}
+// Define validation rules for form fields
+const emailRules = [
+  required(),
+  email()
+]
 
-const validateField = (field) => {
-  switch (field) {
-    case 'email':
-      if (!formData.email.trim()) {
-        errors.email = 'Email is required.'
-      } else {
-        const emailError = validateEmail(formData.email)
-        errors.email = emailError === true ? '' : emailError
-      }
-      break
-    case 'password':
-      if (!formData.password) {
-        errors.password = 'Password is required.'
-      } else {
-        const passwordError = validatePassword(formData.password)
-        errors.password = passwordError === true ? '' : passwordError
-      }
-      break
+const passwordRules = [
+  required(),
+  minLength(8, 'Password must be at least 8 characters')
+]
+
+const onSubmit = async () => {
+  if (formRef.value) {
+    const { valid } = await formRef.value.validate()
+    if (valid) {
+      emit('submit', {
+        email: formData.email,
+        password: formData.password,
+        rememberMe: formData.rememberMe
+      })
+    }
   }
 }
 
-const onSubmit = () => {
-  validateField('email')
-  validateField('password')
-
-  if (!errors.email && !errors.password) {
-    emit('submit', {
-      email: formData.email,
-      password: formData.password,
-      rememberMe: formData.rememberMe
-    })
-  }
-}
+const formRef = ref(null)
 </script>
 
 <style scoped>

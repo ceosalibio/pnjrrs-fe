@@ -13,53 +13,50 @@
       <v-divider />
 
       <v-card-text>
-        <div class="mb-4 d-flex justify-space-between align-center ga-2">
+        <!-- Filters and Action Button Row -->
+        <div class="d-flex gap-3 mb-4 align-center">
           <AppTextField
             v-model="searchQuery"
             placeholder="Search users..."
             prepend-inner-icon="mdi-magnify"
-            variant="outlined"
+            class="flex-grow-1"
             density="compact"
-            clearable
-            hide-details
           />
-           <AppAutocomplete
-            label="Category"
-            variant="outlined"
-            density="compact"
-            clearable
-            hide-details
-
-          />
-          <!-- <AppAutocomplete
-            label="Category"
-            variant="outlined"
-            density="compact"
-            clearable
-          /> -->
           <AppAutocomplete
-            label="Unit"
+            label="Units"
             variant="outlined"
             density="compact"
             clearable
             hide-details
+            class="filter-field"
           />
-           <AppAutocomplete
-            label="Subunit"
+          <AppAutocomplete
+            label="Subunits"
             variant="outlined"
             density="compact"
             clearable
             hide-details
+            class="filter-field"
           />
-           <AppAutocomplete
-            label="Office"
+          <AppAutocomplete
+            label="Offices"
             variant="outlined"
             density="compact"
             clearable
             hide-details
+            class="filter-field"
           />
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddUserDialog">Add User</v-btn>
+          <v-spacer />
+          <AppButton 
+            color="primary" 
+            @on-click="openAddUserDialog"
+            class="action-button"
+          >
+            Add User
+          </AppButton>
         </div>
+
+       
 
         <v-table>
           <thead>
@@ -104,6 +101,7 @@ import { ref, computed } from 'vue'
 import AppTextField from '@/components/forms/AppTextField.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import AddUserDialog from '@/components/forms/AddUserDialog.vue'
+import AppButton from '@/components/common/AppButton.vue'
 
 // Dialog state
 const isAddUserDialogOpen = ref(false)
@@ -181,4 +179,37 @@ const getRoleColor = (role) => {
 .settings-users {
   padding: 1rem;
 }
+
+.filter-field {
+  min-width: 250px;
+  flex: 0 0 auto;
+}
+
+.action-button {
+  text-transform: uppercase;
+  font-weight: 600;
+  min-width: 150px;
+}
+
+.gap-3 {
+  gap: 1rem;
+}
+
+@media (max-width: 960px) {
+  .filter-field {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-field {
+    min-width: 100%;
+    flex: 1 1 auto;
+  }
+  
+  .action-button {
+    min-width: 100%;
+  }
+}
 </style>
+
