@@ -1,5 +1,5 @@
 <template>
-  <v-form @submit.prevent="onSubmit">
+  <v-form ref="formRef" @submit.prevent="onSubmit">
     <v-container class="px-0">
       <v-card elevation="0" class="bg-light-gray mb-4 pa-4">
         <div class="d-flex align-center justify-between mb-4">
@@ -25,7 +25,7 @@
         label="Your Answer"
         type="number"
         placeholder="Enter the answer"
-        :error="errors.answer"
+        :rules="answerRules"
         class="mb-4"
       />
 
@@ -33,24 +33,35 @@
         v-model="formData.iamHuman"
         label="I am not a robot"
         class="mb-4"
+        @change="robotCheckError = ''"
       />
-
-      <app-button
-        label="Verify"
-        color="primary"
-        full-width
-        :loading="isLoading"
-        type="submit"
-      />
+      <div v-if="robotCheckError" class="text-error text-sm mb-2">
+        {{ robotCheckError }}
+      </div>
+      <div class="d-flex justify-center">
+        <app-button
+          color="primary"
+          full-width
+          :loading="isLoading"
+          type="submit"
+        >
+          Verify
+        </app-button>
+      </div>
+      
 
       <v-divider class="my-4" />
-
-      <app-button
-        label="Back to Login"
-        variant="outlined"
-        full-width
-        @click="$emit('back')"
-      />
+      <div class="d-flex justify-center">
+        <app-button
+          color="white"
+          variant="plain"
+          full-width
+          @click="$emit('back')"
+        >
+          Back to login
+        </app-button>
+      </div>
+      
     </v-container>
   </v-form>
 </template>
@@ -59,6 +70,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import AppTextField from './AppTextField.vue'
 import AppButton from '../common/AppButton.vue'
+import { required, numeric } from '@/utils/rules'
 
 const emit = defineEmits(['submit', 'back'])
 
@@ -67,11 +79,15 @@ const formData = reactive({
   iamHuman: false
 })
 
-const errors = reactive({
-  answer: ''
-})
-
 const isLoading = ref(false)
+const formRef = ref(null)
+
+const answerRules = [
+  required(),
+  numeric('Please enter a valid number')
+]
+
+const robotCheckError = ref('')
 
 const problemNum1 = ref(0)
 const problemNum2 = ref(0)
@@ -98,24 +114,28 @@ const displayCaptcha = computed(() => {
   return answers.sort(() => Math.random() - 0.5)
 })
 
-const onSubmit = () => {
-  if (!formData.answer) {
-    errors.answer = 'Please enter your answer.'
+const onSubmit = async () => {
+  if (!formData.iamHuman) {
+    robotCheckError.value = 'Please confirm that you are not a robot.'
     return
   }
+  robotCheckError.value = ''
 
-  if (!formData.iamHuman) {
-    errors.answer = 'Please confirm that you are not a robot.'
-    return
+  if (formRef.value) {
+    const { valid } = await formRef.value.validate()
+    if (!valid) return
   }
 
   if (parseInt(formData.answer) === correctAnswer.value) {
+    isLoading.value = true
     emit('submit', {
       answer: formData.answer,
       iamHuman: formData.iamHuman
     })
+    isLoading.value = false
   } else {
-    errors.answer = 'Incorrect answer. Please try again.'
+    // Reset for retry
+    formData.answer = ''
     generateCaptcha()
   }
 }

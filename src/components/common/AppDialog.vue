@@ -13,18 +13,22 @@
         <slot>{{ message }}</slot>
       </v-card-text>
       
-      <v-card-actions class="justify-end gap-2">
+      <v-card-actions class="justify-end ga-2">
         <app-button
           v-if="showCancel"
-          :label="cancelText"
-          variant="outlined"
+          :variant="'plain'"
           @click="handleCancel"
-        />
+          :color="'default'"
+        >
+          {{ cancelText }}
+        </app-button>
         <app-button
-          :label="confirmText"
           :color="confirmColor"
           @click="handleConfirm"
-        />
+          :variant="'plain'"
+        >
+          {{ confirmText }}
+        </app-button>
       </v-card-actions>
     </v-card>
   </v-dialog>

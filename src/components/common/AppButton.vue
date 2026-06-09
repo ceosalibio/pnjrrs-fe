@@ -1,49 +1,73 @@
 <template>
-  <v-btn
-    :color="color"
-    :variant="variant"
-    :size="size"
-    :disabled="disabled || loading"
-    :loading="loading"
-    :block="fullWidth"
-    v-bind="$attrs"
-  >
-    <template v-if="icon" #prepend>
-      <v-icon>{{ icon }}</v-icon>
-    </template>
-    <slot>{{ label }}</slot>
-  </v-btn>
+  <div>
+    <v-btn
+      :color="color"
+      :density="density"
+      :icon="icon"
+      :block="block"
+      :disabled="disabled"
+      :type="type"
+      :loading="loading"
+      :variant="variant"
+      :size="size"
+      @click="handleClick"
+    >
+      <slot></slot>
+    </v-btn>
+  </div>
 </template>
 
 <script setup>
-defineProps({
-  label: String,
+const emit = defineEmits(['on-click'])
+
+const props = defineProps({
+  text: {
+    type: String,
+    default: '',
+  },
   color: {
     type: String,
-    default: 'primary'
+    default: 'primary',
+  },
+  density: {
+    type: String,
+    default: 'default',
   },
   variant: {
     type: String,
-    default: 'contained',
-    validator: (value) => ['contained', 'outlined', 'text', 'elevated', 'tonal', 'plain'].includes(value)
+    default: 'elevated',
   },
-  size: {
-    type: String,
-    default: 'lg',
-    validator: (value) => ['x-small', 'small', 'md', 'lg', 'x-large'].includes(value)
-  },
-  disabled: {
+  icon: {
     type: Boolean,
-    default: false
+    default: false,
+  },
+  type: {
+    type: String,
+    default: 'button',
+  },
+  block: {
+    type: Boolean,
+    default: false,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  fullWidth: {
+  disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  icon: String
+  size : {
+    type : String,
+    default: 'default'
+  }
 })
+
+function handleClick() {
+  emit('on-click')
+}
 </script>
+
+<style scoped>
+/* Add custom styles here if needed */
+</style>

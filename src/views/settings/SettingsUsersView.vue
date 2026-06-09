@@ -1,23 +1,62 @@
 <template>
   <div class="settings-users">
+    <!-- Add User Dialog -->
+    <add-user-dialog
+      v-model:open="isAddUserDialogOpen"
+      @user-created="handleUserCreated"
+      @error="handleDialogError"
+    />
+
     <v-card class="mb-6">
       <v-card-title>User Management</v-card-title>
       <v-card-subtitle>Manage system users and their roles</v-card-subtitle>
       <v-divider />
 
       <v-card-text>
-        <div class="mb-4 d-flex justify-space-between align-center">
-          <v-text-field
+        <!-- Filters and Action Button Row -->
+        <div class="d-flex gap-3 mb-4 align-center">
+          <AppTextField
             v-model="searchQuery"
             placeholder="Search users..."
             prepend-inner-icon="mdi-magnify"
+            class="flex-grow-1"
+            density="compact"
+          />
+          <AppAutocomplete
+            label="Units"
             variant="outlined"
             density="compact"
-            style="max-width: 300px"
             clearable
+            hide-details
+            class="filter-field"
           />
-          <v-btn color="primary" prepend-icon="mdi-plus">Add User</v-btn>
+          <AppAutocomplete
+            label="Subunits"
+            variant="outlined"
+            density="compact"
+            clearable
+            hide-details
+            class="filter-field"
+          />
+          <AppAutocomplete
+            label="Offices"
+            variant="outlined"
+            density="compact"
+            clearable
+            hide-details
+            class="filter-field"
+          />
+          <v-spacer />
+          <AppButton 
+            color="primary" 
+            @on-click="openAddUserDialog"
+            class="action-button"
+          >
+            Add User
+          </AppButton>
         </div>
+
+       
 
         <v-table>
           <thead>
@@ -59,9 +98,18 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import AppTextField from '@/components/forms/AppTextField.vue'
+import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
+import AddUserDialog from '@/components/forms/AddUserDialog.vue'
+import AppButton from '@/components/common/AppButton.vue'
 
+// Dialog state
+const isAddUserDialogOpen = ref(false)
+
+// Search state
 const searchQuery = ref('')
 
+// Users data
 const users = ref([
   { id: 1, username: 'admin', email: 'admin@pnay.gov.ph', role: 'admin', status: 'active', lastLogin: '2024-06-05 14:30' },
   { id: 2, username: 'officer1', email: 'officer1@pnay.gov.ph', role: 'officer', status: 'active', lastLogin: '2024-06-05 10:15' },
@@ -69,6 +117,44 @@ const users = ref([
   { id: 4, username: 'officer2', email: 'officer2@pnay.gov.ph', role: 'officer', status: 'inactive', lastLogin: '2024-05-28 16:20' }
 ])
 
+/**
+ * Open Add User Dialog
+ */
+const openAddUserDialog = () => {
+  isAddUserDialogOpen.value = true
+}
+
+/**
+ * Handle user created event from dialog
+ * @param {Object} newUser - The newly created user object
+ */
+const handleUserCreated = (newUser) => {
+  users.value.push({
+    id: newUser.id,
+    username: newUser.username,
+    email: newUser.username, // TODO: Update to use actual email when available
+    role: 'user', // Default role, can be customized
+    status: 'active',
+    lastLogin: 'Never'
+  })
+  
+  // Show success message
+  console.log('User created successfully:', newUser)
+  // TODO: Integrate with snackbar/toast notification
+}
+
+/**
+ * Handle dialog error event
+ * @param {string} error - Error message
+ */
+const handleDialogError = (error) => {
+  console.error('Error:', error)
+  // TODO: Integrate with snackbar/toast notification
+}
+
+/**
+ * Computed property for filtered users based on search query
+ */
 const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value
   const query = searchQuery.value.toLowerCase()
@@ -78,6 +164,11 @@ const filteredUsers = computed(() => {
   )
 })
 
+/**
+ * Get badge color based on user role
+ * @param {string} role - User role
+ * @returns {string} Color class
+ */
 const getRoleColor = (role) => {
   const colors = { admin: 'error', officer: 'primary', user: 'info' }
   return colors[role] || 'secondary'
@@ -88,4 +179,37 @@ const getRoleColor = (role) => {
 .settings-users {
   padding: 1rem;
 }
+
+.filter-field {
+  min-width: 250px;
+  flex: 0 0 auto;
+}
+
+.action-button {
+  text-transform: uppercase;
+  font-weight: 600;
+  min-width: 150px;
+}
+
+.gap-3 {
+  gap: 1rem;
+}
+
+@media (max-width: 960px) {
+  .filter-field {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-field {
+    min-width: 100%;
+    flex: 1 1 auto;
+  }
+  
+  .action-button {
+    min-width: 100%;
+  }
+}
 </style>
+

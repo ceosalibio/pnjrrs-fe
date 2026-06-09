@@ -1,43 +1,85 @@
 <template>
+  <div>
     <v-autocomplete
-        v-model="selected"
-        :items="options"
-        :label="label"
-        :variant="variant"
-        :density="density"
-        :loading="isLoading"
-        :error-messages="error"
-        @change="$emit('update:modelValue', selected)"
+      v-model="model"
+      :label="label"
+      :variant="variant"
+      :density="density"
+      :clearable="clearable"
+      :items="items"
+      :item-title="text"
+      :item-value="itemValueKey"
+      :readonly="readonly"
+      :rules="rules"
+      @update:model-value="handleChange"
     />
+  </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 
+// Props
 const props = defineProps({
-    modelValue: [String, Number],
-    options: {
-        type: Array,
-        default: () => []
-    },
-    label: String,
-    isLoading: Boolean,
-    error: String,
-    variant: {
-        type: String,
-        default: 'outlined'
-    },
-    density: {
-        type: String,
-        default: 'compact'
-    }
+  label: {
+    type: String,
+    default: '',
+  },
+  items: {
+    type: Array,
+    default: () => [],
+  },
+  text: {
+    type: String,
+    default: '',
+  },
+  value: {
+    type: [String, Number],
+    default: '',
+  },
+  type: {
+    type: String,
+    default: 'input',
+  },
+  variant: {
+    type: String,
+    default: 'outlined',
+  },
+  density: {
+    type: String,
+    default: 'compact',
+  },
+  clearable: {
+    type: Boolean,
+    default: false,
+  },
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+  rules: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const emit = defineEmits(['update:modelValue'])
+// Emits
+const emit = defineEmits(['on-change'])
 
-const selected = ref(props.modelValue)
+// Model
+const model = defineModel()
 
-watch(selected, (newValue) => {
-  emit('update:modelValue', newValue)
+// Computed item value key
+const itemValueKey = computed(() => {
+  return typeof props.value === 'number' ? String(props.value) : props.value
 })
+
+// Emit change
+function handleChange(value) {
+  emit('on-change', value)
+}
 </script>
+
+<style scoped >
+/* Add your styles here if needed */
+</style>
