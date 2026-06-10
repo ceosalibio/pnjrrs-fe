@@ -33,9 +33,9 @@ export const MENU_ITEMS = [
     to: '/equipment',
     role: ['admin', 'officer'],
     children: [
-      { title: 'Item Details', to: '/equipment/1', icon: 'mdi-view-list' },
-      { title: 'Readiness Report', to: '/equipment/2', icon: 'mdi-plus-circle' },
-      // { title: 'Equipment Status', to: '/equipment/status', icon: 'mdi-check-circle' }
+      { title: 'View Equipment', to: '/equipment/list', icon: 'mdi-view-list' },
+      { title: 'Add Equipment', to: '/equipment/add', icon: 'mdi-plus-circle' },
+      { title: 'Equipment Status', to: '/equipment/status', icon: 'mdi-check-circle' }
     ]
   },
   {
@@ -44,9 +44,9 @@ export const MENU_ITEMS = [
     to: '/facilities',
     role: ['admin', 'officer'],
     children: [
-      { title: 'View Facilities', to: '/facilities/list', icon: 'mdi-view-list' },
-      { title: 'Facility Details', to: '/facilities/details', icon: 'mdi-information' },
-      { title: 'Facility Maintenance', to: '/facilities/maintenance', icon: 'mdi-wrench' }
+      { title: 'Fill Up', to: '/facilities/1', icon: 'mdi-view-list' },
+      { title: 'Rating', to: '/facilities/2', icon: 'mdi-information' },
+      { title: 'Readiness Report', to: '/facilities/3', icon: 'mdi-wrench' }
     ]
   },
   {
@@ -61,15 +61,9 @@ export const MENU_ITEMS = [
     to: '/settings',
     role: ['admin'],
     children: [
-      // { title: 'System Settings', to: '/settings/system', icon: 'mdi-cog' },
+      { title: 'System Settings', to: '/settings/system', icon: 'mdi-cog' },
       { title: 'User Management', to: '/settings/users', icon: 'mdi-account-cog' },
-      { title: 'Table Organization Management', to: '/settings/to', icon: 'mdi-cog' },
-      { title: 'Personnel Management', to: '/settings/personnel', icon: 'mdi-cog' },
-      { title: 'Training Management', to: '/settings/training', icon: 'mdi-cog' },
-      { title: 'Equipment Management', to: '/settings/equipment', icon: 'mdi-cog' },
-      { title: 'Facilities Management', to: '/settings/facility', icon: 'mdi-cog' },
-      { title: 'Report Management', to: '/settings/report', icon: 'mdi-cog' },
-      // { title: 'Permissions', to: '/settings/permissions', icon: 'mdi-lock-outline' }
+      { title: 'Permissions', to: '/settings/permissions', icon: 'mdi-lock-outline' }
     ]
   }
 ]

@@ -162,3 +162,23 @@ a:hover {
   background-color: #f9f9f9;
 }
 
+.redCon1{
+    background-color: green;
+    color: white;
+    font-weight: bold;
+}
+.redCon2{
+    background-color: rgb(6, 133, 251);
+    color: white;
+    font-weight: bold;
+}
+.redCon3{
+    background-color: yellow;
+    font-weight: bold;
+}
+.redCon4{
+    background-color:red;
+    color: white;
+    font-weight: bold;
+}
+
