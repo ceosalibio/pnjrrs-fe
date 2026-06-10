@@ -43,7 +43,7 @@ const routes = [
       },
       {
         path: 'personnel/3',
-        name: 'PersonnelReadiness',
+        name: 'PersonnelReadinessReports',
         component: () => import('@/views/personnel/ReadinessReports.vue')
       },
 
@@ -64,50 +64,50 @@ const routes = [
       },
       {
         path: 'trainings/3',
-        name: 'TrainingReadiness',
+        name: 'TrainingReadinessReports',
         component: () => import('@/views/trainings/ReadinessReports.vue')
       },
 
       // Equipment Routes
       {
         path: 'equipment',
-        redirect: '/equipment/1'
+        redirect: '/equipment/list'
       },
       {
-        path: 'equipment/1',
-        name: 'ItemDetails',
-        component: () => import('@/views/equipment/ItemDetails.vue')
+        path: 'equipment/list',
+        name: 'EquipmentList',
+        component: () => import('@/views/equipment/EquipmentListView.vue')
       },
       {
-        path: 'equipment/2',
-        name: 'EquipmentRediness',
-        component: () => import('@/views/equipment/ReadinessReport.vue')
+        path: 'equipment/add',
+        name: 'EquipmentAdd',
+        component: () => import('@/views/equipment/EquipmentAddView.vue')
       },
-      // {
-      //   path: 'equipment/status',
-      //   name: 'EquipmentStatus',
-      //   component: () => import('@/views/equipment/EquipmentStatusView.vue')
-      // },
+      {
+        path: 'equipment/status',
+        name: 'EquipmentStatus',
+        component: () => import('@/views/equipment/EquipmentStatusView.vue')
+      },
 
       // Facilities Routes
       {
         path: 'facilities',
-        redirect: '/facilities/list'
+        redirect: '/facilities/1'
       },
       {
-        path: 'facilities/list',
-        name: 'FacilitiesList',
-        component: () => import('@/views/facilities/FacilitiesListView.vue')
+        path: 'facilities/1',
+        name: 'FillUp',
+        component: () => import('@/views/facilities/Fillup.vue')
       },
       {
-        path: 'facilities/details',
-        name: 'FacilitiesDetails',
-        component: () => import('@/views/facilities/FacilitiesDetailsView.vue')
+        path: 'facilities/2',
+        name: 'Rating',
+        component: () => import('@/views/facilities/Rating.vue')
       },
       {
-        path: 'facilities/maintenance',
-        name: 'FacilitiesMaintenance',
-        component: () => import('@/views/facilities/FacilitiesMaintenanceView.vue')
+        path: 'facilities/3',
+        name: 'FacilityReadinessReport',
+        component: () => import('@/views/facilities/ReadinessReport.vue')
       },
 
       // Reports Route
@@ -120,48 +120,23 @@ const routes = [
       // Settings Routes
       {
         path: 'settings',
-        redirect: '/settings/users'
+        redirect: '/settings/system'
       },
-      // {
-      //   path: 'settings/system',
-      //   name: 'SettingsSystem',
-      //   component: () => import('@/views/settings/SettingsSystemView.vue')
-      // },
+      {
+        path: 'settings/system',
+        name: 'SettingsSystem',
+        component: () => import('@/views/settings/SettingsSystemView.vue')
+      },
       {
         path: 'settings/users',
         name: 'SettingsUsers',
         component: () => import('@/views/settings/SettingsUsersView.vue')
       },
       {
-        path: 'settings/to',
-        name: 'TableOrganization',
-        component: () => import('@/views/settings/SettingTableOrganization.vue')
-      },
-      {
-        path: 'settings/personnel',
-        name: 'SettingPersonnel',
-        component: () => import('@/views/settings/SettingPersonnel.vue')
-      },
-      {
-        path: 'settings/training',
-        name: 'SettingTraining',
-        component: () => import('@/views/settings/SettingTraining.vue')
-      },
-      {
-        path: 'settings/equipment',
-        name: 'SettingEquipment',
-        component: () => import('@/views/settings/SettingEquipment.vue')
-      },
-      {
-        path: 'settings/facility',
-        name: 'SettingFacility',
-        component: () => import('@/views/settings/SettingFacility.vue')
-      },
-      // {
-      //   path: 'settings/permissions',
-      //   name: 'SettingsPermissions',
-      //   component: () => import('@/views/settings/SettingsPermissionsView.vue')
-      // }
+        path: 'settings/permissions',
+        name: 'SettingsPermissions',
+        component: () => import('@/views/settings/SettingsPermissionsView.vue')
+      }
     ]
   },
 
