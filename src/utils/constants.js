@@ -33,9 +33,9 @@ export const MENU_ITEMS = [
     to: '/equipment',
     role: ['admin', 'officer'],
     children: [
-      { title: 'View Equipment', to: '/equipment/list', icon: 'mdi-view-list' },
-      { title: 'Add Equipment', to: '/equipment/add', icon: 'mdi-plus-circle' },
-      { title: 'Equipment Status', to: '/equipment/status', icon: 'mdi-check-circle' }
+      { title: 'Item Details', to: '/equipment/1', icon: 'mdi-view-list' },
+      { title: 'Readiness Report', to: '/equipment/2', icon: 'mdi-plus-circle' },
+      // { title: 'Equipment Status', to: '/equipment/3', icon: 'mdi-check-circle' }
     ]
   },
   {

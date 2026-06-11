@@ -71,23 +71,23 @@ const routes = [
       // Equipment Routes
       {
         path: 'equipment',
-        redirect: '/equipment/list'
+        redirect: '/equipment/1'
       },
       {
-        path: 'equipment/list',
+        path: 'equipment/1',
         name: 'EquipmentList',
-        component: () => import('@/views/equipment/EquipmentListView.vue')
+        component: () => import('@/views/equipment/ItemDetails.vue')
       },
       {
-        path: 'equipment/add',
-        name: 'EquipmentAdd',
-        component: () => import('@/views/equipment/EquipmentAddView.vue')
+        path: 'equipment/2',
+        name: 'EquipmentReadinessReport',
+        component: () => import('@/views/equipment/ReadinessReport.vue')
       },
-      {
-        path: 'equipment/status',
-        name: 'EquipmentStatus',
-        component: () => import('@/views/equipment/EquipmentStatusView.vue')
-      },
+      // {
+      //   path: 'equipment/3',
+      //   name: 'EquipmentStatus',
+      //   component: () => import('@/views/equipment/EquipmentStatusView.vue')
+      // },
 
       // Facilities Routes
       {
