@@ -7,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(!!token.value)
   const rememberMe = ref(localStorage.getItem('rememberMe') === 'true')
   const isLoading = ref(false)
-  const captchaVerified = ref(false)
+  const captchaVerified = ref(localStorage.getItem('captchaVerified') === 'true')
 
   const getUser = computed(() => user.value)
   const getToken = computed(() => token.value)
@@ -40,6 +40,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setCaptchaVerified = (status) => {
     captchaVerified.value = status
+    try {
+      localStorage.setItem('captchaVerified', status)
+    } catch (e) {
+      // ignore storage errors
+    }
   }
 
   const login = (userData, token) => {
@@ -54,6 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false
     captchaVerified.value = false
     localStorage.removeItem('token')
+    localStorage.removeItem('captchaVerified')
   }
 
   return {
