@@ -14,25 +14,40 @@ export const useAuth = () => {
   const isLoading = ref(false)
   const error = ref(null)
 
-  const login = async (email, password, rememberMe = false) => {
+  const login = async (username, password, rememberMe = false) => {
     try {
       isLoading.value = true
       error.value = null
       authStore.setLoading(true)
 
-      const result = await loginService(email, password)
-
-      if (!result.success) {
-        error.value = result.error
-        appStore.showSnackbar(result.error, 'error')
+      const result = await loginService(username, password)
+      
+      if (!result?.success) {
+        // Extract error message - handle nested errors from API
+        let errorMsg = result.error
+        
+        if (result.errors) {
+          // If there are field-specific errors, show first one
+          const firstErrorKey = Object.keys(result.errors)[0]
+          if (result.errors[firstErrorKey]) {
+            errorMsg = result.errors[firstErrorKey][0] || errorMsg
+          }
+        }
+        
+        error.value = errorMsg
+        appStore.showSnackbar(errorMsg, 'error')
         return false
       }
+      console.log('Login successful, result:', result)
 
       authStore.login(result.user, result.token)
-      userStore.setUserData(result.user)
+      // userStore.setUserData(result.user)
       authStore.setRememberMe(rememberMe)
 
       appStore.showSnackbar('Login successful!', 'success')
+      
+      // Wait a moment for persist plugin to save to localStorage
+      await new Promise(resolve => setTimeout(resolve, 500))
       
       // Redirect to CAPTCHA verification
       await router.push('/captcha-verification')

@@ -1,45 +1,50 @@
 import api from './axiosConfig'
-import { API_ENDPOINTS } from '@/utils/constants'
+import { ENDPOINTS } from './endpoints'
 import { mockUsers } from '@/utils/mockData'
 
-export const login = async (email, password) => {
+/**
+ * Login with username and password
+ * @param {string} username - User username
+ * @param {string} password - User password
+ * @returns {Promise<Object>} Login response with token and user data
+ */
+export const login = async (username, password) => {
   try {
-    // Mock login - replace with actual API call
-    const user = mockUsers.find(u => u.email === email && u.password === password)
-    
-    if (!user) {
-      throw new Error('Invalid credentials')
+    // Actual API call - uncomment when backend is ready
+    const response = await api.post(ENDPOINTS.AUTH.LOGIN, { username, password })
+    console.log('API response:', response)
+    // Handle response based on API format
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Login failed',
+        errors: response.data.errors
+      }
     }
-
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const token = `mock_token_${user.id}_${Date.now()}`
     
+    // Success response
     return {
       success: true,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        rank: user.rank,
-        role: user.role,
-        avatar: user.avatar
-      }
+      token: response.data?.data?.token,
+      user: response.data?.data?.user
     }
   } catch (error) {
     return {
       success: false,
-      error: error.message || 'Login failed'
+      error: error.response?.data?.message || error.message || 'Login failed'
     }
   }
 }
 
+/**
+ * Logout current user
+ * @returns {Promise<Object>} Logout response
+ */
 export const logout = async () => {
   try {
-    // Mock logout - replace with actual API call
+    // Actual API call - uncomment when backend is ready
+    await api.post(ENDPOINTS.AUTH.LOGOUT)
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return { success: true }
   } catch (error) {
@@ -50,14 +55,17 @@ export const logout = async () => {
   }
 }
 
+/**
+ * Verify CAPTCHA token
+ * @param {string} token - CAPTCHA token to verify
+ * @returns {Promise<Object>} Verification response
+ */
 export const verifyCaptcha = async (token) => {
   try {
-    // Mock CAPTCHA verification - replace with actual API call
     if (!token || token.trim() === '') {
       throw new Error('CAPTCHA token is required')
     }
 
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     return {
@@ -72,9 +80,15 @@ export const verifyCaptcha = async (token) => {
   }
 }
 
+/**
+ * Get current user profile
+ * @returns {Promise<Object>} User profile data
+ */
 export const getUserProfile = async () => {
   try {
-    // Mock get profile - replace with actual API call
+    // const response = await api.get(ENDPOINTS.AUTH.GET_PROFILE)
+    // return response.data
+    
     const token = localStorage.getItem('token')
     if (!token) {
       throw new Error('Not authenticated')
@@ -86,6 +100,7 @@ export const getUserProfile = async () => {
       success: true,
       user: {
         id: 1,
+        username: 'ceo',
         email: 'user@pnay.gov.ph',
         firstName: 'Juan',
         lastName: 'Dela Cruz',

@@ -2,11 +2,11 @@
   <v-form ref="formRef" @submit.prevent="onSubmit">
     <v-container>
       <app-text-field
-        v-model="formData.email"
-        :label="'Email Address'"
-        type="email"
-        placeholder="Enter your email (e.g., admin@pnay.gov.ph)"
-        :rules="emailRules"
+        v-model="formData.username"
+        :label="'Username'"
+        type="text"
+        placeholder="Enter your username"
+        :rules="username"
         clearable
       />
 
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import AppTextField from './AppTextField.vue'
 import AppButton from '../common/AppButton.vue'
 import { required, email, minLength, compose } from '@/utils/rules'
@@ -60,17 +60,18 @@ const props = defineProps({
 const emit = defineEmits(['submit'])
 
 const formData = reactive({
-  email: '',
+  username: '',
   password: '',
   rememberMe: false
 })
 
-const isLoading = ref(props.loading)
+// Use computed to reactively track prop changes
+const isLoading = computed(() => props.loading)
 
 // Define validation rules for form fields
-const emailRules = [
+const username = [
   required(),
-  email()
+  // email()
 ]
 
 const passwordRules = [
@@ -83,7 +84,7 @@ const onSubmit = async () => {
     const { valid } = await formRef.value.validate()
     if (valid) {
       emit('submit', {
-        email: formData.email,
+        username: formData.username,
         password: formData.password,
         rememberMe: formData.rememberMe
       })

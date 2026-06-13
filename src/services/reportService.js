@@ -1,4 +1,5 @@
 import api from './axiosConfig'
+import { ENDPOINTS } from './endpoints'
 
 const mockReports = [
   { id: 1, title: 'Monthly Operations Report', status: 'Approved', date: '2024-06-01', author: 'CAPT Maria Santos' },
@@ -6,8 +7,15 @@ const mockReports = [
   { id: 3, title: 'Personnel Training Summary', status: 'Approved', date: '2024-06-03', author: 'CAPT Maria Santos' }
 ]
 
+/**
+ * Get all reports
+ * @returns {Promise<Object>} List of reports
+ */
 export const getReports = async () => {
   try {
+    // const response = await api.get(ENDPOINTS.REPORTS.LIST)
+    // return response.data
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -21,8 +29,16 @@ export const getReports = async () => {
   }
 }
 
+/**
+ * Get report by ID
+ * @param {number} id - Report ID
+ * @returns {Promise<Object>} Report data
+ */
 export const getReportById = async (id) => {
   try {
+    // const response = await api.get(ENDPOINTS.REPORTS.GET(id))
+    // return response.data
+    
     await new Promise(resolve => setTimeout(resolve, 300))
     const report = mockReports.find(r => r.id === id)
     
@@ -42,8 +58,16 @@ export const getReportById = async (id) => {
   }
 }
 
+/**
+ * Create new report
+ * @param {Object} data - Report data
+ * @returns {Promise<Object>} Created report
+ */
 export const createReport = async (data) => {
   try {
+    // const response = await api.post(ENDPOINTS.REPORTS.CREATE, data)
+    // return response.data
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -57,8 +81,17 @@ export const createReport = async (data) => {
   }
 }
 
+/**
+ * Update report
+ * @param {number} id - Report ID
+ * @param {Object} data - Updated report data
+ * @returns {Promise<Object>} Updated report
+ */
 export const updateReport = async (id, data) => {
   try {
+    // const response = await api.put(ENDPOINTS.REPORTS.UPDATE(id), data)
+    // return response.data
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -72,8 +105,16 @@ export const updateReport = async (id, data) => {
   }
 }
 
+/**
+ * Approve report
+ * @param {number} id - Report ID
+ * @returns {Promise<Object>} Approval response
+ */
 export const approveReport = async (id) => {
   try {
+    // const response = await api.post(ENDPOINTS.REPORTS.APPROVE(id))
+    // return response.data
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -87,8 +128,15 @@ export const approveReport = async (id) => {
   }
 }
 
+/**
+ * Delete report
+ * @param {number} id - Report ID
+ * @returns {Promise<Object>} Delete response
+ */
 export const deleteReport = async (id) => {
   try {
+    // await api.delete(ENDPOINTS.REPORTS.DELETE(id))
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true

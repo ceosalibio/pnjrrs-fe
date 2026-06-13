@@ -3,11 +3,11 @@ import { ref, computed } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
-  const token = ref(localStorage.getItem('token') || null)
-  const isAuthenticated = ref(!!token.value)
-  const rememberMe = ref(localStorage.getItem('rememberMe') === 'true')
+  const token = ref(null)
+  const isAuthenticated = ref(false)
+  const rememberMe = ref(false)
   const isLoading = ref(false)
-  const captchaVerified = ref(localStorage.getItem('captchaVerified') === 'true')
+  const captchaVerified = ref(false)
 
   const getUser = computed(() => user.value)
   const getToken = computed(() => token.value)
@@ -22,7 +22,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setToken = (newToken) => {
     token.value = newToken
-    localStorage.setItem('token', newToken)
   }
 
   const setAuthenticated = (status) => {
@@ -31,7 +30,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setRememberMe = (status) => {
     rememberMe.value = status
-    localStorage.setItem('rememberMe', status)
   }
 
   const setLoading = (status) => {
@@ -40,17 +38,21 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setCaptchaVerified = (status) => {
     captchaVerified.value = status
-    try {
-      localStorage.setItem('captchaVerified', status)
-    } catch (e) {
-      // ignore storage errors
-    }
   }
 
-  const login = (userData, token) => {
+  const login = (userData, authToken) => {
+    // console.log('[authStore] Login called with:', { userData, authToken })
     setUser(userData)
-    setToken(token)
+    setToken(authToken)
     setAuthenticated(true)
+    localStorage.setItem('user',user.value)
+    localStorage.setItem('token',token.value)
+    localStorage.setItem('isAuthenticated',isAuthenticated.value)
+    // console.log('[authStore] Store state after login:', { 
+    //   user: user.value, 
+    //   token: token.value, 
+    //   isAuthenticated: isAuthenticated.value 
+    // })
   }
 
   const logout = () => {
@@ -58,8 +60,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     isAuthenticated.value = false
     captchaVerified.value = false
+    localStorage.removeItem('user')
     localStorage.removeItem('token')
-    localStorage.removeItem('captchaVerified')
+    localStorage.removeItem('isAuthenticated')
   }
 
   return {
@@ -83,5 +86,16 @@ export const useAuthStore = defineStore('auth', () => {
     setCaptchaVerified,
     login,
     logout
+  }
+}, {
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: 'auth',
+        storage: localStorage,
+        paths: ['user', 'token', 'isAuthenticated', 'rememberMe', 'captchaVerified']
+      }
+    ]
   }
 })

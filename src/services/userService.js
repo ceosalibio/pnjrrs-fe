@@ -1,134 +1,28 @@
 import api from './axiosConfig'
+import { ENDPOINTS } from './endpoints'
 import { mockPersonnel } from '@/utils/mockData'
 
-export const getPersonnel = async () => {
+/**
+ * Get all users with optional filters
+ * @param {Object} filters - Query filters
+ * @param {string} filters.search - Search term
+ * @param {number} filters.category_id - Category ID
+ * @param {number} filters.unit_id - Unit ID
+ * @param {number} filters.sub_unit_id - Sub-unit ID
+ * @param {number} filters.office_id - Office ID
+ * @param {number} filters.sub_office_id - Sub-office ID
+ * @param {number} filters.per_page - Items per page
+ * @returns {Promise<Object>} List of users
+ */
+export const getUsers = async (filters = {}) => {
   try {
-    // Mock get personnel - replace with actual API call
+    // const response = await api.get(ENDPOINTS.USERS.LIST, { params: filters })
+    // return response.data
+    
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
       data: mockPersonnel
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Failed to fetch personnel'
-    }
-  }
-}
-
-export const getPersonnelById = async (id) => {
-  try {
-    await new Promise(resolve => setTimeout(resolve, 300))
-    const personnel = mockPersonnel.find(p => p.id === id)
-    
-    if (!personnel) {
-      throw new Error('Personnel not found')
-    }
-
-    return {
-      success: true,
-      data: personnel
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Failed to fetch personnel'
-    }
-  }
-}
-
-export const createPersonnel = async (data) => {
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: { id: Date.now(), ...data }
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Failed to create personnel'
-    }
-  }
-}
-
-export const updatePersonnel = async (id, data) => {
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: { id, ...data }
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Failed to update personnel'
-    }
-  }
-}
-
-export const deletePersonnel = async (id) => {
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Failed to delete personnel'
-    }
-  }
-}
-
-/**
- * Create a new system user
- * @param {Object} userData - User data object
- * @param {string} userData.name - User's full name
- * @param {string} userData.username - User's username
- * @param {string} userData.password - User's password
- * @param {string} userData.category - User's category
- * @param {string} userData.unit - User's unit
- * @param {string} userData.subunit - User's sub unit
- * @param {string} userData.office - User's office
- * @param {string} userData.approver - User's approver
- * @param {string} userData.officeAdmin - User's office admin
- * @returns {Promise<Object>} Response object with success status and user data
- */
-export const createUser = async (userData) => {
-  try {
-    // TODO: Replace with actual API endpoint
-    // const response = await api.post('/users', userData)
-    // return { success: true, data: response.data }
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: { id: Date.now(), ...userData, status: 'active', createdAt: new Date().toISOString() }
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Failed to create user'
-    }
-  }
-}
-
-/**
- * Get all system users
- * @returns {Promise<Object>} Response object with success status and users list
- */
-export const getUsers = async () => {
-  try {
-    // TODO: Replace with actual API endpoint
-    // const response = await api.get('/users')
-    // return { success: true, data: response.data }
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: []
     }
   } catch (error) {
     return {
@@ -140,19 +34,24 @@ export const getUsers = async () => {
 
 /**
  * Get user by ID
- * @param {string|number} id - User ID
- * @returns {Promise<Object>} Response object with success status and user data
+ * @param {number} id - User ID
+ * @returns {Promise<Object>} User data
  */
 export const getUserById = async (id) => {
   try {
-    // TODO: Replace with actual API endpoint
-    // const response = await api.get(`/users/${id}`)
-    // return { success: true, data: response.data }
+    // const response = await api.get(ENDPOINTS.USERS.GET(id))
+    // return response.data
     
     await new Promise(resolve => setTimeout(resolve, 300))
+    const user = mockPersonnel.find(p => p.id === id)
+    
+    if (!user) {
+      throw new Error('User not found')
+    }
+
     return {
       success: true,
-      data: {}
+      data: user
     }
   } catch (error) {
     return {
@@ -163,21 +62,43 @@ export const getUserById = async (id) => {
 }
 
 /**
- * Update user
- * @param {string|number} id - User ID
- * @param {Object} userData - Updated user data
- * @returns {Promise<Object>} Response object with success status and updated user data
+ * Create new user
+ * @param {Object} data - User data
+ * @returns {Promise<Object>} Created user
  */
-export const updateUser = async (id, userData) => {
+export const createUser = async (data) => {
   try {
-    // TODO: Replace with actual API endpoint
-    // const response = await api.put(`/users/${id}`, userData)
-    // return { success: true, data: response.data }
+    // const response = await api.post(ENDPOINTS.USERS.CREATE, data)
+    // return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
-      data: { id, ...userData }
+      data: { id: Date.now(), ...data }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || 'Failed to create user'
+    }
+  }
+}
+
+/**
+ * Update user
+ * @param {number} id - User ID
+ * @param {Object} data - Updated user data
+ * @returns {Promise<Object>} Updated user
+ */
+export const updateUser = async (id, data) => {
+  try {
+    // const response = await api.put(ENDPOINTS.USERS.UPDATE(id), data)
+    // return response.data
+    
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return {
+      success: true,
+      data: { id, ...data }
     }
   } catch (error) {
     return {
@@ -189,14 +110,12 @@ export const updateUser = async (id, userData) => {
 
 /**
  * Delete user
- * @param {string|number} id - User ID
- * @returns {Promise<Object>} Response object with success status
+ * @param {number} id - User ID
+ * @returns {Promise<Object>} Delete response
  */
 export const deleteUser = async (id) => {
   try {
-    // TODO: Replace with actual API endpoint
-    // const response = await api.delete(`/users/${id}`)
-    // return { success: true }
+    // await api.delete(ENDPOINTS.USERS.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -210,5 +129,26 @@ export const deleteUser = async (id) => {
   }
 }
 
-export default api
+/**
+ * Get users by rank
+ * @param {number} rankId - Rank ID
+ * @returns {Promise<Object>} Users with given rank
+ */
+export const getUsersByRank = async (rankId) => {
+  try {
+    // const response = await api.get(ENDPOINTS.USERS.GET_BY_RANK(rankId))
+    // return response.data
+    
+    await new Promise(resolve => setTimeout(resolve, 300))
+    return {
+      success: true,
+      data: mockPersonnel.filter(u => u.rank === rankId)
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || 'Failed to fetch users by rank'
+    }
+  }
+}
 

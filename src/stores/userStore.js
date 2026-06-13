@@ -70,4 +70,15 @@ export const useUserStore = defineStore('user', () => {
     setUserData,
     clearUserData
   }
+}, {
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: 'user',
+        storage: localStorage,
+        paths: ['userId', 'firstName', 'lastName', 'email', 'role', 'rank', 'avatar', 'department']
+      }
+    ]
+  }
 })

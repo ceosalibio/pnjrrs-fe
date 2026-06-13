@@ -38,10 +38,7 @@ const isLoading = ref(false)
 const handleLogin = async (credentials) => {
   isLoading.value = true
   try {
-    const success = await login(credentials.email, credentials.password, credentials.rememberMe)
-    if (success) {
-      // Will be redirected by the login composable
-    }
+    await login(credentials.username, credentials.password, credentials.rememberMe)
   } catch (error) {
     appStore.showSnackbar(error.message, 'error')
   } finally {

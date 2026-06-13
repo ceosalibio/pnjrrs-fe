@@ -9,4 +9,15 @@ export const useCounterStore = defineStore('counter', () => {
   }
 
   return { count, doubleCount, increment }
+}, {
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: 'counter',
+        storage: localStorage,
+        paths: ['count']
+      }
+    ]
+  }
 })

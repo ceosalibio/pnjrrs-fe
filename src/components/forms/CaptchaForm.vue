@@ -72,6 +72,9 @@ import AppTextField from './AppTextField.vue'
 import AppButton from '../common/AppButton.vue'
 import { required, numeric } from '@/utils/rules'
 
+const props = defineProps({
+  loading: Boolean
+})
 const emit = defineEmits(['submit', 'back'])
 
 const formData = reactive({
@@ -79,7 +82,7 @@ const formData = reactive({
   iamHuman: false
 })
 
-const isLoading = ref(false)
+const isLoading = computed(() => props.loading)
 const formRef = ref(null)
 
 const answerRules = [
@@ -127,12 +130,10 @@ const onSubmit = async () => {
   }
 
   if (parseInt(formData.answer) === correctAnswer.value) {
-    isLoading.value = true
     emit('submit', {
       answer: formData.answer,
       iamHuman: formData.iamHuman
     })
-    isLoading.value = false
   } else {
     // Reset for retry
     formData.answer = ''

@@ -83,4 +83,15 @@ export const useAppStore = defineStore('app', () => {
     showDialog,
     hideDialog
   }
+}, {
+  persist: {
+    enabled: true,
+    strategies: [
+      {
+        key: 'app',
+        storage: localStorage,
+        paths: ['sidebarOpen']
+      }
+    ]
+  }
 })
