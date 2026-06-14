@@ -18,7 +18,8 @@ export const ENDPOINTS = {
     CREATE: `${BASE_PATH}/users`,
     UPDATE: (id) => `${BASE_PATH}/users/${id}`,
     DELETE: (id) => `${BASE_PATH}/users/${id}`,
-    GET_BY_RANK: (rankId) => `${BASE_PATH}/users/rank/${rankId}`
+    GET_BY_RANK: (rankId) => `${BASE_PATH}/users/rank/${rankId}`,
+    GET_RANK:`${BASE_PATH}/users/get-rank`
   },
 
   // Categories endpoints

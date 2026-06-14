@@ -1,0 +1,66 @@
+import { defineStore } from 'pinia'
+import { ref, watch, onMounted } from 'vue'
+import { getUnits,  getSubUnits, getOffices, getSubOffices  } from '@/services/organizationService'
+export const useFilterStore = defineStore('filter', () => {
+    const category = ref('')
+    const unit = ref('')
+    const subunit = ref('')
+    const office = ref('')
+    const suboffice = ref('')
+    const reportMonth = ref('')
+    const organizationFilterItems = ref({})
+
+
+    watch(() => category.value, async (newCategory) => {
+        if (newCategory) {
+            unit.value = ''
+            subunit.value = ''
+            office.value = ''
+            suboffice.value = ''
+            const result = await getUnits(newCategory)
+            organizationFilterItems.value.units = result.data
+        }
+    })
+
+    watch(() => unit.value, async (newUnit) => {
+        if (newUnit) {
+            subunit.value = ''
+            office.value = ''
+            suboffice.value = ''
+            const result = await getSubUnits(1,null,newUnit)
+            organizationFilterItems.value.subunits = result.data
+        }
+    })
+
+    watch(() => subunit.value, async (newSubUnit) => {
+        if (newSubUnit) {
+            office.value = ''
+            suboffice.value = ''
+            const result = await getOffices(1,null,newSubUnit)
+            organizationFilterItems.value.offices = result.data
+        }
+    })
+
+    watch(() => office.value, async (newOffice) => {
+        if (newOffice) {
+            suboffice.value = ''
+            const result = await getSubOffices(1,null,newOffice)
+            organizationFilterItems.value.suboffices = result.data
+        }
+    })
+
+    onMounted(async () => {
+       const result = await getUnits()
+       organizationFilterItems.value.units = result.data
+    })
+
+    return {
+        category,
+        unit,
+        subunit,
+        office,
+        suboffice,
+        reportMonth,
+        organizationFilterItems
+    }
+})

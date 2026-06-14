@@ -120,23 +120,44 @@ const routes = [
       // Settings Routes
       {
         path: 'settings',
-        redirect: '/settings/system'
+        redirect: '/settings/users'
       },
-      {
-        path: 'settings/system',
-        name: 'SettingsSystem',
-        component: () => import('@/views/settings/SettingsSystemView.vue')
-      },
+      
       {
         path: 'settings/users',
         name: 'SettingsUsers',
         component: () => import('@/views/settings/SettingsUsersView.vue')
       },
       {
-        path: 'settings/permissions',
-        name: 'SettingsPermissions',
-        component: () => import('@/views/settings/SettingsPermissionsView.vue')
-      }
+        path: 'settings/organization',
+         name: 'OrganizationManagement',
+        component: () => import('@/views/settings/SettingOrganization.vue')
+      },
+      {
+        path: 'settings/to',
+         name: 'TableOrganization',
+        component: () => import('@/views/settings/SettingTableOrganization.vue')
+      },
+      {
+        path: 'settings/personnel',
+        name: 'SettingPersonnel',
+        component: () => import('@/views/settings/SettingPersonnel.vue')
+      },
+      {
+        path: 'settings/training',
+        name: 'SettingTraining',
+        component: () => import('@/views/settings/SettingTraining.vue')
+      },
+      {
+        path: 'settings/equipment',
+        name: 'SettingEquipment',
+        component: () => import('@/views/settings/SettingEquipment.vue')
+      },
+      {
+        path: 'settings/facility',
+        name: 'SettingFacility',
+        component: () => import('@/views/settings/SettingFacility.vue')
+      },
     ]
   },
 

@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="dialogOpen"
+    v-model="model"
     :max-width="maxWidth"
     persistent
   >
@@ -35,11 +35,11 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
 import AppButton from './AppButton.vue'
 
+const model = defineModel();
+
 const props = defineProps({
-  modelValue: Boolean,
   title: String,
   message: String,
   confirmText: {
@@ -64,25 +64,15 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
-
-const dialogOpen = ref(props.modelValue)
-
-watch(() => props.modelValue, (val) => {
-  dialogOpen.value = val
-})
-
-watch(dialogOpen, (val) => {
-  emit('update:modelValue', val)
-})
+const emit = defineEmits(['confirm', 'cancel'])
 
 const handleConfirm = () => {
   emit('confirm')
-  dialogOpen.value = false
+  // dialogOpen.value = false
 }
 
 const handleCancel = () => {
   emit('cancel')
-  dialogOpen.value = false
+  model.value = false
 }
 </script>

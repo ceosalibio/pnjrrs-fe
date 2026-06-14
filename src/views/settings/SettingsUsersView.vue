@@ -15,6 +15,7 @@
       <v-card-text>
         <!-- Filters and Action Button Row -->
         <div class="d-flex gap-3 mb-4 align-center">
+
           <AppTextField
             v-model="searchQuery"
             placeholder="Search users..."
@@ -22,35 +23,42 @@
             class="flex-grow-1"
             density="compact"
           />
-          <AppAutocomplete
+          <AppAutocomplete 
             label="Units"
-            variant="outlined"
-            density="compact"
-            clearable
-            hide-details
-            class="filter-field"
+            v-model="filterStore.unit"
+            :text="'name'"
+            :value="'id'"
+            :items="filterStore.organizationFilterItems.units"
+              
           />
-          <AppAutocomplete
+          <AppAutocomplete 
             label="Subunits"
-            variant="outlined"
-            density="compact"
-            clearable
-            hide-details
-            class="filter-field"
+            v-model="filterStore.subunit"
+            :text="'name'"
+            :value="'id'"
+            :items="filterStore.organizationFilterItems.subunits"
+            class="flex-grow-1"
           />
-          <AppAutocomplete
-            label="Offices"
-            variant="outlined"
-            density="compact"
-            clearable
-            hide-details
-            class="filter-field"
-          />
+          <AppAutocomplete 
+              label="Offices"
+              v-model="filterStore.office"
+              :text="'name'"
+              :value="'id'"
+              :items="filterStore.organizationFilterItems.offices"
+              class="flex-grow-1"
+            />
+            <AppAutocomplete 
+              label="Suboffices"
+              v-model="filterStore.suboffice"
+              :text="'name'"
+              :value="'id'"
+              :items="filterStore.organizationFilterItems.suboffices"
+              class="flex-grow-1"
+            />
           <v-spacer />
           <AppButton 
             color="primary" 
             @on-click="openAddUserDialog"
-            class="action-button"
           >
             Add User
           </AppButton>
@@ -102,7 +110,9 @@ import AppTextField from '@/components/forms/AppTextField.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import AddUserDialog from '@/components/forms/AddUserDialog.vue'
 import AppButton from '@/components/common/AppButton.vue'
+import { useFilterStore } from '@/stores/filterStore.js';
 
+const filterStore = useFilterStore();
 // Dialog state
 const isAddUserDialogOpen = ref(false)
 

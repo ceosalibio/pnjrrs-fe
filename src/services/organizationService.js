@@ -7,17 +7,16 @@ import { ENDPOINTS } from './endpoints'
 
 /**
  * Get all categories
+ * @param {number} page - Page number
+ * @param {number} perPage - Items per page (default: 50)
  * @returns {Promise<Object>} List of categories
  */
-export const getCategories = async () => {
+export const getCategories = async (page = 1, perPage = null) => {
   try {
-    // const response = await api.get(ENDPOINTS.CATEGORIES.LIST)
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const response = await api.get(ENDPOINTS.CATEGORIES.LIST, { params: { page, per_page: perPage } })
     return {
       success: true,
-      data: []
+      data: response.data?.data || { data: [], current_page: 1, last_page: 1, total: 0 }
     }
   } catch (error) {
     return {
@@ -34,8 +33,8 @@ export const getCategories = async () => {
  */
 export const getCategoryById = async (id) => {
   try {
-    // const response = await api.get(ENDPOINTS.CATEGORIES.GET(id))
-    // return response.data
+    const response = await api.get(ENDPOINTS.CATEGORIES.GET(id))
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 300))
     return {
@@ -57,9 +56,9 @@ export const getCategoryById = async (id) => {
  */
 export const createCategory = async (data) => {
   try {
-    // const response = await api.post(ENDPOINTS.CATEGORIES.CREATE, data)
-    // return response.data
-    
+      const response = await api.post(ENDPOINTS.CATEGORIES.CREATE, data)
+      return response.data
+      
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -81,9 +80,9 @@ export const createCategory = async (data) => {
  */
 export const updateCategory = async (id, data) => {
   try {
-    // const response = await api.put(ENDPOINTS.CATEGORIES.UPDATE(id), data)
-    // return response.data
-    
+        const response = await api.put(ENDPOINTS.CATEGORIES.UPDATE(id), data)
+        return response.data
+        
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -104,7 +103,7 @@ export const updateCategory = async (id, data) => {
  */
 export const deleteCategory = async (id) => {
   try {
-    // await api.delete(ENDPOINTS.CATEGORIES.DELETE(id))
+    await api.delete(ENDPOINTS.CATEGORIES.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -124,18 +123,21 @@ export const deleteCategory = async (id) => {
 
 /**
  * Get all units
+ * @param {number} page - Page number
+ * @param {number} perPage - Items per page (default: 50)
  * @returns {Promise<Object>} List of units
  */
-export const getUnits = async () => {
+export const getUnits = async (page = 1, perPage = null, category_id = null) => {
   try {
-    // const response = await api.get(ENDPOINTS.UNITS.LIST)
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: []
-    }
+      const params = { page, per_page: perPage };
+      if (category_id) {
+        params.category_id = category_id;
+      }
+      const response = await api.get(ENDPOINTS.UNITS.LIST, { params });
+      return {
+        success: true,
+        data: response.data?.data || { data: [], current_page: 1, last_page: 1, total: 0 }
+      }
   } catch (error) {
     return {
       success: false,
@@ -151,9 +153,9 @@ export const getUnits = async () => {
  */
 export const getUnitById = async (id) => {
   try {
-    // const response = await api.get(ENDPOINTS.UNITS.GET(id))
-    // return response.data
-    
+      const response = await api.get(ENDPOINTS.UNITS.GET(id))
+      return response.data
+      
     await new Promise(resolve => setTimeout(resolve, 300))
     return {
       success: true,
@@ -174,8 +176,8 @@ export const getUnitById = async (id) => {
  */
 export const createUnit = async (data) => {
   try {
-    // const response = await api.post(ENDPOINTS.UNITS.CREATE, data)
-    // return response.data
+    const response = await api.post(ENDPOINTS.UNITS.CREATE, data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -198,9 +200,9 @@ export const createUnit = async (data) => {
  */
 export const updateUnit = async (id, data) => {
   try {
-    // const response = await api.put(ENDPOINTS.UNITS.UPDATE(id), data)
-    // return response.data
-    
+      const response = await api.put(ENDPOINTS.UNITS.UPDATE(id), data)
+      return response.data
+      
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
       success: true,
@@ -221,7 +223,7 @@ export const updateUnit = async (id, data) => {
  */
 export const deleteUnit = async (id) => {
   try {
-    // await api.delete(ENDPOINTS.UNITS.DELETE(id))
+    await api.delete(ENDPOINTS.UNITS.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -241,17 +243,19 @@ export const deleteUnit = async (id) => {
 
 /**
  * Get all sub-units
+ * @param {number} perPage - Items per page (default: 50)
  * @returns {Promise<Object>} List of sub-units
  */
-export const getSubUnits = async () => {
+export const getSubUnits = async (page = 1, perPage = null, unit_id = null) => {
   try {
-    // const response = await api.get(ENDPOINTS.SUB_UNITS.LIST)
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const params = { page, per_page: perPage };
+    if (unit_id) {
+      params.unit_id = unit_id;
+    }
+    const response = await api.get(ENDPOINTS.SUB_UNITS.LIST, { params });
     return {
       success: true,
-      data: []
+      data: response.data?.data || { data: [], current_page: 1, last_page: 1, total: 0 }
     }
   } catch (error) {
     return {
@@ -268,8 +272,8 @@ export const getSubUnits = async () => {
  */
 export const getSubUnitById = async (id) => {
   try {
-    // const response = await api.get(ENDPOINTS.SUB_UNITS.GET(id))
-    // return response.data
+    const response = await api.get(ENDPOINTS.SUB_UNITS.GET(id))
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 300))
     return {
@@ -291,8 +295,8 @@ export const getSubUnitById = async (id) => {
  */
 export const createSubUnit = async (data) => {
   try {
-    // const response = await api.post(ENDPOINTS.SUB_UNITS.CREATE, data)
-    // return response.data
+      const response = await api.post(ENDPOINTS.SUB_UNITS.CREATE, data)
+      return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -315,8 +319,8 @@ export const createSubUnit = async (data) => {
  */
 export const updateSubUnit = async (id, data) => {
   try {
-    // const response = await api.put(ENDPOINTS.SUB_UNITS.UPDATE(id), data)
-    // return response.data
+    const response = await api.put(ENDPOINTS.SUB_UNITS.UPDATE(id), data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -338,7 +342,7 @@ export const updateSubUnit = async (id, data) => {
  */
 export const deleteSubUnit = async (id) => {
   try {
-    // await api.delete(ENDPOINTS.SUB_UNITS.DELETE(id))
+    await api.delete(ENDPOINTS.SUB_UNITS.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -358,18 +362,20 @@ export const deleteSubUnit = async (id) => {
 
 /**
  * Get all offices
+ * @param {number} perPage - Items per page (default: 50)
  * @returns {Promise<Object>} List of offices
  */
-export const getOffices = async () => {
+export const getOffices = async (page = 1, perPage = null, sub_unit_id = null) => {
   try {
-    // const response = await api.get(ENDPOINTS.OFFICES.LIST)
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: []
-    }
+      const params = { page, per_page: perPage };
+      if (sub_unit_id) {
+        params.sub_unit_id = sub_unit_id;
+      }
+      const response = await api.get(ENDPOINTS.OFFICES.LIST, { params });
+      return {
+        success: true,
+        data: response.data?.data || { data: [], current_page: 1, last_page: 1, total: 0 }
+      }
   } catch (error) {
     return {
       success: false,
@@ -385,8 +391,8 @@ export const getOffices = async () => {
  */
 export const getOfficeById = async (id) => {
   try {
-    // const response = await api.get(ENDPOINTS.OFFICES.GET(id))
-    // return response.data
+    const response = await api.get(ENDPOINTS.OFFICES.GET(id))
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 300))
     return {
@@ -408,8 +414,8 @@ export const getOfficeById = async (id) => {
  */
 export const createOffice = async (data) => {
   try {
-    // const response = await api.post(ENDPOINTS.OFFICES.CREATE, data)
-    // return response.data
+    const response = await api.post(ENDPOINTS.OFFICES.CREATE, data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -432,8 +438,8 @@ export const createOffice = async (data) => {
  */
 export const updateOffice = async (id, data) => {
   try {
-    // const response = await api.put(ENDPOINTS.OFFICES.UPDATE(id), data)
-    // return response.data
+    const response = await api.put(ENDPOINTS.OFFICES.UPDATE(id), data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -455,7 +461,7 @@ export const updateOffice = async (id, data) => {
  */
 export const deleteOffice = async (id) => {
   try {
-    // await api.delete(ENDPOINTS.OFFICES.DELETE(id))
+    await api.delete(ENDPOINTS.OFFICES.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -475,17 +481,19 @@ export const deleteOffice = async (id) => {
 
 /**
  * Get all sub-offices
+ * @param {number} perPage - Items per page (default: 50)
  * @returns {Promise<Object>} List of sub-offices
  */
-export const getSubOffices = async () => {
+export const getSubOffices = async (page = 1, perPage = null, sub_office_id = null) => {
   try {
-    // const response = await api.get(ENDPOINTS.SUB_OFFICES.LIST)
-    // return response.data
-    
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const params = { page, per_page: perPage };
+    if (sub_office_id) {
+      params.sub_office_id = sub_office_id;
+    }
+    const response = await api.get(ENDPOINTS.SUB_OFFICES.LIST, { params });
     return {
       success: true,
-      data: []
+      data: response.data?.data || { data: [], current_page: 1, last_page: 1, total: 0 }
     }
   } catch (error) {
     return {
@@ -502,9 +510,9 @@ export const getSubOffices = async () => {
  */
 export const getSubOfficeById = async (id) => {
   try {
-    // const response = await api.get(ENDPOINTS.SUB_OFFICES.GET(id))
-    // return response.data
-    
+      const response = await api.get(ENDPOINTS.SUB_OFFICES.GET(id))
+      return response.data
+      
     await new Promise(resolve => setTimeout(resolve, 300))
     return {
       success: true,
@@ -525,8 +533,8 @@ export const getSubOfficeById = async (id) => {
  */
 export const createSubOffice = async (data) => {
   try {
-    // const response = await api.post(ENDPOINTS.SUB_OFFICES.CREATE, data)
-    // return response.data
+    const response = await api.post(ENDPOINTS.SUB_OFFICES.CREATE, data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -549,8 +557,8 @@ export const createSubOffice = async (data) => {
  */
 export const updateSubOffice = async (id, data) => {
   try {
-    // const response = await api.put(ENDPOINTS.SUB_OFFICES.UPDATE(id), data)
-    // return response.data
+    const response = await api.put(ENDPOINTS.SUB_OFFICES.UPDATE(id), data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -572,7 +580,7 @@ export const updateSubOffice = async (id, data) => {
  */
 export const deleteSubOffice = async (id) => {
   try {
-    // await api.delete(ENDPOINTS.SUB_OFFICES.DELETE(id))
+    await api.delete(ENDPOINTS.SUB_OFFICES.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {

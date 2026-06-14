@@ -62,10 +62,17 @@ export const MENU_ITEMS = [
     to: '/settings',
     role: ['admin'],
     children: [
-      { title: 'System Settings', to: '/settings/system', icon: 'mdi-cog' },
+      // { title: 'System Settings', to: '/settings/system', icon: 'mdi-cog' },
       { title: 'User Management', to: '/settings/users', icon: 'mdi-account-cog' },
-      { title: 'Permissions', to: '/settings/permissions', icon: 'mdi-lock-outline' }
+      { title: 'Table Organization Management', to: '/settings/to', icon: 'mdi-cog' },
+      { title: 'Personnel Management', to: '/settings/personnel', icon: 'mdi-cog' },
+      { title: 'Training Management', to: '/settings/training', icon: 'mdi-cog' },
+      { title: 'Equipment Management', to: '/settings/equipment', icon: 'mdi-cog' },
+      { title: 'Facilities Management', to: '/settings/facility', icon: 'mdi-cog' },
+      { title: 'Report Management', to: '/settings/report', icon: 'mdi-cog' },
+      { title: 'Organization Management', to: '/settings/organization', icon: 'mdi-cog' }
     ]
+
   }
 ]
 
