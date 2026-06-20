@@ -4,7 +4,6 @@
     <add-user-dialog
       v-model:open="isAddUserDialogOpen"
       @user-created="handleUserCreated"
-      @error="handleDialogError"
     />
 
     <v-card class="mb-6">
@@ -17,7 +16,7 @@
         <div class="d-flex gap-3 mb-4 align-center">
 
           <AppTextField
-            v-model="searchQuery"
+            v-model="filterStore.search"
             placeholder="Search users..."
             prepend-inner-icon="mdi-magnify"
             class="flex-grow-1"
@@ -29,7 +28,7 @@
             :text="'name'"
             :value="'id'"
             :items="filterStore.organizationFilterItems.units"
-              
+            class="flex-grow-1"
           />
           <AppAutocomplete 
             label="Subunits"
@@ -69,29 +68,23 @@
         <v-table>
           <thead>
             <tr>
+              <th>Name</th>
               <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Last Login</th>
-              <th>Actions</th>
+              <th>Unit</th>
+              <th>Sub Unit</th>
+              <th>Office</th>
+              <th>Sub office</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
-              <td>{{ user.username }}</td>
-              <td>{{ user.email }}</td>
-              <td>
-                <v-chip :color="getRoleColor(user.role)" size="small">
-                  {{ user.role }}
-                </v-chip>
-              </td>
-              <td>
-                <v-chip :color="user.status === 'active' ? 'success' : 'warning'" size="small">
-                  {{ user.status }}
-                </v-chip>
-              </td>
-              <td>{{ user.lastLogin }}</td>
+            <tr v-for="user in users" :key="user.id">
+              <td>{{ user?.rank?.name }}  {{ user.name }}</td>
+              <td>{{ user.email || user.username }}</td>
+              <td>{{ user?.unit?.name }}</td>
+              <td>{{ user?.sub_unit?.name }}</td>
+              <td>{{ user?.office?.name }}</td>
+              <td>{{ user?.sub_office?.name }}</td>
               <td>
                 <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" />
                 <v-btn icon="mdi-delete" size="small" variant="text" color="error" />
@@ -99,38 +92,54 @@
             </tr>
           </tbody>
         </v-table>
+
+        <!-- Pagination -->
+          <AppPagination
+            :current-page="currentPage"
+            :total-pages="lastPage"
+            :total-items="total"
+            :per-page="perPage"
+            @page-change="onPageChange"
+          />
       </v-card-text>
     </v-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import AppTextField from '@/components/forms/AppTextField.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import AddUserDialog from '@/components/forms/AddUserDialog.vue'
 import AppButton from '@/components/common/AppButton.vue'
-import { useFilterStore } from '@/stores/filterStore.js';
+import AppPagination from '@/components/common/AppPagination.vue'
+import { useFilterStore } from '@/stores/filterStore.js'
+import { useUser } from '@/composables/useUser.js'
 
-const filterStore = useFilterStore();
+const filterStore = useFilterStore()
+
+// Initialize useUser composable
+const {  fetchUsers, addUser, editUser, removeUser } = useUser()
+
 // Dialog state
 const isAddUserDialogOpen = ref(false)
 
-// Search state
-const searchQuery = ref('')
-
 // Users data
-const users = ref([
-  { id: 1, username: 'admin', email: 'admin@pnay.gov.ph', role: 'admin', status: 'active', lastLogin: '2024-06-05 14:30' },
-  { id: 2, username: 'officer1', email: 'officer1@pnay.gov.ph', role: 'officer', status: 'active', lastLogin: '2024-06-05 10:15' },
-  { id: 3, username: 'user1', email: 'user1@pnay.gov.ph', role: 'user', status: 'active', lastLogin: '2024-06-04 09:45' },
-  { id: 4, username: 'officer2', email: 'officer2@pnay.gov.ph', role: 'officer', status: 'inactive', lastLogin: '2024-05-28 16:20' }
-])
+const users = ref([])
+
+// Pagination state
+const currentPage = ref(1)
+const perPage = ref(15)
+const lastPage = ref(1)
+const total = ref(0)
+const isLoadingUsers = ref(false)
+
+
 
 /**
  * Open Add User Dialog
  */
-const openAddUserDialog = () => {
+const openAddUserDialog = async () => {
   isAddUserDialogOpen.value = true
 }
 
@@ -139,46 +148,71 @@ const openAddUserDialog = () => {
  * @param {Object} newUser - The newly created user object
  */
 const handleUserCreated = (newUser) => {
-  users.value.push({
-    id: newUser.id,
-    username: newUser.username,
-    email: newUser.username, // TODO: Update to use actual email when available
-    role: 'user', // Default role, can be customized
-    status: 'active',
-    lastLogin: 'Never'
-  })
+  // Reload current page to show newly created user
+  loadUsers(currentPage.value)
   
-  // Show success message
   console.log('User created successfully:', newUser)
   // TODO: Integrate with snackbar/toast notification
 }
 
-/**
- * Handle dialog error event
- * @param {string} error - Error message
- */
-const handleDialogError = (error) => {
-  console.error('Error:', error)
-  // TODO: Integrate with snackbar/toast notification
-}
-
-/**
- * Computed property for filtered users based on search query
- */
-const filteredUsers = computed(() => {
-  if (!searchQuery.value) return users.value
-  const query = searchQuery.value.toLowerCase()
-  return users.value.filter(u => 
-    u.username.toLowerCase().includes(query) || 
-    u.email.toLowerCase().includes(query)
-  )
+onMounted(async () => {
+  await loadUsers(1)
 })
 
 /**
- * Get badge color based on user role
- * @param {string} role - User role
- * @returns {string} Color class
+ * Load users with pagination
+ * @param {number} page - Page number
  */
+const loadUsers = async (page = 1) => {
+  isLoadingUsers.value = true
+  try {
+    const filters = {
+      page: page,
+      per_page: perPage.value
+    }
+    
+    // Add filter values if they exist
+    if (filterStore.search) filters.search = filterStore.search
+    if (filterStore.unit) filters.unit_id = filterStore.unit
+    if (filterStore.subunit) filters.sub_unit_id = filterStore.subunit
+    if (filterStore.office) filters.office_id = filterStore.office
+    if (filterStore.suboffice) filters.sub_office_id = filterStore.suboffice
+    
+    const response = await fetchUsers(filters)
+    if (response.success && response.data) {
+      // Handle paginated response
+      const paginatedData = response.data
+      users.value = paginatedData.data || []
+      currentPage.value = paginatedData.current_page || 1
+      lastPage.value = paginatedData.last_page || 1
+      perPage.value = paginatedData.per_page || 15
+      total.value = paginatedData.total || 0
+    }
+  } catch (error) {
+    console.error('Failed to load users:', error)
+  } finally {
+    isLoadingUsers.value = false
+  }
+}
+
+
+
+/**
+ * Handle page change event from pagination component
+ * @param {number} page - New page number
+ */
+const onPageChange = async (page) => {
+  await loadUsers(page)
+}
+
+// Watch for filter changes and reload data
+watch([() => filterStore.search, () => filterStore.unit, () => filterStore.subunit, () => filterStore.office, () => filterStore.suboffice], 
+  () => {
+    // Reset to page 1 when filters change
+    currentPage.value = 1
+    loadUsers(1)
+  }
+)
 const getRoleColor = (role) => {
   const colors = { admin: 'error', officer: 'primary', user: 'info' }
   return colors[role] || 'secondary'

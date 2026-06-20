@@ -1,199 +1,200 @@
-import { ref } from 'vue'
-import { useSnackbar } from './useSnackbar'
-import {
-  getUsers,
-  getUserById,
-  createUser,
-  updateUser,
-  deleteUser,
-  getUsersByRank,
-  getRank
-} from '@/services/userService'
+import api from './axiosConfig'
+import { ENDPOINTS } from './endpoints'
 
 /**
- * Composable for managing user operations
- * Handles CRUD operations via userService
+ * Get all users with optional filters
+ * @param {Object} filters - Query filters
+ * @returns {Promise<Object>} Users list response
  */
-export const useUser = () => {
-  const { showSnackbar } = useSnackbar()
-
-  const isLoading = ref(false)
-  const users = ref([])
-  const selectedUser = ref(null)
-  const rank = ref(null)
-
-  /**
-   * Fetch all users with optional filters
-   * @param {Object} filters - Query filters (search, category_id, unit_id, etc.)
-   */
-  const fetchUsers = async (filters = {}) => {
-    isLoading.value = true
-    try {
-      const response = await getUsers(filters)
-
-      if (!response.success) throw new Error(response.error)
-
-      users.value = response.data
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to fetch users'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
+export const getUsers = async (filters = {}) => {
+  try {
+    const response = await api.get(ENDPOINTS.USERS.LIST, { params: filters })
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to fetch users'
+      }
     }
-  }
-
-  /**
-   * Fetch a single user by ID
-   * @param {number} id - User ID
-   */
-  const fetchUserById = async (id) => {
-    isLoading.value = true
-    try {
-      const response = await getUserById(id)
-
-      if (!response.success) throw new Error(response.error)
-
-      selectedUser.value = response.data
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to fetch user'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
+    
+    return {
+      success: true,
+      data: response.data?.data || []
     }
-  }
-
-  /**
-   * Create a new user
-   * @param {Object} userData - User data object
-   */
-  const addUser = async (userData) => {
-    isLoading.value = true
-    try {
-      const response = await createUser(userData)
-
-      if (!response.success) throw new Error(response.error)
-
-      users.value.push(response.data)
-      showSnackbar({ message: 'User created successfully', color: 'success' })
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to create user'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to fetch users'
     }
-  }
-
-  /**
-   * Update an existing user
-   * @param {number} id - User ID
-   * @param {Object} userData - Updated user data
-   */
-  const editUser = async (id, userData) => {
-    isLoading.value = true
-    try {
-      const response = await updateUser(id, userData)
-
-      if (!response.success) throw new Error(response.error)
-
-      const index = users.value.findIndex(u => u.id === id)
-      if (index !== -1) users.value[index] = response.data
-
-      showSnackbar({ message: 'User updated successfully', color: 'success' })
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to update user'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Delete a user by ID
-   * @param {number} id - User ID
-   */
-  const removeUser = async (id) => {
-    isLoading.value = true
-    try {
-      const response = await deleteUser(id)
-
-      if (!response.success) throw new Error(response.error)
-
-      users.value = users.value.filter(u => u.id !== id)
-      showSnackbar({ message: 'User deleted successfully', color: 'success' })
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to delete user'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Fetch users filtered by rank
-   * @param {number} rankId - Rank ID
-   */
-  const fetchUsersByRank = async (rankId) => {
-    isLoading.value = true
-    try {
-      const response = await getUsersByRank(rankId)
-
-      if (!response.success) throw new Error(response.error)
-
-      users.value = response.data
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to fetch users by rank'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  /**
-   * Fetch rank 
-   */
-  const fetchRank = async (rankId) => {
-    isLoading.value = true
-    try {
-      const response = await getRank()
-
-      if (!response.success) throw new Error(response.error)
-
-      rank.value = response.data
-      return response
-    } catch (error) {
-      const errorMessage = error.message || 'Failed to fetch rank'
-      showSnackbar({ message: errorMessage, color: 'error' })
-      return { success: false, error: errorMessage }
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  return {
-    // State
-    isLoading,
-    users,
-    selectedUser,
-    rank,
-    // Methods
-    fetchUsers,
-    fetchUserById,
-    addUser,
-    editUser,
-    removeUser,
-    fetchUsersByRank,
-    fetchRank
   }
 }
+
+/**
+ * Get a single user by ID
+ * @param {number} id - User ID
+ * @returns {Promise<Object>} User data response
+ */
+export const getUserById = async (id) => {
+  try {
+    const response = await api.get(ENDPOINTS.USERS.GET(id))
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to fetch user'
+      }
+    }
+    
+    return {
+      success: true,
+      data: response.data?.data || {}
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to fetch user'
+    }
+  }
+}
+
+/**
+ * Create a new user
+ * @param {Object} userData - User data object
+ * @returns {Promise<Object>} Created user response
+ */
+export const createUser = async (userData) => {
+  try {
+    const response = await api.post(ENDPOINTS.USERS.CREATE, userData)
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to create user'
+      }
+    }
+    
+    return {
+      success: true,
+      data: response.data?.data || {}
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to create user'
+    }
+  }
+}
+
+/**
+ * Update an existing user
+ * @param {number} id - User ID
+ * @param {Object} userData - Updated user data
+ * @returns {Promise<Object>} Updated user response
+ */
+export const updateUser = async (id, userData) => {
+  try {
+    const response = await api.put(ENDPOINTS.USERS.UPDATE(id), userData)
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to update user'
+      }
+    }
+    
+    return {
+      success: true,
+      data: response.data?.data || {}
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to update user'
+    }
+  }
+}
+
+/**
+ * Delete a user
+ * @param {number} id - User ID
+ * @returns {Promise<Object>} Delete response
+ */
+export const deleteUser = async (id) => {
+  try {
+    const response = await api.delete(ENDPOINTS.USERS.DELETE(id))
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to delete user'
+      }
+    }
+    
+    return {
+      success: true,
+      data: response.data?.data || {}
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to delete user'
+    }
+  }
+}
+
+/**
+ * Get users filtered by rank
+ * @param {number} rankId - Rank ID
+ * @returns {Promise<Object>} Users by rank response
+ */
+export const getUsersByRank = async (rankId) => {
+  try {
+    const response = await api.get(ENDPOINTS.USERS.GET_BY_RANK(rankId))
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to fetch users by rank'
+      }
+    }
+    
+    return {
+      success: true,
+      data: response.data?.data || []
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to fetch users by rank'
+    }
+  }
+}
+
+/**
+ * Get ranks
+ * @returns {Promise<Object>} Ranks response
+ */
+export const getRank = async () => {
+  try {
+    const response = await api.get(ENDPOINTS.USERS.GET_RANK)
+    
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to fetch ranks'
+      }
+    }
+    
+    return {
+      success: true,
+      data: response.data?.data || []
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to fetch ranks'
+    }
+  }
+}
+
+export default api

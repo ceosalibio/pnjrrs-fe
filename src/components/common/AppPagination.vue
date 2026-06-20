@@ -1,8 +1,11 @@
 <template>
     <div v-if="totalItems > 0" class="d-flex align-center justify-space-between ga-2 mt-4">
-        <span class="text-caption text-grey">
-            Page {{ currentPage }} of {{ lastPage }} (Total: {{ totalItems }})
-        </span>
+        <div>
+            <span class="text-caption text-grey">
+                Page {{ currentPage }} of {{ lastPage }} (Total: {{ totalItems }})
+            </span>
+        </div>
+        
 
         <div class="d-flex align-center ga-2">
             <!-- <div class="d-flex ga-1">

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-card class="pa-4 mb-4" outlined>
+        <v-card class="pa-4" outlined>
             <div class="d-flex ga-4 flex-wrap align-center">
                 <div class="filter-input-wrapper">
                     <AppAutocomplete 
@@ -22,15 +22,18 @@
                 </div>
                 <div class="filter-input-wrapper">
                     <AppAutocomplete 
+                        v-if="filterStore.organizationFilterItems.offices?.length > 0"
                         label="Offices"
                         v-model="filterStore.office"
                         :text="'name'"
                         :value="'id'"
                         :items="filterStore.organizationFilterItems.offices"
+                        :clearable="true"
                     />
                 </div>
                 <div class="filter-input-wrapper">
                     <AppAutocomplete 
+                        v-if="filterStore.organizationFilterItems.suboffices?.length > 0"
                         label="Suboffices"
                         v-model="filterStore.suboffice"
                         :text="'name'"
@@ -42,6 +45,7 @@
                 <v-spacer />
 
                 <AppButton
+                    v-if="isUpload"
                     color="primary"
                     @on-click="isUploadDialogOpen = true"
                 >

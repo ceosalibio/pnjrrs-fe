@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, watch, onMounted } from 'vue'
-import { getUnits,  getSubUnits, getOffices, getSubOffices  } from '@/services/organizationService'
+import { getCategories, getUnits,  getSubUnits, getOffices, getSubOffices  } from '@/services/organizationService'
 export const useFilterStore = defineStore('filter', () => {
+    const search = ref('')
     const category = ref('')
     const unit = ref('')
     const subunit = ref('')
@@ -17,7 +18,7 @@ export const useFilterStore = defineStore('filter', () => {
             subunit.value = ''
             office.value = ''
             suboffice.value = ''
-            const result = await getUnits(newCategory)
+            const result = await getUnits(1,null,newCategory)
             organizationFilterItems.value.units = result.data
         }
     })
@@ -50,17 +51,23 @@ export const useFilterStore = defineStore('filter', () => {
     })
 
     onMounted(async () => {
-       const result = await getUnits()
-       organizationFilterItems.value.units = result.data
+        const categoryResult = await getCategories()
+        organizationFilterItems.value.categories = categoryResult.data
+        const result = await getUnits()
+        organizationFilterItems.value.units = result.data
     })
 
     return {
+        search,
         category,
         unit,
         subunit,
         office,
         suboffice,
         reportMonth,
+        getSubOffices,
+        getOffices,
+        getSubUnits,
         organizationFilterItems
     }
 })

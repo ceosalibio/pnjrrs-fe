@@ -75,5 +75,13 @@ export const ENDPOINTS = {
     UPDATE: (id) => `${BASE_PATH}/item-afpos/${id}`,
     DELETE: (id) => `${BASE_PATH}/item-afpos/${id}`,
     GET_BY_DIVISION: (divisionId) => `${BASE_PATH}/item-afpos/division/${divisionId}`
+  },
+  // SETTING_ORGANIZATION endpoints are not included as they are not defined in the Postman collection
+  SETTING_ORGANIZATION: {
+    LIST: `${BASE_PATH}/settings/organizations`,
+    GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+    CREATE: `${BASE_PATH}/settings/organizations`,
+    UPDATE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+    DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
   }
 }
