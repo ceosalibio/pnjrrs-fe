@@ -425,6 +425,9 @@
             return item;
         });
 
+        // console.log('Data prepared for backend:', dataToSend);
+        // return false
+
         if (dataToSend.length === 0) {
             showSnackbar('No data to send', 'warning');
             return;

@@ -20,8 +20,9 @@
                         :items="filterStore.organizationFilterItems.subunits"
                     />
                 </div>
-                <div class="filter-input-wrapper">
+                <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.offices.length > 0">
                     <AppAutocomplete 
+                        
                         label="Offices"
                         v-model="filterStore.office"
                         :text="'name'"
@@ -29,8 +30,9 @@
                         :items="filterStore.organizationFilterItems.offices"
                     />
                 </div>
-                <div class="filter-input-wrapper">
+                <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.suboffices.length > 0">
                     <AppAutocomplete 
+                        
                         label="Suboffices"
                         v-model="filterStore.suboffice"
                         :text="'name'"

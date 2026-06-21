@@ -13,7 +13,7 @@ export const useFilterStore = defineStore('filter', () => {
 
 
     watch(() => category.value, async (newCategory) => {
-        if (newCategory) {
+        if (newCategory !== '' && newCategory != null) {
             unit.value = ''
             subunit.value = ''
             office.value = ''
@@ -24,7 +24,7 @@ export const useFilterStore = defineStore('filter', () => {
     })
 
     watch(() => unit.value, async (newUnit) => {
-        if (newUnit) {
+        if (newUnit !== '' && newUnit != null) {
             subunit.value = ''
             office.value = ''
             suboffice.value = ''
@@ -34,7 +34,7 @@ export const useFilterStore = defineStore('filter', () => {
     })
 
     watch(() => subunit.value, async (newSubUnit) => {
-        if (newSubUnit) {
+        if (newSubUnit !== '' && newSubUnit != null) {
             office.value = ''
             suboffice.value = ''
             const result = await getOffices(1,null,newSubUnit)
@@ -43,8 +43,10 @@ export const useFilterStore = defineStore('filter', () => {
     })
 
     watch(() => office.value, async (newOffice) => {
-        if (newOffice) {
+        console.log('Office changed to:', newOffice)
+        if (newOffice !== '' && newOffice != null) {
             suboffice.value = ''
+            console.log('Fetching suboffices for office:', newOffice)
             const result = await getSubOffices(1,null,newOffice)
             organizationFilterItems.value.suboffices = result.data
         }

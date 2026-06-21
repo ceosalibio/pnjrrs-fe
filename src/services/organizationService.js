@@ -484,11 +484,11 @@ export const deleteOffice = async (id) => {
  * @param {number} perPage - Items per page (default: 50)
  * @returns {Promise<Object>} List of sub-offices
  */
-export const getSubOffices = async (page = 1, perPage = null, sub_office_id = null) => {
+export const getSubOffices = async (page = 1, perPage = null, office_id = null) => {
   try {
     const params = { page, per_page: perPage };
-    if (sub_office_id) {
-      params.sub_office_id = sub_office_id;
+    if (office_id) {
+      params.office_id = office_id;
     }
     const response = await api.get(ENDPOINTS.SUB_OFFICES.LIST, { params });
     return {
