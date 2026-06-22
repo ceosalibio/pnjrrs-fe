@@ -59,6 +59,16 @@ export const useFilterStore = defineStore('filter', () => {
         organizationFilterItems.value.units = result.data
     })
 
+    // Build filter payload for API requests
+    const getGenrateReportPayload = () => ({
+        category_id: category.value || null,
+        unit_id: unit.value || null,
+        sub_unit_id: subunit.value || null,
+        office_id: office.value || null,
+        sub_office_id: suboffice.value || null,
+        report_month: reportMonth.value || null,
+    })
+
     return {
         search,
         category,
@@ -70,6 +80,7 @@ export const useFilterStore = defineStore('filter', () => {
         getSubOffices,
         getOffices,
         getSubUnits,
-        organizationFilterItems
+        organizationFilterItems,
+        getGenrateReportPayload
     }
 })

@@ -1,10 +1,23 @@
 <template>
   <div class="personnel-list">
-    <AppFilterHeader />
+    <AppFilterHeader 
+      @generate="handleGenerate()"
+    />
 
     <v-card class="mb-6">
-      <v-card-title>Personnel List</v-card-title>
-      <v-card-subtitle>Manage and view all personnel records</v-card-subtitle>
+      <div class="d-flex justify-space-between align-center pa-4">
+        <div>
+          <v-card-title>Personnel List</v-card-title>
+          <v-card-subtitle>Manage and view all personnel records</v-card-subtitle>
+        </div>
+        <AppButton
+          v-if="reportStore.personnelItems?.length > 0"
+          :color="isEditMode ? 'success' : 'primary'"
+          @click="toggleEditMode"
+        >
+          {{ isEditMode ? 'Save' : 'Update' }}
+        </AppButton>
+      </div>
       <v-divider />
       
       <v-card-text>
@@ -23,36 +36,63 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Executive Section -->
-            <tr class="section-header">
-              <td colspan="9" class="section-title">Executive Section</td>
-            </tr>
-            <tr v-for="person in executiveSection" :key="`exec-${person.id}`">
-              <td>{{ person.position }}</td>
-              <td>{{ person.name }}</td>
-              <td class="text-center">{{ person.rankRequired }}</td>
-              <td class="text-center">{{ person.actual }}</td>
-              <td class="text-center">{{ person.points }}</td>
-              <td class="text-center">{{ person.afpos }}</td>
-              <td class="text-center">{{ person.actualAfpos }}</td>
-              <td class="text-center">{{ person.pointsAfpos }}</td>
-              <td class="text-center">{{ person.required }}</td>
-            </tr>
+            <tr v-for="(item, i) in reportStore.personnelItems" :key="i">
+              <td>{{ item.description }}</td>
+              <td :class="{ 'editable-cell': isEditMode && item.grade }">
+                  <div v-if="isEditMode && item.grade">
+                    <div class="cell-content ga-2">
+                      <AppAutocomplete
+                        v-model="item.rank"
+                        :items="rankItems"
+                        :text="'name'"
+                        :value="'name'"
+                        label="Rank"
+                        class="rank-field"
+                        @update:model-value="(val) => onRankChange(item, val)"
+                      />
+                      <AppTextField
+                        v-model="item.name"
+                        label="Name"
+                        class="input-field"
+                        :hideDetails="true"
+                      />
+                      <AppAutocomplete
+                        v-model="item.type"
+                        :items="typeList"
+                        :text="'text'"
+                        :value="'value'"
+                        label="Type"
+                        density="compact"
+                      />
+                    </div>
+                    
+                  </div>
+                  <div v-else>
+                    <span >{{item?.rank}}  {{ item.name }}  {{item?.type}}</span>
+                  </div>
 
-            <!-- Administrative Branch -->
-            <tr class="section-header">
-              <td colspan="9" class="section-title">Administrative Branch</td>
-            </tr>
-            <tr v-for="person in administrativeSection" :key="`admin-${person.id}`">
-              <td>{{ person.position }}</td>
-              <td>{{ person.name }}</td>
-              <td class="text-center">{{ person.rankRequired }}</td>
-              <td class="text-center">{{ person.actual }}</td>
-              <td class="text-center">{{ person.points }}</td>
-              <td class="text-center">{{ person.afpos }}</td>
-              <td class="text-center">{{ person.actualAfpos }}</td>
-              <td class="text-center">{{ person.pointsAfpos }}</td>
-              <td class="text-center">{{ person.required }}</td>
+                 
+                  
+              </td>
+              <td class="text-center">{{ item.grade }}</td>
+              <td class="text-center">{{ item.grade_actual }}</td>
+              <td>{{ item.grade_points }}</td>
+              <td  class="text-center">{{ item.afpos }}</td>
+               <td :class="{ 'editable-cell': isEditMode && item.grade }">
+                <AppAutocomplete
+                  v-if="isEditMode && item.grade"
+                  v-model="item.afpos_actual_id"
+                  :items="afposItems"
+                  :text="'name'"
+                  :value="'id'"
+                  label="AFPOS"
+                  class="rank-field"
+                  @update:model-value="(val) => onAfposChange(item, val)"
+                />
+                <span v-else>{{ item.afpos_actual_name }}</span>
+              </td>
+              <td>{{ item.afpos_points }}</td>
+              <td class="text-center">{{ item.required }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -62,50 +102,169 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onBeforeUnmount, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
+import AppButton from '@/components/common/AppButton.vue'
+import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
+import { useFilterStore } from '@/stores/filterStore'
+import { useReportStore } from '@/stores/reportStore'
+import { useSnackbar } from '@/composables/useSnackbar'
+import { executeReportAction  } from '@/services/reportService'
+import { getRank } from '@/services/userService'
+import { getAfposItems } from  '@/services/afposService'
+import AppTextField from '@/components/forms/AppTextField.vue'
+import {
+  calculateGradePoints,
+  formatPersonnelName,
+  calculatePayloadSummary
+} from '@/utils/personnelCalculations'
 
+const filterStore = useFilterStore()
+const reportStore = useReportStore()
 const router = useRouter()
-const searchQuery = ref('')
+const { showSuccess, showError } = useSnackbar()
 
-const executiveSection = ref([
-  { id: 1, position: 'AC of NS for Personnel, N1', name: '', rankRequired: 'O6', actual: '', points: '', afpos: 'PERS', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 2, position: 'Deputy AC of NS for Personnel, N1', name: '', rankRequired: 'O6', actual: '', points: '', afpos: 'PERS', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 3, position: 'Executive Officer', name: '', rankRequired: 'O5', actual: '', points: '', afpos: 'PERS', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 4, position: 'Chief Administrative Officer', name: '', rankRequired: 'SG24', actual: '', points: '', afpos: 'Civ', actualAfpos: '', pointsAfpos: '', required: '' },
-  { id: 5, position: 'Chief Clerk', name: '', rankRequired: 'E7/E8', actual: '', points: '', afpos: 'YN', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 6, position: 'Staff EP', name: '', rankRequired: 'E4/E5/E6', actual: '', points: '', afpos: 'YN', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 7, position: 'Staff EP', name: '', rankRequired: 'E3', actual: '', points: '', afpos: 'CD', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 8, position: 'Staff EP', name: '', rankRequired: 'E3', actual: '', points: '', afpos: 'CD', actualAfpos: '', pointsAfpos: '', required: 1 }
+const rankItems = ref([])
+const afposItems = ref([])
+const isEditMode = ref(false)
+const hasUnsavedChanges = ref(false)
+
+
+
+
+const typeList = ref([
+  { text: 'PN', value: 'PN' },
+  { text: 'PMC', value: 'PMC' }
 ])
 
-const administrativeSection = ref([
-  { id: 9, position: 'Staff Officer', name: '', rankRequired: 'O3/O4', actual: '', points: '', afpos: 'PERS', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 10, position: 'Staff Officer', name: '', rankRequired: 'O3/O4', actual: '', points: '', afpos: 'PERS', actualAfpos: '', pointsAfpos: '', required: 1 },
-  { id: 11, position: 'Staff EP', name: '', rankRequired: 'E7/E8', actual: '', points: '', afpos: 'YN', actualAfpos: '', pointsAfpos: '', required: '' },
-  { id: 12, position: 'Administrative Assistant V', name: '', rankRequired: 'SG11', actual: '', points: '', afpos: 'Civ', actualAfpos: '', pointsAfpos: '', required: '' },
-  { id: 13, position: 'Administrative Officer II', name: '', rankRequired: 'SG11', actual: '', points: '', afpos: 'Civ', actualAfpos: '', pointsAfpos: '', required: '' }
-])
 
-const filteredPersonnel = computed(() => {
-  if (!searchQuery.value) return [...executiveSection.value, ...administrativeSection.value]
-  const query = searchQuery.value.toLowerCase()
-  return [...executiveSection.value, ...administrativeSection.value].filter(p => 
-    p.position.toLowerCase().includes(query) || p.name.toLowerCase().includes(query)
-  )
-})
-
-const editPersonnel = (id) => {
-  router.push(`/personnel/${id}/edit`)
+const handleGenerate = async () => {
+  isEditMode.value = false
+  reportStore.personnelItems = []
+  const payload = filterStore.getGenrateReportPayload()
+  const response = await executeReportAction (payload, 'personnel')
+  console.log(response)
+  reportStore.personnelReportData = response?.data
+  reportStore.personnelItems = response?.data?.items || []
+  reportStore.reportId = response?.data?.id
 }
 
-const deletePersonnel = (id) => {
-  if (confirm('Are you sure you want to delete this personnel?')) {
-    executiveSection.value = executiveSection.value.filter(p => p.id !== id)
-    administrativeSection.value = administrativeSection.value.filter(p => p.id !== id)
+const toggleEditMode = async () => {
+  if (isEditMode.value) {
+    // Save mode - persist changes
+    await handleSave()
+  } else {
+    // Enter edit mode
+    isEditMode.value = true
+    hasUnsavedChanges.value = false
+    const response = await getRank()
+    rankItems.value = response?.data
+    const afpos = await getAfposItems()
+    afposItems.value = afpos
+    
+    // Initialize rank, name, type properties on each item
+    reportStore.personnelItems.forEach((item) => {
+      if (!item.rank) item.rank = null
+      if (!item.name) item.name = ''
+      if (!item.type) item.type = null
+    })
   }
 }
+
+const onRankChange = (item, selectedName) => {
+  const found = rankItems.value.find((r) => r.name === selectedName)
+  item.grade_name = found?.grade?.name || ''
+  item.division = found?.division_id
+  item.grade_actual = found?.grade?.name
+
+  // Format name based on division using helper function
+  item.name = formatPersonnelName(item.name, item.division)
+  
+  // Calculate grade_points based on grade comparison
+  item.grade_points = calculateGradePoints(item.grade, item.grade_actual)
+}
+
+const onAfposChange = (item, selectedId) => {
+  const found = afposItems.value.find((r) => r.id === selectedId)
+  item.afpos_actual_name = found?.name || ''
+  if(item.item_afpos_id == found?.id){
+    item.afpos_points = 1;
+  }
+}
+
+
+
+const handleSave = async () => {
+  try {
+    // Format all names based on division before saving
+    reportStore.personnelItems.forEach((item) => {
+      item.name = formatPersonnelName(item.name, item.division)
+    })
+
+    // Calculate summary statistics
+    const { gradePoints, afposPoints, actualCount } = calculatePayloadSummary(
+      reportStore.personnelItems
+    )
+
+    // Get required count from report data
+    const requiredCount = reportStore.personnelReportData?.required || 0
+    const payload = {
+      items: reportStore.personnelItems,
+      grade_points: gradePoints,
+      afpos_points: afposPoints,
+      actual: actualCount,
+      required: requiredCount
+    }
+    console.log(payload, 'payload')
+    const response = await executeReportAction(payload, 'personnel', 'update', reportStore.reportId)
+    console.log(response, 'response')
+    
+    showSuccess('Personnel data saved successfully!')
+    isEditMode.value = false
+    hasUnsavedChanges.value = false
+  } catch (error) {
+    showError('Error saving data: ' + error.message)
+  }
+}
+
+// Watch for unsaved changes
+const markUnsavedChanges = () => {
+  if (isEditMode.value) {
+    hasUnsavedChanges.value = true
+  }
+}
+
+// Watch reportStore.personnelItems for changes in edit mode
+watch(
+  () => reportStore.personnelItems,
+  () => markUnsavedChanges(),
+  { deep: true }
+)
+
+// Guard against unsaved changes on route leave
+router.beforeEach((to, from, next) => {
+  if (hasUnsavedChanges.value && from.path.startsWith('/personnel')) {
+    const confirmed = confirm('You have unsaved changes. Do you want to save before leaving?')
+    if (confirmed) {
+      handleSave().then(() => next())
+    } else {
+      hasUnsavedChanges.value = false
+      next()
+    }
+  } else {
+    next()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (hasUnsavedChanges.value) {
+    const confirmed = confirm('You have unsaved changes. Do you want to save before leaving?')
+    if (confirmed) {
+      handleSave()
+    }
+  }
+})
 </script>
 
 <style scoped>
@@ -115,5 +274,68 @@ const deletePersonnel = (id) => {
 
 .text-center {
   text-align: center;
+  vertical-align: middle;
+}
+
+.editable-cell {
+  background-color: #fff9c4;
+  padding: 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.justify-space-between {
+  justify-content: space-between;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.pa-4 {
+  padding: 1rem;
+}
+
+:deep(.data-table) {
+  width: 100%;
+}
+
+:deep(.data-table thead) {
+  background-color: #f5f5f5;
+}
+
+:deep(.data-table th) {
+  font-weight: 600;
+  padding: 12px;
+  text-align: center;
+}
+
+:deep(.data-table td) {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.cell-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.cell-content :deep(.v-autocomplete) {
+  flex: 1;
+  min-width: 100px;
+}
+
+.input-field {
+  width: 500px !important;
+}
+.rank-field {
+  width: 150px !important;
 }
 </style>

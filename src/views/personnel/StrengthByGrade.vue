@@ -79,6 +79,11 @@
                 <td class="text-center">{{ grade.to }}</td>
                 <td class="text-center">{{ grade.actual }}</td>
               </tr>
+              <tr class="sub-total">
+                <td class="text-right font-weight-600">Sub-Total</td>
+                <td class="text-center font-weight-600">{{ civilianTO }}</td>
+                <td class="text-center font-weight-600">{{ civilianActual }}</td>
+              </tr>
             </tbody>
           </v-table>
         </v-card>
@@ -88,18 +93,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useReportStore } from '@/stores/reportStore'
+
+const reportStore = useReportStore()
 
 const officerGrades = ref([
   { grade: 'O10', to: 0, actual: 0 },
   { grade: 'O9', to: 0, actual: 0 },
   { grade: 'O8', to: 0, actual: 0 },
   { grade: 'O7', to: 0, actual: 0 },
-  { grade: 'O6', to: 2, actual: 0 },
-  { grade: 'O5', to: 2, actual: 0 },
+  { grade: 'O6', to: 0, actual: 0 },
+  { grade: 'O5', to: 0, actual: 0 },
   { grade: 'O4', to: 0, actual: 0 },
   { grade: 'O3', to: 0, actual: 0 },
-  { grade: 'O3/O4', to: 10, actual: 0 },
   { grade: 'O2', to: 0, actual: 0 },
   { grade: 'O1', to: 0, actual: 0 }
 ])
@@ -109,19 +116,82 @@ const enlistedGrades = ref([
   { grade: 'E9', to: 0, actual: 0 },
   { grade: 'E8', to: 0, actual: 0 },
   { grade: 'E7', to: 0, actual: 0 },
-  { grade: 'E7/E8', to: 2, actual: 0 },
   { grade: 'E6', to: 0, actual: 0 },
   { grade: 'E5', to: 0, actual: 0 },
   { grade: 'E4', to: 0, actual: 0 },
-  { grade: 'E4/E5/E6', to: 8, actual: 0 },
-  { grade: 'E3', to: 3, actual: 0 },
+  { grade: 'E3', to: 0, actual: 0 },
   { grade: 'E2', to: 0, actual: 0 },
   { grade: 'E1', to: 0, actual: 0 }
 ])
 
 const civilianGrades = ref([
-  { grade: 'SG24', to: 0, actual: 0 }
+  { grade: 'SG24', to: 0, actual: 0 },
+  { grade: 'SG23', to: 0, actual: 0 },
+  { grade: 'SG22', to: 0, actual: 0 },
+  { grade: 'SG21', to: 0, actual: 0 },
+  { grade: 'SG20', to: 0, actual: 0 },
+  { grade: 'SG19', to: 0, actual: 0 },
+  { grade: 'SG18', to: 0, actual: 0 },
+  { grade: 'SG17', to: 0, actual: 0 },
+  { grade: 'SG16', to: 0, actual: 0 },
+  { grade: 'SG15', to: 0, actual: 0 },
+  { grade: 'SG14', to: 0, actual: 0 },
+  { grade: 'SG13', to: 0, actual: 0 },
+  { grade: 'SG12', to: 0, actual: 0 },
+  { grade: 'SG11', to: 0, actual: 0 },
+  { grade: 'SG10', to: 0, actual: 0 },
+  { grade: 'SG9', to: 0, actual: 0 },
+  { grade: 'SG8', to: 0, actual: 0 },
+  { grade: 'SG7', to: 0, actual: 0 },
+  { grade: 'SG6', to: 0, actual: 0 },
+  { grade: 'SG5', to: 0, actual: 0 },
+  { grade: 'SG4', to: 0, actual: 0 },
+  { grade: 'SG3', to: 0, actual: 0 },
+  { grade: 'SG2', to: 0, actual: 0 },
+  { grade: 'SG1', to: 0, actual: 0 }
 ])
+
+/**
+ * Updates grade counts from personnel items
+ * TO = count of items with matching grade
+ * ACTUAL = count of items with matching grade_actual
+ */
+const updateGradeStats = () => {
+  const items = reportStore.personnelItems || []
+
+  // Reset all counts
+  ;[...officerGrades.value, ...enlistedGrades.value, ...civilianGrades.value].forEach(g => {
+    g.to = 0
+    g.actual = 0
+  })
+
+  // Count TO (items with grade)
+  items.forEach(item => {
+    if (item.grade) {
+      const gradeObj = [...officerGrades.value, ...enlistedGrades.value, ...civilianGrades.value].find(
+        g => g.grade === item.grade
+      )
+      if (gradeObj) gradeObj.to++
+    }
+  })
+
+  // Count ACTUAL (items with grade_actual)
+  items.forEach(item => {
+    if (item.grade_actual) {
+      const gradeObj = [...officerGrades.value, ...enlistedGrades.value, ...civilianGrades.value].find(
+        g => g.grade === item.grade_actual
+      )
+      if (gradeObj) gradeObj.actual++
+    }
+  })
+}
+
+// Watch for changes in personnelItems and update stats
+watch(
+  () => reportStore.personnelItems,
+  () => updateGradeStats(),
+  { deep: true, immediate: true }
+)
 
 const officerTO = computed(() => officerGrades.value.reduce((sum, g) => sum + g.to, 0))
 const officerActual = computed(() => officerGrades.value.reduce((sum, g) => sum + g.actual, 0))
@@ -129,8 +199,11 @@ const officerActual = computed(() => officerGrades.value.reduce((sum, g) => sum 
 const enlistedTO = computed(() => enlistedGrades.value.reduce((sum, g) => sum + g.to, 0))
 const enlistedActual = computed(() => enlistedGrades.value.reduce((sum, g) => sum + g.actual, 0))
 
-const totalTO = computed(() => officerTO.value + enlistedTO.value + civilianGrades.value[0].to)
-const totalActual = computed(() => officerActual.value + enlistedActual.value + civilianGrades.value[0].actual)
+const civilianTO = computed(() => civilianGrades.value.reduce((sum, g) => sum + g.to, 0))
+const civilianActual = computed(() => civilianGrades.value.reduce((sum, g) => sum + g.actual, 0))
+
+const totalTO = computed(() => officerTO.value + enlistedTO.value + civilianTO.value)
+const totalActual = computed(() => officerActual.value + enlistedActual.value + civilianActual.value)
 
 const psoRating = computed(() => {
   if (totalTO.value === 0) return 0

@@ -12,6 +12,7 @@
       :readonly="readonly"
       :rules="rules"
       @update:model-value="handleChange"
+      hide-details
     />
   </div>
 </template>

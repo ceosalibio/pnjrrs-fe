@@ -1,7 +1,7 @@
 <template>
   <div class="month-year-picker">
     <v-text-field
-      :model-value="displayValue"
+      v-model="model"
       :label="label"
       :placeholder="placeholder"
       readonly
@@ -74,6 +74,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 
+const model = defineModel();
 const props = defineProps({
   modelValue: { type: String, default: '' },
   label: { type: String, default: 'Month and Year' },

@@ -83,5 +83,14 @@ export const ENDPOINTS = {
     CREATE: `${BASE_PATH}/settings/organizations`,
     UPDATE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
-  }
+  },
+
+  // personnel report
+  REPORT_PERSONNEL: {
+    // LIST: `${BASE_PATH}/settings/organizations`,
+    // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+    CREATE: `${BASE_PATH}/report/personnels`,
+    UPDATE: (id) => `${BASE_PATH}/report/personnels/${id}`,
+    // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+  },
 }

@@ -50,7 +50,7 @@
             </AppCard>
 
             <!-- Preview Table Section -->
-            <AppCard v-if="csvData.length > 0">
+            <AppCard v-if="displayData.length > 0">
                 <template #default>
                     <div class="mb-4">
                         <h3 class="mb-4">Preview</h3>
@@ -67,7 +67,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(row, index) in csvData" :key="index" :class="{ 'total-row': row.isTotal, 'section-header-row': row.isSectionHeader && !row.description.toLowerCase().includes('branch'), 'office-highlight': row.isOffice }">
+                                    <tr v-for="(row, index) in displayData" :key="index" :class="{ 'total-row': row.isTotal, 'section-header-row': row.isSectionHeader && !row.description.toLowerCase().includes('branch'), 'office-highlight': row.isOffice }">
                                         <td>
                                             <input 
                                                 v-if="isFromAPI && !row.isTotal && !row.isSectionHeader"
@@ -81,7 +81,7 @@
                                         <td>{{ row.afpos }}</td>
                                         <td class="text-center" :class="{ 'font-weight-bold': row.isTotal }">
                                             <input 
-                                                v-if="isFromAPI && !row.isTotal"
+                                                v-if="isFromAPI && !row.isTotal && !row.isSectionHeader"
                                                 v-model="row.required" 
                                                 type="number"
                                                 class="editable-field"
@@ -144,11 +144,40 @@
     const appStore = useAppStore();
     const { showSnackbar } = useSnackbar();
     const csvData = ref([]);
+    const displayData = ref([]); // Expanded data for display only
     const fileName = ref('');
     const fileInput = ref(null);
     const isFromAPI = ref(false); // Track if data is from API or CSV upload
     const editingRow = ref(null); // Track which row is being edited
     const organizationSettingId = ref(null); // Store the ID from API for update operations
+
+    /**
+     * Expands rows based on required count for DISPLAY ONLY
+     * Only expands rows with grade (actual personnel rows)
+     * Each row with required > 1 will be repeated required times with required = 1
+     */
+    const expandRowsByRequired = (rows) => {
+      const expandedRows = [];
+      
+      rows.forEach(row => {
+        // Only expand rows that have a grade (personnel rows)
+        if (row.grade && row.grade.trim() !== '') {
+          const required = parseInt(row.required) || 1;
+          // Repeat row based on required count
+          for (let i = 0; i < required; i++) {
+            expandedRows.push({
+              ...row,
+              required: '1' // Set each expanded row to 1
+            });
+          }
+        } else {
+          // Don't expand: section headers, totals, or rows without grade
+          expandedRows.push(row);
+        }
+      });
+      
+      return expandedRows;
+    };
 
     // Trigger file input dialog
     const triggerFileInput = () => {
@@ -159,6 +188,7 @@
     const loadOrganizationData = async () => {
         try {
             csvData.value = [];
+            displayData.value = [];
             const filters = {
                 // category_id: filterStore.category,
                 // unit_id: filterStore.unit,
@@ -190,7 +220,8 @@
                     };
                 });
                 
-                csvData.value = processedItems;
+                csvData.value = processedItems; // Keep original data
+                displayData.value = expandRowsByRequired(processedItems); // Expand for display
                 isFromAPI.value = true;
                 fileName.value = '';
                 // Recalculate totals after loading from API
@@ -373,7 +404,9 @@
         reader.onload = (event) => {
             try {
                 const csvText = event.target.result;
-                csvData.value = parseCsv(csvText);
+                const parsedData = parseCsv(csvText);
+                csvData.value = parsedData; // Keep original data
+                displayData.value = expandRowsByRequired(parsedData); // Expand for display
                 isFromAPI.value = false; // Mark as CSV upload
                 // Recalculate totals after parsing CSV
                 recalculateTotals();
@@ -382,6 +415,7 @@
                 console.error('Error parsing CSV:', error);
                 // showSnackbar('Error parsing CSV file', 'error');
                 csvData.value = [];
+                displayData.value = [];
             }
         };
 
@@ -399,9 +433,12 @@
             return;
         }
 
+        // Expand rows and recalculate totals based on expanded data
+        const expandedForSave = expandRowsByRequired(csvData.value);
+
         // Return all data rows including totals with officeName field
         let currentOfficeName = '';
-        const dataToSend = csvData.value.map((row,i) => {
+        const dataToSend = expandedForSave.map((row,i) => {
             // Update current office name if this is an office header (office: true)
             if (row.isOffice && row.office) {
                 currentOfficeName = row.description.toUpperCase();
@@ -479,6 +516,7 @@
     // Handle clear
     const handleClear = () => {
         csvData.value = [];
+        displayData.value = [];
         fileName.value = '';
         if (fileInput.value) {
             fileInput.value.value = '';
@@ -489,18 +527,26 @@
         // showSnackbar('Data cleared', 'info');
     };
 
-    // Recalculate totals when required values change
+    // Recalculate totals based on expanded rows
     const recalculateTotals = () => {
         for (let i = 0; i < csvData.value.length; i++) {
             const row = csvData.value[i];
             
             if (row.isSubTotal) {
-                // Sum all non-total rows in this section
+                // Sum all non-total rows in this section, counting expansion
                 let total = 0;
                 let j = i - 1;
                 while (j >= 0 && !csvData.value[j].isTotal) {
-                    const requiredVal = parseInt(csvData.value[j].required) || 0;
-                    total += requiredVal;
+                    const dataRow = csvData.value[j];
+                    if (dataRow.grade && dataRow.grade.trim() !== '') {
+                        // For personnel rows, count their required value (they will expand)
+                        const requiredVal = parseInt(dataRow.required) || 1;
+                        total += requiredVal;
+                    } else {
+                        // Non-personnel rows don't expand
+                        const requiredVal = parseInt(dataRow.required) || 0;
+                        total += requiredVal;
+                    }
                     j--;
                 }
                 row.required = total.toString();
@@ -516,6 +562,9 @@
                 row.required = total.toString();
             }
         }
+        
+        // Update display data to reflect totals
+        displayData.value = expandRowsByRequired(csvData.value);
     };
 
     // Handle row edit

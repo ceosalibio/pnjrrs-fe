@@ -8,14 +8,9 @@ import { ENDPOINTS } from './endpoints'
  */
 export const getAfposItems = async (filters = {}) => {
   try {
-    // const response = await api.get(ENDPOINTS.AFPOS.LIST, { params: filters })
-    // return response.data
+    const response = await api.get(ENDPOINTS.AFPOS.LIST, { params: filters })
+    return response.data?.data ?? response?.data
     
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return {
-      success: true,
-      data: []
-    }
   } catch (error) {
     return {
       success: false,
@@ -31,8 +26,8 @@ export const getAfposItems = async (filters = {}) => {
  */
 export const getAfposItemById = async (id) => {
   try {
-    // const response = await api.get(ENDPOINTS.AFPOS.GET(id))
-    // return response.data
+    const response = await api.get(ENDPOINTS.AFPOS.GET(id))
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 300))
     return {
@@ -54,8 +49,8 @@ export const getAfposItemById = async (id) => {
  */
 export const createAfposItem = async (data) => {
   try {
-    // const response = await api.post(ENDPOINTS.AFPOS.CREATE, data)
-    // return response.data
+    const response = await api.post(ENDPOINTS.AFPOS.CREATE, data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -78,8 +73,8 @@ export const createAfposItem = async (data) => {
  */
 export const updateAfposItem = async (id, data) => {
   try {
-    // const response = await api.put(ENDPOINTS.AFPOS.UPDATE(id), data)
-    // return response.data
+    const response = await api.put(ENDPOINTS.AFPOS.UPDATE(id), data)
+    return response.data
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {
@@ -101,7 +96,7 @@ export const updateAfposItem = async (id, data) => {
  */
 export const deleteAfposItem = async (id) => {
   try {
-    // await api.delete(ENDPOINTS.AFPOS.DELETE(id))
+    await api.delete(ENDPOINTS.AFPOS.DELETE(id))
     
     await new Promise(resolve => setTimeout(resolve, 500))
     return {

@@ -14,6 +14,7 @@
       :readonly="props.readonly"
       @input="handleInput"
       @change="handleChange"
+      :hide-details="hideDetails"
     >
       <slot></slot>
     </v-text-field>
@@ -67,6 +68,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  hideDetails : {
+    type : Boolean,
+    defautl : false
+  }
 });
 
 const emit = defineEmits(['on-input', 'on-change'])

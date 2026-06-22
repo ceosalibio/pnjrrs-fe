@@ -20,7 +20,7 @@
                         :items="filterStore.organizationFilterItems.subunits"
                     />
                 </div>
-                <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.offices.length > 0">
+                <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.offices?.length > 0">
                     <AppAutocomplete 
                         
                         label="Offices"
@@ -30,7 +30,7 @@
                         :items="filterStore.organizationFilterItems.offices"
                     />
                 </div>
-                <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.suboffices.length > 0">
+                <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.suboffices?.length > 0">
                     <AppAutocomplete 
                         
                         label="Suboffices"
@@ -46,24 +46,35 @@
                         v-model="filterStore.reportMonth"
                     />
                 </div>
-
-                <AppButton
-                    color="warning"
-                >
+                <div v-if="showGenerate">
+                    <AppButton
+                        color="warning"
+                        @on-click="handleGenerate()"
+                    >
                     Generate Report
-                </AppButton>
+                    </AppButton>
+                </div>
+                
+                <div v-if="showSubmit">
+                    <AppButton
+                        color="success"
+                        @on-click="handleSubmit()"
+                    >
+                        Submit Report
+                    </AppButton>
+                </div>
 
-                <AppButton
-                    color="success"
-                >
-                    Submit Report
-                </AppButton>
+                <div v-if="showPrint">
+                    <AppButton
+                        color="primary"
+                        @on-click="handlePrint()"
 
-                <AppButton
-                    color="primary"
-                >
-                    Print Report
-                </AppButton>
+                    >
+                        Print Report
+                    </AppButton>
+                </div>
+
+                
 
             </div>
             <div>
@@ -89,7 +100,36 @@
     import AppMonthYearPicker from '../forms/AppMonthYearPicker.vue';
     import { useFilterStore } from '@/stores/filterStore.js';
 
+    const emit = defineEmits(['generate','submit','print'])
     const filterStore = useFilterStore();
+
+    const props = defineProps({
+        showGenerate : {
+            type : Boolean,
+            default : true
+        },
+        showSubmit : {
+            type : Boolean,
+            default : true
+        },
+        showPrint : {
+            type : Boolean,
+            default : true
+        },
+
+    })
+
+    function handleGenerate() {
+        emit('generate')
+    }
+
+    function handleSubmit() {
+        emit('submit')
+    }
+
+    function handlePrint() {
+        emit('print')
+    }
 </script>
 
 <style scoped>
