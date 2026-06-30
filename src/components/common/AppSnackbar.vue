@@ -7,7 +7,7 @@
     variant="elevated"
     location="top"
   >
-    {{ appStore.snackbar.message }}
+    <div class="snackbar-content">{{ appStore.snackbar.message }}</div>
     
     <template #actions>
       <v-btn
@@ -26,6 +26,8 @@ const appStore = useAppStore()
 </script>
 
 <style scoped>
-/* Snackbar styling */
-
+.snackbar-content {
+  white-space: pre-line;
+  word-break: break-word;
+}
 </style>

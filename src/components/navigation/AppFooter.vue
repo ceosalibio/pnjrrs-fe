@@ -4,7 +4,7 @@
   >
     <v-container class="d-flex align-center justify-space-between flex-wrap gap-2 pa-0 h-100">
       <div class="text-sm">
-        <p class="ma-0">&copy; 2024 Philippine Navy Management System. All rights reserved.</p>
+        <p class="ma-0">&copy; Automated Philippine Navy AFPJRRS. All rights reserved.</p>
       </div>
 
       <div class="d-flex gap-4">

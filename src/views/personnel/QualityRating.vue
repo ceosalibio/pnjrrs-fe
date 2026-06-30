@@ -56,6 +56,13 @@
                         class="input-field"
                         :hideDetails="true"
                       />
+
+                      <AppTextField
+                        v-model="item.serial"
+                        label="Serial"
+                        class="input-field-serial"
+                        :hideDetails="true"
+                      />
                       <AppAutocomplete
                         v-model="item.type"
                         :items="typeList"
@@ -197,6 +204,33 @@ const onAfposChange = (item, selectedId) => {
 
 const handleSave = async () => {
   try {
+    // Check for duplicate serials
+    const serialMap = new Map()
+    const duplicateSerials = []
+
+    reportStore.personnelItems.forEach((item) => {
+      const serial = item.serial?.trim()
+      if (serial) {
+        console.log('Serial found:', serial)
+        if (serialMap.has(serial)) {
+          if (!duplicateSerials.includes(serial)) {
+            duplicateSerials.push(serial)
+          }
+        } else {
+          serialMap.set(serial, true)
+        }
+      }
+    })
+
+    console.log('Duplicate serials:', duplicateSerials)
+
+    // If duplicates found, show error and don't save
+    if (duplicateSerials.length > 0) {
+      const message = `Serial number(s) already exist:\n${duplicateSerials.join('\n')}\n\nThe report will not save. Please correct these duplicates.`
+      showError(message)
+      return
+    }
+
     // Format all names based on division before saving
     reportStore.personnelItems.forEach((item) => {
       item.name = formatPersonnelName(item.name, item.division)
@@ -333,7 +367,11 @@ onBeforeUnmount(() => {
 }
 
 .input-field {
-  width: 500px !important;
+  width: 400px !important;
+}
+
+.input-field-serial {
+  width: 250px !important;
 }
 .rank-field {
   width: 150px !important;

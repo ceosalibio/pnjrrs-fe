@@ -14,7 +14,7 @@
     >
       <v-icon size="48" class="mb-2">mdi-shield-anchor</v-icon>
       <h3 class="text-h6 font-weight-600">Philippine Navy</h3>
-      <p class="text-sm opacity-75">Management System</p>
+      <p class="text-sm opacity-75">AFPJRRS</p>
     </v-card>
 
     <v-divider />

@@ -14,10 +14,16 @@
         </v-card>
       </div>
     </v-main>
+
+    <app-snackbar />
   </v-app>
 </template>
 
 <script setup>
+import AppSnackbar from '@/components/common/AppSnackbar.vue'
+// import { useAppStore } from '@/stores/appStore'
+
+// const appStore = useAppStore()
 </script>
 
 <style scoped>
@@ -28,7 +34,8 @@
 
 .auth-main {
   height: 100vh;
-  background: url('@/assets/images/coverpage.png') center center / 100% 100% no-repeat;
+  background: url('@/assets/images/coverpage.png') center center / 90% 100% no-repeat;
+  background-color: #0a1a33; 
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -41,7 +48,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 60px;
+  margin-right: 90px;
 }
 
 .auth-card {

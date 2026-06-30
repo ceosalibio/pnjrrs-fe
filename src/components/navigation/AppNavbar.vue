@@ -14,7 +14,7 @@
     <v-icon size="32" class="mx-2">mdi-shield-anchor</v-icon>
     
     <v-app-bar-title class="font-weight-600">
-      Philippine Navy Management System
+      Automated Philippine Navy AFPJRRS
     </v-app-bar-title>
 
     <!-- Right Section -->
