@@ -1,24 +1,12 @@
 <template>
     <div>
-        <!-- <AppSettingHeader /> -->
-        <div class="mb-6">
-            <h1 class="text-h4 font-weight-bold">Training Requirements Upload</h1>
-            <p class="text-grey mt-2">Upload and manage training requirements using CSV files</p>
-        </div>
+        <AppSettingHeader />
         <div class="mt-4">
             <!-- CSV Upload Section -->
             <AppCard class="mb-4">
                 <template #default>
                     <div class="d-flex justify-space-between align-center gap-3">
-                        <div class="d-flex ga-8">
-                            <AppAutocomplete 
-                                label="Units"
-                                v-model="filterStore.unit"
-                                :text="'name'"
-                                :value="'id'"
-                                :items="filterStore.organizationFilterItems.units"
-                            />
-                            
+                        <div>
                             <input
                                 v-if="csvData?.length == 0"
                                 ref="fileInput"
@@ -39,7 +27,7 @@
                             </span>
                         </div>
 
-                        <div class="d-flex ga-2">
+                        <div class="d-flex gap-2">
                             <AppButton
                                 @click="handleSave"
                                 color="success"
@@ -107,7 +95,7 @@
     import AppSettingHeader from '@/components/layouts/AppSettingHeader.vue';
     import AppCard from '@/components/common/AppCard.vue';
     import AppButton from '@/components/common/AppButton.vue';
-    import AppAutocomplete from '@/components/forms/AppAutocomplete.vue';
+    import AppLoadingOverlay from '@/components/common/AppLoadingOverlay.vue';
     import { useFilterStore } from '@/stores/filterStore';
     import { useAppStore } from '@/stores/appStore';
     import { useSnackbar } from '@/composables/useSnackbar.js';
@@ -315,20 +303,9 @@
             return;
         }
 
-        // Generate metl_id for grouping same metl values
-        let metlIdCounter = 1;
-        let previousMetl = null;
-        
         const dataToSend = csvData.value.map((row, i) => {
-            // If metl is different from previous, increment metl_id
-            if (row.metl !== previousMetl) {
-                previousMetl = row.metl;
-                metlIdCounter++;
-            }
-            
             return {
                 id: i + 1,
-                metl_id: metlIdCounter,
                 metl: row.metl,
                 met: row.met,
                 required: row.required,
@@ -348,8 +325,7 @@
             office_id: filterStore.office,
             items: dataToSend
         };
-        console.log(payload, 'payload')
-        return false
+
         try {
             appStore.setLoading(true);
             

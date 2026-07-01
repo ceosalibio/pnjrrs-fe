@@ -48,7 +48,7 @@
                 </div>
                 <div v-if="showGenerate">
                     <AppButton
-                        :disabled="isGenerateDisabled"
+                       
                         color="warning"
                         @on-click="handleGenerate()"
                     >

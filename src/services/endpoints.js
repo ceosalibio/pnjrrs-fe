@@ -85,6 +85,15 @@ export const ENDPOINTS = {
     DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
   },
 
+  // SETTING_TRAINING endpoints
+  SETTING_TRAINING: {
+    LIST: `${BASE_PATH}/settings/trainings`,
+    GET: (id) => `${BASE_PATH}/settings/trainings/${id}`,
+    CREATE: `${BASE_PATH}/settings/trainings`,
+    UPDATE: (id) => `${BASE_PATH}/settings/trainings/${id}`,
+    DELETE: (id) => `${BASE_PATH}/settings/trainings/${id}`,
+  },
+
   // personnel report
   REPORT_PERSONNEL: {
     // LIST: `${BASE_PATH}/settings/organizations`,

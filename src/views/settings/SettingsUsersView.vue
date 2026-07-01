@@ -114,10 +114,13 @@ import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import AddUserDialog from '@/components/forms/AddUserDialog.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
+import { useAuthStore } from '@/stores/authStore.js'
 import { useFilterStore } from '@/stores/filterStore.js'
 import { useUser } from '@/composables/useUser.js'
 
 const filterStore = useFilterStore()
+const authStore = useAuthStore()
+
 
 // Initialize useUser composable
 const {  fetchUsers, addUser, editUser, removeUser } = useUser()

@@ -11,8 +11,8 @@ export const MENU_ITEMS = [
     to: '/personnel',
     role: ['admin', 'officer'],
     children: [
-      { title: 'Qualification Rating', to: '/personnel/1', icon: 'mdi-view-list' },
-      { title: 'Strength by Grade', to: '/personnel/2', icon: 'mdi-account-plus' },
+      { title: 'Fill Up Rating', to: '/personnel/1', icon: 'mdi-view-list' },
+      { title: 'Grade Rating', to: '/personnel/2', icon: 'mdi-account-plus' },
       { title: 'Readiness Reports', to: '/personnel/3', icon: 'mdi-file-chart' }
     ]
   },

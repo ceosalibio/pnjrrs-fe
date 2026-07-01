@@ -4,9 +4,9 @@
     <app-sidebar />
     
     <v-main class="d-flex flex-column">
-      <v-container class="flex-grow-1 py-6">
+      <div class="flex-grow-1 pa-6">
         <router-view />
-      </v-container>
+      </div>
 
       <app-footer />
     </v-main>

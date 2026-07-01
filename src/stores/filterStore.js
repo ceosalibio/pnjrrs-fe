@@ -69,10 +69,10 @@ export const useFilterStore = defineStore('filter', () => {
             organizationFilterItems.value.categories = categoryResult.data
         }
 
-        if (!organizationFilterItems.value.units) {
+        // if (!organizationFilterItems.value.units) {
             const result = await getUnits()
             organizationFilterItems.value.units = result.data
-        }
+        // }
 
         // Hintayin ang susunod na DOM tick para tiyak na tapos na
         // ang restore ng pinia-persist bago patayin ang guard

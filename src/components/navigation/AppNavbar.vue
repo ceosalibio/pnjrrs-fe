@@ -20,9 +20,16 @@
     <!-- Right Section -->
     <v-spacer />
 
-    <div class="d-flex align-center gap-3">
+    <div class="align-center gap-3 mr-10">
+      <div>
+        {{ userName }}
+      </div>
+      <div>
+        {{ unitName }}
+      </div>
+
       <!-- User Info -->
-      <v-menu offset-y>
+      <!-- <v-menu offset-y>
         <template #activator="{ props }">
           <v-btn
             variant="text"
@@ -68,7 +75,7 @@
             @click="handleLogout"
           />
         </v-list>
-      </v-menu>
+      </v-menu> -->
     </div>
   </v-app-bar>
 
@@ -88,12 +95,14 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
 import { useUserStore } from '@/stores/userStore'
+import { useAuthStore } from '@/stores/authStore'
 import { useAuth } from '@/composables/useAuth'
 import AppDialog from '../common/AppDialog.vue'
 
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const authStore = useAuthStore()
 const { logout } = useAuth()
 
 const showLogoutDialog = ref(false)
@@ -105,22 +114,30 @@ const user = computed(() => ({
 }))
 
 const userInitials = computed(() => userStore.getInitials)
+const userName = computed(() => {
+  const rankName = authStore?.getUser?.rank?.name || ''
+  const userName = authStore?.getUser?.name || ''
+  return `${rankName} ${userName}`.trim()
+})
 
-const goToProfile = () => {
-  router.push('/profile')
-}
+const unitName = computed(() => authStore?.getUser?.unit?.name)
 
-const goToChangePassword = () => {
-  router.push('/change-password')
-}
 
-const goToSettings = () => {
-  router.push('/settings')
-}
+// const goToProfile = () => {
+//   router.push('/profile')
+// }
 
-const handleLogout = () => {
-  showLogoutDialog.value = true
-}
+// const goToChangePassword = () => {
+//   router.push('/change-password')
+// }
+
+// const goToSettings = () => {
+//   router.push('/settings')
+// }
+
+// const handleLogout = () => {
+//   showLogoutDialog.value = true
+// }
 
 const confirmLogout = async () => {
   await logout()

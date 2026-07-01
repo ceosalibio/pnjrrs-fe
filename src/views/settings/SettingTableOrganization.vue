@@ -1,6 +1,10 @@
 <template>
     <div>
         <AppSettingHeader />
+        <div class="mb-6">
+            <h1 class="text-h4 font-weight-bold">Organization Settings</h1>
+            <p class="text-grey mt-2">Manage organization data using CSV uploads</p>
+        </div>
             <!-- <AppLoadingOverlay :isVisible="appStore.loading" /> -->
             <div class="mt-4">
             <!-- CSV Upload Section -->

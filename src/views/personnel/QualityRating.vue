@@ -159,7 +159,7 @@ const handleGenerate = async () => {
   reportStore.personnelItems = []
   const payload = filterStore.getGenrateReportPayload()
   const response = await executeReportAction (payload, 'personnel')
-  console.log(response)
+  // console.log(response)
   reportStore.personnelReportData = response?.data
   reportStore.personnelItems = response?.data?.items || []
   reportStore.reportId = response?.data?.id
@@ -201,10 +201,25 @@ const onRankChange = (item, selectedName) => {
 }
 
 const onAfposChange = (item, selectedId) => {
+  // console.log(item,'itemmm')
   const found = afposItems.value.find((r) => r.id === selectedId)
+  // console.log(found,'found')
   item.afpos_actual_name = found?.name || ''
-  if(item.item_afpos_id == found?.id){
-    item.afpos_points = 1;
+  
+  // Initialize afpos_points to 0
+  item.afpos_points = null
+  
+  // Check if grade starts with 'E' (Enlisted)
+  if (item.grade && item.grade.startsWith('E')) {
+    // For Enlisted: compare cluster group
+    if (item.item_afpos_group == found?.cluster?.group) {
+      item.afpos_points = 1
+    }
+  } else {
+    // For Officer and Civilian: compare afpos ID
+    if (item.item_afpos_id == found?.id) {
+      item.afpos_points = 1
+    }
   }
 }
 
@@ -219,7 +234,7 @@ const handleSave = async () => {
     reportStore.personnelItems.forEach((item) => {
       const serial = item.serial?.trim()
       if (serial) {
-        console.log('Serial found:', serial)
+        // console.log('Serial found:', serial)
         if (serialMap.has(serial)) {
           if (!duplicateSerials.includes(serial)) {
             duplicateSerials.push(serial)
@@ -230,7 +245,7 @@ const handleSave = async () => {
       }
     })
 
-    console.log('Duplicate serials:', duplicateSerials)
+    // console.log('Duplicate serials:', duplicateSerials)
 
     // If duplicates found, show error and don't save
     if (duplicateSerials.length > 0) {
@@ -258,14 +273,14 @@ const handleSave = async () => {
       actual: actualCount,
       required: requiredCount
     }
-    console.log(payload, 'payload')
+    // console.log(payload, 'payload')
     
     // Exit edit mode immediately to stop watcher from marking changes as unsaved
     isEditMode.value = false
     hasUnsavedChanges.value = false
     
     const response = await executeReportAction(payload, 'personnel', 'update', reportStore.reportId)
-    console.log(response, 'response')
+    // console.log(response, 'response')
     
     // Check if response contains an error
     if (response?.status !== 'success') {

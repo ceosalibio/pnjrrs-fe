@@ -72,3 +72,68 @@ export const deleteOrganizationSettings = async (id) => {
         throw error;
     }
 }
+
+// ============================================================
+// setting training service functions
+// ============================================================
+
+/**
+ * Get all training settings with optional filters
+ * @param {Object} filters - Query filters
+ * @returns {Promise<Object>} Training settings list response
+ */
+export const getTrainingSettings = async (filters = {}) => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_TRAINING.LIST, { params: filters })
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching training settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Create training settings
+ * @param {Object} payload - Training settings data to create
+ * @returns {Promise<Object>} API response for create operation
+ */
+export const saveTrainingSettings = async (payload) => {
+    try {
+        const response = await api.post(ENDPOINTS.SETTING_TRAINING.CREATE, payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error saving training settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Update training settings by ID
+ * @param {number} id - ID of the training settings to update
+ * @param {Object} payload - Training settings data to update
+ * @returns {Promise<Object>} API response for update operation
+ */
+export const updateTrainingSettings = async (id, payload) => {
+    try {
+        const response = await api.put(ENDPOINTS.SETTING_TRAINING.UPDATE(id), payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating training settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Delete training settings by ID
+ * @param {number} id - ID of the training settings to delete
+ * @returns {Promise<Object>} API response for delete operation
+ */
+export const deleteTrainingSettings = async (id) => {
+    try {
+        const response = await api.delete(ENDPOINTS.SETTING_TRAINING.DELETE(id));
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting training settings:', error);
+        throw error;
+    }
+}
