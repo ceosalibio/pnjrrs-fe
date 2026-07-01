@@ -40,6 +40,7 @@ export const executeReportAction  = async (payload, reportType, action = 'create
     return {
       success: false,
       error: error.message || `Failed to ${action} ${reportType} report`,
+      message: error.response?.data?.message || error.message || `Failed to ${action} ${reportType} report`,
     }
   }
 }

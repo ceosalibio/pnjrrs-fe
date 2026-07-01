@@ -18,7 +18,7 @@
         </v-card>
 
         <v-card class="summary-card mt-4">
-          <v-card-title class="title-banner">PSO RATING</v-card-title>
+          <v-card-title class="title-banner">PERSONNEL FILL UP RATING</v-card-title>
           <v-card-text>
             <div class="summary-row">
               <span>Rating</span>
@@ -207,7 +207,8 @@ const totalActual = computed(() => officerActual.value + enlistedActual.value + 
 
 const psoRating = computed(() => {
   if (totalTO.value === 0) return 0
-  return Math.round((totalActual.value / totalTO.value) * 100)
+  let result = (totalActual.value / totalTO.value) * 100
+  return result?result?.toFixed(2) : 0
 })
 </script>
 

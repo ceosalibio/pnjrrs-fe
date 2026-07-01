@@ -48,6 +48,7 @@
                 </div>
                 <div v-if="showGenerate">
                     <AppButton
+                        :disabled="isGenerateDisabled"
                         color="warning"
                         @on-click="handleGenerate()"
                     >
@@ -94,6 +95,7 @@
     </div>
 </template>
 <script setup>
+    import {computed} from 'vue'
     import AppAutocomplete from '../forms/AppAutocomplete.vue';
     import AppButton from '../common/AppButton.vue';
     import AppTimelineStatus from './AppTimelineStatus.vue';
@@ -117,6 +119,15 @@
             default : true
         },
 
+    })
+
+    const isGenerateDisabled = computed(() => {
+        if (!filterStore.reportMonth) return true;
+        if (!filterStore.unit) return true;
+        if (!filterStore.subunit) return true;
+        if (filterStore.organizationFilterItems.offices?.length > 0 && !filterStore.office) return true;
+        if (filterStore.organizationFilterItems.suboffices?.length > 0 && !filterStore.suboffice) return true;
+        return false;
     })
 
     function handleGenerate() {

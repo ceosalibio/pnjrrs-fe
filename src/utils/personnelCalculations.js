@@ -23,6 +23,7 @@ const GRADE_MAP = {
 
 /**
  * Calculate grade points based on required vs actual grade
+ * Only same grade system can earn points (O to O, E to E, SG to SG)
  * @param {string} requiredGrade - The required grade (e.g., "O6", "E3")
  * @param {string} actualGrade - The actual grade assigned
  * @returns {number} Grade points (1, 0.5, or 0)
@@ -35,15 +36,26 @@ export const calculateGradePoints = (requiredGrade, actualGrade) => {
 
   if (requiredValue === undefined || actualValue === undefined) return 0
 
-  // If actual grade equals required grade, or actual is lower by 1 value
-  if (actualValue === requiredValue || actualValue === requiredValue - 1) {
+  // Extract grade system prefix (O, E, SG)
+  const requiredSystem = requiredGrade.match(/^[A-Z]+/)[0]
+  const actualSystem = actualGrade.match(/^[A-Z]+/)[0]
+
+  // Grades must be from same system to earn points
+  if (requiredSystem !== actualSystem) {
+    return 0
+  }
+
+  const difference = requiredValue - actualValue
+
+  // If actual grade equals required grade, or actual is only 1 level lower
+  if (difference === 0 || difference === 1) {
     return 1
   }
-  // If actual grade is lower by 2 or more values
-  else if (actualValue < requiredValue - 1) {
+  // If actual grade is exactly 2 levels lower (minor shortage)
+  else if (difference === 2) {
     return 0.5
   }
-  // If actual grade is higher than required (not meeting requirement)
+  // If actual grade is 3+ levels lower, or higher than required (not meeting requirement)
   else {
     return 0
   }

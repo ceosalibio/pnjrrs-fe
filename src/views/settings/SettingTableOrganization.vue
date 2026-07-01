@@ -7,8 +7,9 @@
             <AppCard class="mb-4">
                 <template #default>
                     <div class="d-flex justify-space-between align-center gap-3">
-                        <div>
+                        <div >
                             <input
+                                v-if="csvData?.length == 0"
                                 ref="fileInput"
                                 type="file"
                                 accept=".csv"
@@ -18,6 +19,7 @@
                             <AppButton
                                 @click="triggerFileInput"
                                 color="primary"
+                                :disabled="csvData?.length > 0"
                             >
                                 📁 Choose CSV File
                             </AppButton>
@@ -489,11 +491,14 @@
                 response = await updateOrganizationSettings(organizationSettingId.value, payload);
             } else {
                 response = await saveOrganizationSettings(payload);
+                console.log('testtse')
                 csvData.value = [];
+                // await loadOrganizationData()
             }
             
             console.log('Response from backend:', response);
             if(response?.status == 'success') {
+                console.log('testes')
                 // showSnackbar('Data saved successfully!', 'success');
                 if(payload?.office_id){
                     const result = await filterStore.getSubOffices(1,null,payload?.office_id);
@@ -502,7 +507,9 @@
                     const result = await filterStore.getOffices(1,null,payload?.sub_unit_id);
                     filterStore.organizationFilterItems.offices = result.data;
                 }
-                //  await loadOrganizationData();
+                filterStore.office = response?.data[0]?.office_id;
+                filterStore.suboffice = response?.data[0]?.sub_office_id;
+                 await loadOrganizationData();
             } 
         } catch (error) {
             console.error('Error saving data:', error);

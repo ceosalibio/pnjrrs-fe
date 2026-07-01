@@ -11,4 +11,15 @@ export const useReportStore = defineStore('report', () => {
         personnelItems,
         reportId
     }
-})
+},
+{
+    persist: {
+        paths: [
+            "personnelReportData",
+            "personnelItems",
+            
+        ],
+    },
+}
+
+)

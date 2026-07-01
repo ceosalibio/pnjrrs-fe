@@ -10,104 +10,73 @@
         <v-table class="rating-summary-table mb-8">
           <thead>
             <tr class="header-row">
-              <th>RATING</th>
-              <th>PERCENTAGE</th>
-              <th>WEIGHT PERCENTAGE</th>
+              <th class="text-center">RATING</th>
+              <th class="text-center">PERCENTAGE</th>
+              <th class="text-center">WEIGHT PERCENTAGE</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>PSGR (50%)</td>
-              <td class="text-center">{{ psgrPercentage }}%</td>
-              <td class="text-center">{{ psgrWeightedPercentage }}%</td>
+              <td>Personnel Fill-up Rating ({{ readinessTableData?.fillUpRating || 0 }} %)</td>
+              <td class="text-center">80%</td>
+              <td class="text-center">{{ readinessTableData?.finalFillUpRating || 0 }}%</td>
             </tr>
             <tr>
-              <td>Personnel Qualification Rating (50%)</td>
-              <td class="text-center">{{ pqrPercentage }}%</td>
-              <td class="text-center">{{ pqrWeightedPercentage }}%</td>
+              <td>Personnel Grade Rating ({{ readinessTableData?.gradeRating || 0 }} %)</td>
+              <td class="text-center">85%</td>
+              <td class="text-center">{{ readinessTableData?.finalGradeRating || 0 }}%</td>
             </tr>
             <tr>
-              <td>PQR (40%)</td>
-              <td class="text-center">{{ pqrDetailPercentage }}%</td>
-              <td class="text-center">{{ pqrDetailWeightedPercentage }}%</td>
-            </tr>
-            <tr>
-              <td>PSR (60%)</td>
-              <td class="text-center">{{ psrPercentage }}%</td>
-              <td class="text-center">{{ psrWeightedPercentage }}%</td>
+              <td>Personnel Specialty Rating ({{ readinessTableData?.afposRating || 0 }} %)</td>
+              <td class="text-center">100%</td>
+              <td class="text-center">{{ readinessTableData?.finalAfposRating || 0 }}%</td>
             </tr>
             <tr class="total-row">
-              <td class="font-weight-600">TOTAL (PSGR + PQR)</td>
+              <td colspan="2">TOTAL</td>
+              <td class="text-center">{{ readinessTableData?.readiness || 0 }}%</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="2">REDCON</td>
               <td class="text-center"></td>
-              <td class="text-center font-weight-600">{{ totalWeightedPercentage }}%</td>
             </tr>
           </tbody>
         </v-table>
 
         <!-- Assessment Section -->
-        <div class="assessment-section">
-          <h3 class="assessment-title">Assessment:</h3>
-
-          <div class="assessment-item">
-            <div class="question-header">
-              a. What capability shortfall exists or what has occurred to cause the lower assessment, and which elements of operational preparedness are affected?
-            </div>
-            <v-text-field
-              v-model="assessmentA"
-              variant="outlined"
-              placeholder="Enter assessment..."
-              class="mt-2"
-            />
-          </div>
-
-          <div class="assessment-item">
-            <div class="question-header">
-              b. What are the consequences of the lower level of readiness?
-            </div>
-            <v-text-field
-              v-model="assessmentB"
-              variant="outlined"
-              placeholder="Enter assessment..."
-              class="mt-2"
-            />
-          </div>
-
-          <div class="assessment-item">
-            <div class="question-header">
-              c. What is required to remedy the situation?
-            </div>
-            <v-text-field
-              v-model="assessmentC"
-              variant="outlined"
-              placeholder="Enter assessment..."
-              class="mt-2"
-            />
-          </div>
-
-          <div class="assessment-item">
-            <div class="question-header">
-              d. What level is achievable within a prescribed period?
-            </div>
-            <v-text-field
-              v-model="assessmentD"
-              variant="outlined"
-              placeholder="Enter assessment..."
-              class="mt-2"
-            />
-          </div>
-
-          <div class="d-flex gap-2 justify-end mt-6">
-            <v-btn variant="outlined" @click="reset">Clear</v-btn>
-            <v-btn color="primary" @click="save">Save Report</v-btn>
-          </div>
-        </div>
+        <AssessmentForm 
+          v-model:assessments="assessments"
+          @save="save"
+          @clear="reset"
+        />
       </v-card-text>
     </v-card>
+
+    <!-- Save Confirmation Dialog -->
+    <AppDialog
+      v-model="showConfirmDialog"
+      title="Confirm Save"
+      message="Are you sure you want to save this assessment? This action cannot be undone."
+      confirm-text="Save"
+      cancel-text="Cancel"
+      confirm-color="success"
+      @confirm="handleConfirmSave"
+      @cancel="handleCancelSave"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import AssessmentForm from '@/components/common/AssessmentForm.vue'
+import AppDialog from '@/components/common/AppDialog.vue'
+import { useReportStore } from '@/stores/reportStore'
+import { executeReportAction  } from '@/services/reportService'
+
+const reportStore = useReportStore()
+
+// Dialog state
+const showConfirmDialog = ref(false)
+const pendingAssessmentData = ref(null)
 
 // Rating percentages
 const psgrPercentage = ref(0)
@@ -115,11 +84,23 @@ const pqrPercentage = ref(0)
 const pqrDetailPercentage = ref(0)
 const psrPercentage = ref(0)
 
-// Assessment fields
-const assessmentA = ref('')
-const assessmentB = ref('')
-const assessmentC = ref('')
-const assessmentD = ref('')
+// Assessment object
+const assessmentsTemp = ref({
+  a: '',
+  b: '',
+  c: '',
+  d: ''
+})
+
+const readinessTableData = computed(()=>{
+  return reportStore?.personnelReportData?.result
+})
+
+const assessments = computed(()=>{
+  return reportStore?.personnelReportData?.assessment ?? assessmentsTemp.value
+})
+
+
 
 // Computed weighted percentages
 const psgrWeightedPercentage = computed(() => {
@@ -147,26 +128,40 @@ const reset = () => {
   pqrPercentage.value = 0
   pqrDetailPercentage.value = 0
   psrPercentage.value = 0
-  assessmentA.value = ''
-  assessmentB.value = ''
-  assessmentC.value = ''
-  assessmentD.value = ''
+  assessments.value = {
+    a: '',
+    b: '',
+    c: '',
+    d: ''
+  }
 }
 
-const save = () => {
-  console.log({
-    psgrPercentage: psgrPercentage.value,
-    pqrPercentage: pqrPercentage.value,
-    pqrDetailPercentage: pqrDetailPercentage.value,
-    psrPercentage: psrPercentage.value,
-    assessments: {
-      a: assessmentA.value,
-      b: assessmentB.value,
-      c: assessmentC.value,
-      d: assessmentD.value
-    }
-  })
+const save = (assessmentData) => {
+  // Store the assessment data and show confirmation dialog
+  pendingAssessmentData.value = assessmentData || assessments.value
+  showConfirmDialog.value = true
+}
+
+/**
+ * Handle confirmation from dialog
+ */
+const handleConfirmSave = async () => {
+  let payload ={
+    assessment: pendingAssessmentData.value
+  }
+  const response = await executeReportAction (payload, 'personnel','update', reportStore.personnelReportData?.id)
+  console.log(response)
+  reportStore.personnelReportData = response?.data
+  showConfirmDialog.value = false
   alert('Report saved successfully!')
+}
+
+/**
+ * Handle cancel from dialog
+ */
+const handleCancelSave = () => {
+  showConfirmDialog.value = false
+  pendingAssessmentData.value = null
 }
 </script>
 

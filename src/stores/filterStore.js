@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, watch, onMounted } from 'vue'
-import { getCategories, getUnits,  getSubUnits, getOffices, getSubOffices  } from '@/services/organizationService'
+import { ref, watch, onMounted, nextTick } from 'vue'
+import { getCategories, getUnits, getSubUnits, getOffices, getSubOffices } from '@/services/organizationService'
+
 export const useFilterStore = defineStore('filter', () => {
     const search = ref('')
     const category = ref('')
@@ -11,52 +12,72 @@ export const useFilterStore = defineStore('filter', () => {
     const reportMonth = ref('')
     const organizationFilterItems = ref({})
 
+    // Guard flag para hindi ma-trigger ang reset/cascade logic
+    // habang nire-restore pa lang ng pinia-persist ang naka-save na state
+    const isHydrating = ref(true)
 
-    watch(() => category.value, async (newCategory) => {
-        if (newCategory !== '' && newCategory != null) {
+    watch(() => category.value, async (newCategory, oldCategory) => {
+        if (isHydrating.value) return
+
+        if (newCategory !== oldCategory && newCategory !== '' && newCategory != null) {
             unit.value = ''
             subunit.value = ''
             office.value = ''
             suboffice.value = ''
-            const result = await getUnits(1,null,newCategory)
+            const result = await getUnits(1, null, newCategory)
             organizationFilterItems.value.units = result.data
         }
-    })
+    }, { immediate: false })
 
-    watch(() => unit.value, async (newUnit) => {
-        if (newUnit !== '' && newUnit != null) {
+    watch(() => unit.value, async (newUnit, oldUnit) => {
+        if (isHydrating.value) return
+
+        if (newUnit !== oldUnit && newUnit !== '' && newUnit != null) {
             subunit.value = ''
             office.value = ''
             suboffice.value = ''
-            const result = await getSubUnits(1,null,newUnit)
+            const result = await getSubUnits(1, null, newUnit)
             organizationFilterItems.value.subunits = result.data
         }
-    })
+    }, { immediate: false })
 
-    watch(() => subunit.value, async (newSubUnit) => {
-        if (newSubUnit !== '' && newSubUnit != null) {
+    watch(() => subunit.value, async (newSubUnit, oldSubUnit) => {
+        if (isHydrating.value) return
+
+        if (newSubUnit !== oldSubUnit && newSubUnit !== '' && newSubUnit != null) {
             office.value = ''
             suboffice.value = ''
-            const result = await getOffices(1,null,newSubUnit)
+            const result = await getOffices(1, null, newSubUnit)
             organizationFilterItems.value.offices = result.data
         }
-    })
+    }, { immediate: false })
 
-    watch(() => office.value, async (newOffice) => {
-        console.log('Office changed to:', newOffice)
-        if (newOffice !== '' && newOffice != null) {
+    watch(() => office.value, async (newOffice, oldOffice) => {
+        if (isHydrating.value) return
+
+        if (newOffice !== oldOffice && newOffice !== '' && newOffice != null) {
             suboffice.value = ''
-            console.log('Fetching suboffices for office:', newOffice)
-            const result = await getSubOffices(1,null,newOffice)
+            const result = await getSubOffices(1, null, newOffice)
             organizationFilterItems.value.suboffices = result.data
         }
-    })
+    }, { immediate: false })
 
     onMounted(async () => {
-        const categoryResult = await getCategories()
-        organizationFilterItems.value.categories = categoryResult.data
-        const result = await getUnits()
-        organizationFilterItems.value.units = result.data
+        // Kapag walang naka-save na options sa categories/units, kunin ang default list
+        if (!organizationFilterItems.value.categories) {
+            const categoryResult = await getCategories()
+            organizationFilterItems.value.categories = categoryResult.data
+        }
+
+        if (!organizationFilterItems.value.units) {
+            const result = await getUnits()
+            organizationFilterItems.value.units = result.data
+        }
+
+        // Hintayin ang susunod na DOM tick para tiyak na tapos na
+        // ang restore ng pinia-persist bago patayin ang guard
+        await nextTick()
+        isHydrating.value = false
     })
 
     // Build filter payload for API requests
@@ -82,5 +103,21 @@ export const useFilterStore = defineStore('filter', () => {
         getSubUnits,
         organizationFilterItems,
         getGenrateReportPayload
-    }
-})
+    };
+
+},
+{
+    persist: {
+        paths: [
+            "category",
+            "unit",
+            "subunit",
+            "office",
+            "suboffice",
+            "reportMonth",
+            "organizationFilterItems"
+        ],
+    },
+}
+
+);

@@ -21,6 +21,7 @@
             prepend-inner-icon="mdi-magnify"
             class="flex-grow-1"
             density="compact"
+            hide-details
           />
           <AppAutocomplete 
             label="Units"

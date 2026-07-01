@@ -37,8 +37,8 @@
           </thead>
           <tbody>
             <tr v-for="(item, i) in reportStore.personnelItems" :key="i">
-              <td>{{ item.description }}</td>
-              <td :class="{ 'editable-cell': isEditMode && item.grade }">
+              <td v-if="!item?.office">{{ item.description }}</td>
+              <td v-if="!item?.office" :class="{ 'editable-cell': isEditMode && item.grade }">
                   <div v-if="isEditMode && item.grade">
                     <div class="cell-content ga-2">
                       <AppAutocomplete
@@ -81,11 +81,11 @@
                  
                   
               </td>
-              <td class="text-center">{{ item.grade }}</td>
-              <td class="text-center">{{ item.grade_actual }}</td>
-              <td>{{ item.grade_points }}</td>
-              <td  class="text-center">{{ item.afpos }}</td>
-               <td :class="{ 'editable-cell': isEditMode && item.grade }">
+              <td v-if="!item?.office" class="text-center">{{ item.grade }}</td>
+              <td v-if="!item?.office" class="text-center">{{ item.grade_actual }}</td>
+              <td v-if="!item?.office">{{ item.grade_points }}</td>
+              <td v-if="!item?.office" class="text-center">{{ item.afpos }}</td>
+               <td v-if="!item?.office" :class="{ 'editable-cell': isEditMode && item.grade }">
                 <AppAutocomplete
                   v-if="isEditMode && item.grade"
                   v-model="item.afpos_actual_id"
@@ -98,8 +98,8 @@
                 />
                 <span v-else>{{ item.afpos_actual_name }}</span>
               </td>
-              <td>{{ item.afpos_points }}</td>
-              <td class="text-center">{{ item.required }}</td>
+              <td v-if="!item?.office">{{ item.afpos_points }}</td>
+              <td v-if="!item?.office" class="text-center">{{ item.required }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -141,8 +141,16 @@ const hasUnsavedChanges = ref(false)
 
 
 const typeList = ref([
+  // { text: 'PN', value: 'PN' },
+  // { text: 'PMC', value: 'PMC' },
   { text: 'PN', value: 'PN' },
-  { text: 'PMC', value: 'PMC' }
+  { text: 'PN(M)', value: 'PN(M)' },
+  { text: 'PN(GSC)', value: 'PN(GSC)' },
+  { text: 'PN(M)(GSC)', value: 'PN(M)(GSC)' },
+  { text: 'PN(MNSA)', value: 'PN(MNSA)' },
+  { text: 'PN(JSC)', value: 'PN(JSC)' },
+  { text: 'PN(M)(MNSA)', value: 'PN(M)(MNSA)' },
+  { text: 'PN(M)(JSC)', value: 'PN(M)(JSC)' }
 ])
 
 
@@ -251,14 +259,25 @@ const handleSave = async () => {
       required: requiredCount
     }
     console.log(payload, 'payload')
+    
+    // Exit edit mode immediately to stop watcher from marking changes as unsaved
+    isEditMode.value = false
+    hasUnsavedChanges.value = false
+    
     const response = await executeReportAction(payload, 'personnel', 'update', reportStore.reportId)
     console.log(response, 'response')
     
+    // Check if response contains an error
+    if (response?.status !== 'success') {
+      showError(response?.message || 'Error saving data')
+      return
+    }
+    
     showSuccess('Personnel data saved successfully!')
-    isEditMode.value = false
-    hasUnsavedChanges.value = false
   } catch (error) {
     showError('Error saving data: ' + error.message)
+    // Re-enter edit mode if save failed
+    isEditMode.value = true
   }
 }
 
