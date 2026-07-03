@@ -160,9 +160,10 @@ const handleGenerate = async () => {
   const payload = filterStore.getGenrateReportPayload()
   const response = await executeReportAction (payload, 'personnel')
   // console.log(response)
-  reportStore.personnelReportData = response?.data
-  reportStore.personnelItems = response?.data?.items || []
-  reportStore.reportId = response?.data?.id
+  reportStore.personnelReportData = response?.data?.report
+  reportStore.personnelItems = response?.data?.report?.items || []
+  reportStore.reportId = response?.data?.report?.id
+  reportStore.approver = response?.data?.approver || []
 }
 
 const toggleEditMode = async () => {

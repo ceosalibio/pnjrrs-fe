@@ -15,12 +15,17 @@ import {
  * Handles CRUD operations via userService
  */
 export const useUser = () => {
-  const { showSnackbar } = useSnackbar()
+  const { showSuccess, showError } = useSnackbar()
 
   const isLoading = ref(false)
   const users = ref([])
   const selectedUser = ref(null)
   const rankItems = ref([])
+  const currentPage = ref(1)
+  const perPage = ref(15)
+  const lastPage = ref(1)
+  const total = ref(0)
+  const isLoadingUsers = ref(false)
 
   /**
    * Fetch all users with optional filters
@@ -33,11 +38,16 @@ export const useUser = () => {
 
       if (!response.success) throw new Error(response.error)
 
-      users.value = response.data
+      users.value = response.data?.data ?? response.data ?? [] 
+      const paginatedData = response.data
+      currentPage.value = paginatedData.current_page || 1
+      lastPage.value = paginatedData.last_page || 1
+      perPage.value = paginatedData.per_page || 15
+      total.value = paginatedData.total || 0
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to fetch users'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
@@ -59,7 +69,7 @@ export const useUser = () => {
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to fetch user'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
@@ -78,11 +88,11 @@ export const useUser = () => {
       if (!response.success) throw new Error(response.error)
 
       users.value.push(response.data)
-      showSnackbar({ message: 'User created successfully', color: 'success' })
+      showSuccess('User created successfully')
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to create user'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
@@ -98,17 +108,17 @@ export const useUser = () => {
     isLoading.value = true
     try {
       const response = await updateUser(id, userData)
-
+      console.log(response,'asdasdasd')
       if (!response.success) throw new Error(response.error)
 
       const index = users.value.findIndex(u => u.id === id)
       if (index !== -1) users.value[index] = response.data
 
-      showSnackbar({ message: 'User updated successfully', color: 'success' })
+      // showSuccess('User updated successfully')
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to update user'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
@@ -127,11 +137,11 @@ export const useUser = () => {
       if (!response.success) throw new Error(response.error)
 
       users.value = users.value.filter(u => u.id !== id)
-      showSnackbar({ message: 'User deleted successfully', color: 'success' })
+      showSuccess('User deleted successfully')
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to delete user'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
@@ -153,7 +163,7 @@ export const useUser = () => {
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to fetch users by rank'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       return { success: false, error: errorMessage }
     } finally {
       isLoading.value = false
@@ -176,7 +186,7 @@ export const useUser = () => {
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to fetch rank'
-      showSnackbar({ message: errorMessage, color: 'error' })
+      showError(errorMessage)
       console.error('Rank fetch error:', error)
       return { success: false, error: errorMessage }
     } finally {
@@ -190,6 +200,10 @@ export const useUser = () => {
     users,
     selectedUser,
     rankItems,
+    currentPage,
+    perPage,
+    lastPage,
+    total,
     // Methods
     fetchUsers,
     fetchUserById,

@@ -12,7 +12,7 @@
       :readonly="readonly"
       :rules="rules"
       @update:model-value="handleChange"
-      hide-details
+      :hide-details="hideDetails"
     />
   </div>
 </template>
@@ -57,6 +57,10 @@ const props = defineProps({
   readonly: {
     type: Boolean,
     default: false,
+  },
+  hideDetails: {
+    type: Boolean,
+    default: true,
   },
   rules: {
     type: Array,

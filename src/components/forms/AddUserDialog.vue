@@ -1,8 +1,8 @@
 <template>
   <app-dialog
     v-model="isDialogOpen"
-    title="Add New User"
-    confirm-text="Create User"
+    :title="isEditMode ? 'Edit User' : 'Add New User'"
+    :confirm-text="isEditMode ? 'Update User' : 'Create User'"
     cancel-text="Cancel"
     max-width="600"
     @confirm="handleSubmit"
@@ -22,12 +22,22 @@
             :text="'name'"
             :value="'id'"
             :rules="[(v) => !!v || 'Rank is required']"
-          />
+            :hideDetails="false"
+            />
           <app-text-field
             v-model="formData.name"
             label="Full Name"
             placeholder="Enter full name"
             :rules="[(v) => !!v || 'Full name is required', (v) => v?.length >= 2 || 'Name must be at least 2 characters']"
+            required
+            class="field"
+          />
+
+          <app-text-field
+            v-model="formData.position"
+            label="Position"
+            placeholder="Enter position"
+            :rules="[(v) => !!v || 'Position is required' ]"
             required
             class="field"
           />
@@ -39,14 +49,18 @@
             required
             class="field"
           />
-          <app-text-field
+          <v-text-field
             v-model="formData.password"
             label="Password"
-            type="password"
-            placeholder="Enter password"
-            :rules="[(v) => !!v || 'Password is required', (v) => v?.length >= 8 || 'Password must be at least 8 characters']"
-            required
+            :type="showPassword ? 'text' : 'password'"
+            :placeholder="isEditMode ? 'Leave empty to keep current password' : 'Enter password'"
+            :rules="isEditMode ? [(v) => !v || v?.length >= 8 || 'Password must be at least 8 characters'] : [(v) => !!v || 'Password is required', (v) => v?.length >= 8 || 'Password must be at least 8 characters']"
+            :required="!isEditMode"
+            variant="outlined"
+            density="compact"
             class="field"
+            :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="showPassword = !showPassword"
           />
         </div>
       </div>
@@ -63,6 +77,7 @@
             :value="'id'"
             :items="filterStore.organizationFilterItems.categories"
             :rules="[(v) => !!v || 'Category is required']"
+            :hideDetails="false"
             />
           <app-autocomplete
             label="Units"
@@ -71,7 +86,8 @@
             :value="'id'"
             :items="filterStore.organizationFilterItems.units"
             :rules="[(v) => !!v || 'Unit is required']"
-          />
+            :hideDetails="false"
+            />
           <app-autocomplete
             label="Subunits"
             v-model="filterStore.subunit"
@@ -105,22 +121,23 @@
         <div class="section-title text-subtitle-2 font-weight-600 mb-3">Role Assignment</div>
         
         <div class="grid">
-          <!-- <app-autocomplete
+          <app-autocomplete
             v-model="formData.approver"
             label="Approver"
-            :options="approverOptions"
-            :loading="isLoadingApprovers"
-            :error="errors.approver"
-            class="field"
+            :items="approverItems"
+            :text="'text'"
+            :value="'value'"
+            :rules="[(v) => !!v || 'Approver is reuquired']"
+            :hideDetails="false"
           />
           <app-autocomplete
-            v-model="formData.officeAdmin"
+            v-model="formData.office_role"
             label="Office Admin"
-            :options="officeAdminOptions"
-            :loading="isLoadingOfficeAdmins"
-            :error="errors.officeAdmin"
-            class="field"
-          /> -->
+            :items="officeItems"
+            :text="'text'"
+            :value="'value'"
+
+          />
         </div>
       </div>
     </v-form>
@@ -136,7 +153,7 @@ import { useUser } from '@/composables/useUser'
 import { useFilterStore } from '@/stores/filterStore.js'
 
 // Initialize useUser composable
-const { rankItems, isLoading, addUser, fetchRank } = useUser()
+const { rankItems, isLoading, addUser, editUser, fetchRank } = useUser()
 const filterStore = useFilterStore()
 
 // Dialog state
@@ -145,8 +162,12 @@ const isDialogOpen = defineModel('open', {
   default: false
 })
 
+// Edit mode state
+const isEditMode = ref(false)
+const editingUserId = ref(null)
+
 // Emit events
-const emit = defineEmits(['user-created', 'error'])
+const emit = defineEmits(['user-created', 'user-updated', 'error'])
 
 // Form reference
 const form = ref(null)
@@ -155,14 +176,36 @@ const form = ref(null)
 const formData = ref({
   rank_id: null,
   name: '',
+  position: '',
   username: '',
   password: '',
   category_id: null,
   unit_id: null,
   subunit_id: null,
   office_id: null,
-  suboffice_id: null
+  suboffice_id: null,
+  approver: null,
+  office_role: null
 })
+
+// Password visibility toggle
+const showPassword = ref(false)
+
+const approverItems = ref([
+  {text : 'Drafter', value:'0' },
+  {text : '1st Approver', value:1 },
+  {text : '2nd Approver', value:2 },
+  {text : '3rd Approver', value:3 },
+  {text : '4th Approver', value:4 },
+  {text : '5th Approver', value:5 },
+])
+
+const officeItems = ref([
+  {text : '1 - Personnel', value:1 },
+  {text : '8 - Training', value:8 },
+  {text : '4 - Equepment/Maintenance/Communication', value: 4 },
+  {text : '3 - Consolidated', value:3 },
+])
 
 
 
@@ -170,8 +213,8 @@ const formData = ref({
  * Handle form submission
  */
 const handleSubmit = async () => {
+  console.log('testst')
   const { valid } = await form.value.validate()
-  console.log('Form valid:', valid)
   
   if (!valid) {
     emit('error', 'Please fill in all required fields correctly')
@@ -182,25 +225,57 @@ const handleSubmit = async () => {
     const payload = {
       rank_id: formData.value.rank_id,
       name: formData.value.name,
+      position: formData.value.position,
       username: formData.value.username,
-      password: formData.value.password,
       category_id: filterStore.category,
       unit_id: filterStore.unit,
       sub_unit_id: filterStore.subunit,
       office_id: filterStore.office,
-      sub_office_id: filterStore.suboffice
+      sub_office_id: filterStore.suboffice,
+      approver: formData.value.approver,
+      office_role: formData.value.office_role,
+      role: formData.value.approver ? 2 : 0
     }
 
-    const response = await addUser(payload)
+    // Only include password if it's provided (required for create, optional for edit)
+    if (formData.value.password) {
+      payload.password = formData.value.password
+    }
 
-    if (response.success) {
-      emit('user-created', response.data)
-      handleCancel()
+    let response
+    
+    if (isEditMode.value && editingUserId.value) {
+      response = await editUser(editingUserId.value, payload)
     } else {
-      emit('error', response.error || 'Failed to create user')
+      // Create mode requires password
+      if (!formData.value.password) {
+        emit('error', 'Password is required for new users')
+        return
+      }
+      payload.password = formData.value.password
+      response = await addUser(payload)
+    }
+
+    // Get the actual API response (axios wraps it under .data)
+    const apiResponse = response
+    console.log('API Response:', apiResponse)
+
+    if (apiResponse?.success) {
+      console.log('check')
+      if (isEditMode.value) {
+        emit('user-updated', apiResponse.data)
+      } else {
+        emit('user-created', apiResponse.data)
+      }
+      // Close dialog after successful save
+      setTimeout(() => {
+        handleCancel()
+      }, 300)
+    } else {
+      emit('error', apiResponse?.message || apiResponse?.error || 'Failed to save user')
     }
   } catch (error) {
-    emit('error', error.message || 'Failed to create user')
+    emit('error', error.message || 'Failed to save user')
   }
 }
 
@@ -208,8 +283,21 @@ const handleSubmit = async () => {
  * Handle dialog cancel
  */
 const handleCancel = () => {
+  console.log('cancel')
   // Reset form using Vuetify's form reset
   form.value?.reset()
+  
+  // Reset edit mode
+  isEditMode.value = false
+  editingUserId.value = null
+  showPassword.value = false
+  
+  // Reset organization filter store values
+  filterStore.category = null
+  filterStore.unit = null
+  filterStore.subunit = null
+  filterStore.office = null
+  filterStore.suboffice = null
   
   // Close dialog
   isDialogOpen.value = false
@@ -227,9 +315,47 @@ const loadRankItems = async () => {
   }
 }
 
+/**
+ * Open dialog in edit mode with user data
+ * @param {Object} user - User object to edit
+ */
+const openEditDialog = (user) => {
+  isEditMode.value = true
+  editingUserId.value = user.id
+  
+  formData.value = {
+    rank_id: user.rank_id,
+    name: user.name,
+    position: user.position,
+    username: user.username,
+    password: '', // Leave empty for edit mode
+    category_id: user.category_id,
+    unit_id: user.unit_id,
+    subunit_id: user.sub_unit_id,
+    office_id: user.office_id,
+    suboffice_id: user.sub_office_id,
+    approver: user.approver,
+    office_role: user.office_role
+  }
+  
+  // Set organization filter store values for organization fields
+  filterStore.category = user.category_id
+  filterStore.unit = user.unit_id
+  filterStore.subunit = user.sub_unit_id
+  filterStore.office = user.office_id
+  filterStore.suboffice = user.sub_office_id
+  
+  showPassword.value = false
+  isDialogOpen.value = true
+  loadRankItems()
+}
+
+// Expose openEditDialog to parent components
+defineExpose({ openEditDialog })
+
 // Load rank items when dialog opens
 watch(isDialogOpen, (newVal) => {
-  if (newVal) {
+  if (newVal && !isEditMode.value) {
     loadRankItems()
   }
 })

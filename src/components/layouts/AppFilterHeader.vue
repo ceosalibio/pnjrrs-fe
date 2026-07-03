@@ -80,13 +80,7 @@
             </div>
             <div>
                 <app-timeline-status 
-                    :items="[
-                        { label: 'ADM ARCEO SALIBIO PN', sublabel: 'ENCODER/DRAFTER', timestamp: '2025-06-04 19:30:41' },
-                        { label: 'OIC CONCURRING' },
-                        { label: 'EX-O CONCURRING' },
-                        { label: 'DEPUTY CONCURRING' },
-                        { label: 'AC OF NS FOR OPERATIONS N3' }
-                    ]"
+                    :items="timelineItems"
                     :activeIndex="0"
                     />
             </div>
@@ -101,9 +95,11 @@
     import AppTimelineStatus from './AppTimelineStatus.vue';
     import AppMonthYearPicker from '../forms/AppMonthYearPicker.vue';
     import { useFilterStore } from '@/stores/filterStore.js';
+    import { useReportStore } from '@/stores/reportStore.js';
 
     const emit = defineEmits(['generate','submit','print'])
     const filterStore = useFilterStore();
+    const reportStore = useReportStore();
 
     const props = defineProps({
         showGenerate : {
@@ -120,6 +116,21 @@
         },
 
     })
+
+    const timelineItems = computed(() => {
+        if (!reportStore.approver || reportStore.approver.length === 0) {
+            return [];
+        }
+        
+        return reportStore.approver.map((stage) => {
+            const userNames = stage.users?.map(u => u.name).join('/ ') || stage.position;
+            return {
+                label: userNames,
+                sublabel: stage.position,
+                ...(stage.users?.[0]?.timestamp && { timestamp: stage.users[0].timestamp })
+            };
+        });
+    });
 
     const isGenerateDisabled = computed(() => {
         if (!filterStore.reportMonth) return true;

@@ -5,11 +5,13 @@ export const useReportStore = defineStore('report', () => {
     const personnelReportData = ref([])
     const personnelItems = ref([])
     const reportId = ref(null)
+    const approver = ref([])
 
     return {
         personnelReportData,
         personnelItems,
-        reportId
+        reportId,
+        approver
     }
 },
 {
@@ -17,6 +19,7 @@ export const useReportStore = defineStore('report', () => {
         paths: [
             "personnelReportData",
             "personnelItems",
+            "approver"
             
         ],
     },

@@ -2,8 +2,23 @@
   <div class="settings-users">
     <!-- Add User Dialog -->
     <add-user-dialog
+      ref="addUserDialogRef"
       v-model:open="isAddUserDialogOpen"
       @user-created="handleUserCreated"
+      @user-updated="handleUserUpdated"
+      @error="handleDialogError"
+    />
+
+    <!-- Delete Confirmation Dialog -->
+    <app-dialog
+      v-model="isDeleteDialogOpen"
+      title="Delete User"
+      :message="`Are you sure you want to delete user '${userToDelete?.name}'? This action cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      confirm-color="error"
+      max-width="400px"
+      @confirm="confirmDeleteUser"
     />
 
     <v-card class="mb-6">
@@ -67,7 +82,7 @@
        
 
         <v-table>
-          <thead>
+          <thead class="table-header">
             <tr>
               <th>Name</th>
               <th>Username</th>
@@ -79,7 +94,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="user in users" :key="user.id">
+            <tr v-for="(user,i) in users" :key="i">
               <td>{{ user?.rank?.name }}  {{ user.name }}</td>
               <td>{{ user.email || user.username }}</td>
               <td>{{ user?.unit?.name }}</td>
@@ -87,8 +102,8 @@
               <td>{{ user?.office?.name }}</td>
               <td>{{ user?.sub_office?.name }}</td>
               <td>
-                <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" />
-                <v-btn icon="mdi-delete" size="small" variant="text" color="error" />
+                <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="handleEditUser(user)" />
+                <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="handleDeleteUser(user)" />
               </td>
             </tr>
           </tbody>
@@ -113,29 +128,47 @@ import AppTextField from '@/components/forms/AppTextField.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import AddUserDialog from '@/components/forms/AddUserDialog.vue'
 import AppButton from '@/components/common/AppButton.vue'
+import AppDialog from '@/components/common/AppDialog.vue'
 import AppPagination from '@/components/common/AppPagination.vue'
 import { useAuthStore } from '@/stores/authStore.js'
 import { useFilterStore } from '@/stores/filterStore.js'
 import { useUser } from '@/composables/useUser.js'
+import { useSnackbar } from '@/composables/useSnackbar.js'
 
 const filterStore = useFilterStore()
 const authStore = useAuthStore()
+const { showSuccess, showError } = useSnackbar()
 
 
 // Initialize useUser composable
-const {  fetchUsers, addUser, editUser, removeUser } = useUser()
+const {  
+  fetchUsers,
+  users,
+  currentPage,
+  perPage,
+  lastPage,
+  total,
+  removeUser
+ } = useUser()
+
+// Form reference to access dialog methods
+const addUserDialogRef = ref(null)
 
 // Dialog state
 const isAddUserDialogOpen = ref(false)
 
+// Delete confirmation dialog state
+const isDeleteDialogOpen = ref(false)
+const userToDelete = ref(null)
+
 // Users data
-const users = ref([])
+// const users = ref([])
 
 // Pagination state
-const currentPage = ref(1)
-const perPage = ref(15)
-const lastPage = ref(1)
-const total = ref(0)
+// const currentPage = ref(1)
+// const perPage = ref(15)
+// const lastPage = ref(1)
+// const total = ref(0)
 const isLoadingUsers = ref(false)
 
 
@@ -148,15 +181,73 @@ const openAddUserDialog = async () => {
 }
 
 /**
+ * Handle edit user - open dialog with user data
+ * @param {Object} user - User to edit
+ */
+const handleEditUser = (user) => {
+  addUserDialogRef.value?.openEditDialog(user)
+}
+
+/**
  * Handle user created event from dialog
  * @param {Object} newUser - The newly created user object
  */
 const handleUserCreated = (newUser) => {
+  showSuccess('User created successfully')
   // Reload current page to show newly created user
   loadUsers(currentPage.value)
-  
-  console.log('User created successfully:', newUser)
-  // TODO: Integrate with snackbar/toast notification
+}
+
+/**
+ * Handle user updated event from dialog
+ * @param {Object} updatedUser - The updated user object
+ */
+const handleUserUpdated = (updatedUser) => {
+  showSuccess('User updated successfully')
+  // Reload current page to show updated user
+  loadUsers(currentPage.value)
+}
+
+/**
+ * Handle error event from dialog
+ * @param {string} errorMessage - Error message from dialog
+ */
+const handleDialogError = (errorMessage) => {
+  showError(errorMessage)
+}
+
+/**
+ * Open delete confirmation dialog
+ * @param {Object} user - User to delete
+ */
+const handleDeleteUser = (user) => {
+  userToDelete.value = user
+  isDeleteDialogOpen.value = true
+}
+
+/**
+ * Confirm delete user
+ */
+const confirmDeleteUser = async () => {
+  if (!userToDelete.value) return
+
+  try {
+    const response = await removeUser(userToDelete.value.id)
+    
+    if (response?.status === 'success' || response?.success) {
+      showSuccess('User deleted successfully')
+      // Close dialog
+      isDeleteDialogOpen.value = false
+      userToDelete.value = null
+      // Reload current page to reflect deletion
+      loadUsers(currentPage.value)
+    } else {
+      showError(response?.message || response?.error || 'Failed to delete user')
+    }
+  } catch (error) {
+    console.error('Error deleting user:', error)
+    showError('Error deleting user')
+  }
 }
 
 onMounted(async () => {
@@ -183,15 +274,8 @@ const loadUsers = async (page = 1) => {
     if (filterStore.suboffice) filters.sub_office_id = filterStore.suboffice
     
     const response = await fetchUsers(filters)
-    if (response.success && response.data) {
-      // Handle paginated response
-      const paginatedData = response.data
-      users.value = paginatedData.data || []
-      currentPage.value = paginatedData.current_page || 1
-      lastPage.value = paginatedData.last_page || 1
-      perPage.value = paginatedData.per_page || 15
-      total.value = paginatedData.total || 0
-    }
+    console.log(response,'response')
+  
   } catch (error) {
     console.error('Failed to load users:', error)
   } finally {
@@ -209,12 +293,15 @@ const onPageChange = async (page) => {
   await loadUsers(page)
 }
 
-// Watch for filter changes and reload data
+// Watch for filter changes and reload data (but only when dialog is closed)
 watch([() => filterStore.search, () => filterStore.unit, () => filterStore.subunit, () => filterStore.office, () => filterStore.suboffice], 
   () => {
-    // Reset to page 1 when filters change
-    currentPage.value = 1
-    loadUsers(1)
+    // Only reload if dialog is closed to avoid interference with edit mode
+    if (!isAddUserDialogOpen.value) {
+      // Reset to page 1 when filters change
+      currentPage.value = 1
+      loadUsers(1)
+    }
   }
 )
 const getRoleColor = (role) => {
@@ -226,6 +313,15 @@ const getRoleColor = (role) => {
 <style scoped>
 .settings-users {
   padding: 1rem;
+}
+
+.table-header {
+  background-color: #1f73b7 !important;
+}
+
+.table-header th {
+  color: white !important;
+  font-weight: 600 !important;
 }
 
 .filter-field {
