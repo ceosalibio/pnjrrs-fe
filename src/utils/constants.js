@@ -22,9 +22,9 @@ export const MENU_ITEMS = [
     to: '/trainings',
     role: ['admin', 'officer', 'user'],
     children: [
-      { title: 'ORAC', to: '/trainings/1', icon: 'mdi-view-list' },
-      { title: 'METT', to: '/trainings/2', icon: 'mdi-calendar-plus' },
-      { title: 'Readiness Reports', to: '/trainings/3', icon: 'mdi-history' }
+      // { title: 'ORAC', to: '/trainings/1', icon: 'mdi-view-list' },
+      { title: 'METT', to: '/trainings/1', icon: 'mdi-calendar-plus' },
+      { title: 'Readiness Reports', to: '/trainings/2', icon: 'mdi-history' }
     ]
   },
   {

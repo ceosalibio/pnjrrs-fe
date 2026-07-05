@@ -2,6 +2,7 @@
   <div class="personnel-list">
     <AppFilterHeader 
       @generate="handleGenerate()"
+      :reportType="'personnel'"
     />
 
     <v-card class="mb-6">
@@ -11,7 +12,7 @@
           <v-card-subtitle>Manage and view all personnel records</v-card-subtitle>
         </div>
         <AppButton
-          v-if="reportStore.personnelItems?.length > 0"
+          v-if="reportStore.tableItems?.length > 0"
           :color="isEditMode ? 'success' : 'primary'"
           @click="toggleEditMode"
         >
@@ -36,7 +37,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, i) in reportStore.personnelItems" :key="i">
+            <tr v-for="(item, i) in reportStore.tableItems" :key="i">
               <td v-if="!item?.office">{{ item.description }}</td>
               <td v-if="!item?.office" :class="{ 'editable-cell': isEditMode && item.grade }">
                   <div v-if="isEditMode && item.grade">
@@ -114,7 +115,6 @@ import { useRouter } from 'vue-router'
 import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
-import { useFilterStore } from '@/stores/filterStore'
 import { useReportStore } from '@/stores/reportStore'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
@@ -127,7 +127,6 @@ import {
   calculatePayloadSummary
 } from '@/utils/personnelCalculations'
 
-const filterStore = useFilterStore()
 const reportStore = useReportStore()
 const router = useRouter()
 const { showSuccess, showError } = useSnackbar()
@@ -156,14 +155,14 @@ const typeList = ref([
 
 const handleGenerate = async () => {
   isEditMode.value = false
-  reportStore.personnelItems = []
-  const payload = filterStore.getGenrateReportPayload()
-  const response = await executeReportAction (payload, 'personnel')
-  // console.log(response)
-  reportStore.personnelReportData = response?.data?.report
-  reportStore.personnelItems = response?.data?.report?.items || []
-  reportStore.reportId = response?.data?.report?.id
-  reportStore.approver = response?.data?.approver || []
+  // reportStore.tableItems = []
+  // const payload = filterStore.getGenrateReportPayload()
+  // const response = await executeReportAction (payload, 'personnel')
+  // // console.log(response)
+  // reportStore.personnelReportData = response?.data?.report
+  // reportStore.tableItems = response?.data?.report?.items || []
+  // reportStore.reportId = response?.data?.report?.id
+  // reportStore.approver = response?.data?.approver || []
 }
 
 const toggleEditMode = async () => {
@@ -180,7 +179,7 @@ const toggleEditMode = async () => {
     afposItems.value = afpos
     
     // Initialize rank, name, type properties on each item
-    reportStore.personnelItems.forEach((item) => {
+    reportStore.tableItems.forEach((item) => {
       if (!item.rank) item.rank = null
       if (!item.name) item.name = ''
       if (!item.type) item.type = null
@@ -232,7 +231,7 @@ const handleSave = async () => {
     const serialMap = new Map()
     const duplicateSerials = []
 
-    reportStore.personnelItems.forEach((item) => {
+    reportStore.tableItems.forEach((item) => {
       const serial = item.serial?.trim()
       if (serial) {
         // console.log('Serial found:', serial)
@@ -256,19 +255,19 @@ const handleSave = async () => {
     }
 
     // Format all names based on division before saving
-    reportStore.personnelItems.forEach((item) => {
+    reportStore.tableItems.forEach((item) => {
       item.name = formatPersonnelName(item.name, item.division)
     })
 
     // Calculate summary statistics
     const { gradePoints, afposPoints, actualCount } = calculatePayloadSummary(
-      reportStore.personnelItems
+      reportStore.tableItems
     )
 
     // Get required count from report data
-    const requiredCount = reportStore.personnelReportData?.required || 0
+    const requiredCount = reportStore.reportData?.required || 0
     const payload = {
-      items: reportStore.personnelItems,
+      items: reportStore.tableItems,
       grade_points: gradePoints,
       afpos_points: afposPoints,
       actual: actualCount,
@@ -304,9 +303,9 @@ const markUnsavedChanges = () => {
   }
 }
 
-// Watch reportStore.personnelItems for changes in edit mode
+// Watch reportStore.tableItems for changes in edit mode
 watch(
-  () => reportStore.personnelItems,
+  () => reportStore.tableItems,
   () => markUnsavedChanges(),
   { deep: true }
 )

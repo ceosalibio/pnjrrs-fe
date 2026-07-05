@@ -41,6 +41,23 @@
 
                         <div class="d-flex ga-2">
                             <AppButton
+                                v-if="isFromAPI && !isEditMode"
+                                @click="isEditMode = true"
+                                color="primary"
+                                :disabled="csvData?.length == 0"
+                            >
+                                ✏️ Update
+                            </AppButton>
+                            <AppButton
+                                v-if="isEditMode"
+                                @click="handleSave"
+                                color="success"
+                                :disabled="csvData?.length == 0"
+                            >
+                                ✓ Save Changes
+                            </AppButton>
+                            <AppButton
+                                v-if="!isFromAPI && !isEditMode"
                                 @click="handleSave"
                                 color="success"
                                 :disabled="csvData?.length == 0"
@@ -79,11 +96,21 @@
                                     <tr v-for="(row, index) in displayData" :key="index">
                                         <!-- METL with rowspan merge -->
                                         <td v-if="row.metlRowspan > 0" :rowspan="row.metlRowspan" class="metl-cell">
-                                            {{ row.metl }}
+                                            <input v-if="isEditMode" v-model="row.metl" class="editable-input" />
+                                            <span v-else>{{ row.metl }}</span>
                                         </td>
-                                        <td>{{ row.met }}</td>
-                                        <td class="text-center">{{ row.required }}</td>
-                                        <td class="text-center">{{ row.quarter }}</td>
+                                        <td>
+                                            <input v-if="isEditMode" v-model="row.met" class="editable-input" />
+                                            <span v-else>{{ row.met }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <input v-if="isEditMode" v-model="row.required" class="editable-input" />
+                                            <span v-else>{{ row.required }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <input v-if="isEditMode" v-model="row.quarter" class="editable-input" />
+                                            <span v-else>{{ row.quarter }}</span>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -111,17 +138,18 @@
     import { useFilterStore } from '@/stores/filterStore';
     import { useAppStore } from '@/stores/appStore';
     import { useSnackbar } from '@/composables/useSnackbar.js';
-    import { getTrainingSettings, saveTrainingSettings, updateTrainingSettings, deleteTrainingSettings } from '@/services/settingService';
+    import { getTrainingSettings,getTrainingSettingsByUnit, saveTrainingSettings, updateTrainingSettings, deleteTrainingSettings } from '@/services/settingService';
     
     const filterStore = useFilterStore();
     const appStore = useAppStore();
-    const { showSnackbar } = useSnackbar();
+    const { showSuccess, showError } = useSnackbar();
     const csvData = ref([]);
     const displayData = ref([]);
     const fileName = ref('');
     const fileInput = ref(null);
     const isFromAPI = ref(false);
     const trainingSettingId = ref(null);
+    const isEditMode = ref(false);
 
     /**
      * Calculate rowspan for METL column by grouping consecutive rows with same METL
@@ -165,16 +193,18 @@
             csvData.value = [];
             displayData.value = [];
             
-            const filters = {
-                sub_unit_id: filterStore.subunit,
-                office_id: filterStore.office,
-                sub_office_id: filterStore.suboffice
-            };
+            // const filters = {
+            //     unit_id: filterStore.unit,
+            //     sub_unit_id: filterStore.subunit,
+            //     office_id: filterStore.office,
+            //     sub_office_id: filterStore.suboffice
+            // };
             
-            const response = await getTrainingSettings(filters);
-            
+            const response = await getTrainingSettingsByUnit(filterStore.unit);
+            console.log(response, 'response')
             if (response?.data?.data?.length > 0) {
                 const items = response?.data?.data?.[0]?.items || [];
+                console.log('Loaded training data:', items);
                 trainingSettingId.value = response?.data?.data?.[0]?.id;
                 
                 const processedItems = items.map(item => {
@@ -202,6 +232,12 @@
     watch([() => filterStore.subunit, () => filterStore.office, () => filterStore.suboffice], async (newValues) => {
         const [subunit, office, suboffice] = newValues;
         if (subunit || office || suboffice) {
+            await loadTrainingData();
+        }
+    });
+
+    watch(() => filterStore.unit, async (newUnit) => {
+        if (newUnit) {
             await loadTrainingData();
         }
     });
@@ -295,14 +331,14 @@
                 isFromAPI.value = false;
             } catch (error) {
                 console.error('Error parsing CSV:', error);
-                showSnackbar('Error parsing CSV file', 'error');
+                showError('Error parsing CSV file');
                 csvData.value = [];
                 displayData.value = [];
             }
         };
 
         reader.onerror = () => {
-            showSnackbar('Error reading file', 'error');
+            showError('Error reading file');
         };
 
         reader.readAsText(file);
@@ -311,8 +347,23 @@
     // Handle save
     const handleSave = async () => {
         if (csvData.value.length === 0) {
-            showSnackbar('No data to save', 'warning');
+            showError('No data to save');
             return;
+        }
+
+        // Sync changes from displayData back to csvData
+        if (isEditMode.value) {
+            displayData.value.forEach((displayRow, index) => {
+                if (displayRow.metlRowspan !== 0) {
+                    // Only sync the first row of each METL group
+                    csvData.value[index] = {
+                        metl: displayRow.metl,
+                        met: displayRow.met,
+                        required: displayRow.required,
+                        quarter: displayRow.quarter
+                    };
+                }
+            });
         }
 
         // Generate metl_id for grouping same metl values
@@ -337,7 +388,7 @@
         });
 
         if (dataToSend.length === 0) {
-            showSnackbar('No data to send', 'warning');
+            showError('No data to send');
             return;
         }
 
@@ -349,9 +400,7 @@
             items: dataToSend
         };
         console.log(payload, 'payload')
-        return false
         try {
-            appStore.setLoading(true);
             
             let response;
             
@@ -363,14 +412,15 @@
             }
             
             if (response?.status === 'success') {
-                showSnackbar('Training data saved successfully', 'success');
+                showSuccess('Training data saved successfully');
+                isEditMode.value = false;
                 await loadTrainingData();
             } else {
-                showSnackbar('Error saving training data', 'error');
+                showError('Error saving training data');
             }
         } catch (error) {
             console.error('Error saving data:', error);
-            showSnackbar('Error saving data', 'error');
+            showError('Error saving data');
         } finally {
             appStore.setLoading(false);
         }
@@ -383,6 +433,7 @@
         fileName.value = '';
         isFromAPI.value = false;
         trainingSettingId.value = null;
+        isEditMode.value = false;
         if (fileInput.value) {
             fileInput.value.value = '';
         }
@@ -443,5 +494,19 @@
     font-weight: 500;
     background-color: #f9f9f9;
     vertical-align: middle;
+}
+
+.editable-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #1976d2;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.editable-input:focus {
+    outline: none;
+    border-color: #1565c0;
+    box-shadow: 0 0 4px rgba(25, 118, 210, 0.5);
 }
 </style>

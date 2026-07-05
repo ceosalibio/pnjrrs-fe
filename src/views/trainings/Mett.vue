@@ -1,48 +1,76 @@
 <template>
   <div class="mett-list">
+    <AppFilterHeader 
+      :reportType="'training'"
+    />
     <v-card class="mb-6">
-      <v-card-title>Mission Essential Task Training (METT)</v-card-title>
-      <v-card-subtitle>View and manage quarterly training schedules</v-card-subtitle>
+      <div class="d-flex justify-space-between align-center pa-4">
+          <div>
+              <v-card-title>Mission Essential Task Training (METT)</v-card-title>
+              <v-card-subtitle>View and manage quarterly training schedules</v-card-subtitle>
+          </div>
+          <div class="d-flex ga-2">
+             <AppButton
+                v-if="reportStore.tableItems?.length > 0 && !reportStore?.reportData?.status"
+                :color="isEditMode ? 'success' : 'primary'"
+                @click="toggleEditMode"
+              >
+              {{ isEditMode ? 'Save' : 'Update' }}
+            </AppButton>
+
+            <AppButton
+                v-if="isEditMode"
+                :color="'grey'"
+                @click="isEditMode = false"
+              >
+              Cancel
+            </AppButton>
+          </div>
+         
+      </div>
       <v-divider />
 
       <v-card-text>
         <table class="mett-table">
           <thead>
             <tr class="header-row">
-              <th class="mission-col">MISSION<br>ESSENTIAL<br>TASK</th>
-              <th>1st Qtr</th>
-              <th>2nd Qtr</th>
-              <th>3rd Qtr</th>
-              <th>4th Qtr</th>
+              <th>METL</th>
+              <th>MET</th>
               <th>Required</th>
               <th>Actual</th>
-              <th>Percentage</th>
+              <th>Quarter</th>
+              <th>Date Performed</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="task in mettTasks" :key="task.id">
-              <td class="mission-col">{{ task.missionTask }}</td>
-              <td class="training-cell" :class="{ 'highlighted': task.q1 }">{{ task.q1 }}</td>
-              <td class="training-cell" :class="{ 'highlighted': task.q2 }">{{ task.q2 }}</td>
-              <td class="training-cell" :class="{ 'highlighted': task.q3 }">{{ task.q3 }}</td>
-              <td class="training-cell" :class="{ 'highlighted': task.q4 }">{{ task.q4 }}</td>
-              <td class="text-center">{{ task.required }}</td>
-              <td class="text-center">{{ task.actual }}</td>
-              <td class="text-center">{{ task.percentage }}%</td>
+            <tr v-for="(training,i) in reportStore?.tableItems" :key="i">
+              <td v-if="shouldShowMetl(i)" class="text-center" :rowspan="getMetlRowspan(i)">{{ training.metl }}</td>
+              <td class="text-center">{{ training.met }}</td>
+              <td class="text-center">{{ training.required }}</td>
+              <td class="text-center">
+                <div v-if="isEditMode && !training?.status" class="cell-edit actual-edit">
+                  <AppTextField
+                    v-model="editValues[i].actual"
+                    type="number"
+                    density="compact"
+                    hide-details
+                  />
+                </div>
+                <span v-else>{{ training.actual }}</span>
+              </td>
+              <td class="text-center">{{ training.quarter }}</td>
+              <td class="text-center">
+                <div v-if="isEditMode && !training?.status" class="cell-edit date-edit">
+                  <AppDatePicker
+                    v-model="editValues[i].datePerformed"
+                    density="compact"
+                    :hide-details="true"
+                  />
+                </div>
+                <span v-else>{{ training.datePerformed }}</span>
+              </td>
             </tr>
           </tbody>
-          <tfoot>
-            <tr class="summary-row">
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td class="text-center"><strong>{{ totalRequired }}</strong></td>
-              <td class="text-center"><strong>{{ totalActual }}</strong></td>
-              <td class="text-center"><strong>{{ totalPercentage }}%</strong></td>
-            </tr>
-          </tfoot>
         </table>
       </v-card-text>
     </v-card>
@@ -51,25 +79,121 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import AppButton from '@/components/common/AppButton.vue'
+import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
+import AppTextField from '@/components/forms/AppTextField.vue'
+import AppDatePicker from '@/components/forms/AppDatePicker.vue'
+import { useReportStore } from '@/stores/reportStore'
+import { useSnackbar } from '@/composables/useSnackbar'
+import { executeReportAction  } from '@/services/reportService'
 
-const mettTasks = ref([
-  { id: 1, missionTask: 'Amphibious Operations', q1: 'Landing Operations', q2: '', q3: 'Marksmanship', q4: '', required: 2, actual: 0, percentage: 0 },
-  { id: 2, missionTask: 'Interagency Cooperation', q1: '', q2: 'Balikatan 2023', q3: 'Flash Piston', q4: '', required: 2, actual: 0, percentage: 0 },
-  { id: 3, missionTask: 'sample', q1: '', q2: '', q3: '', q4: 'sample', required: 1, actual: 0, percentage: 0 }
-])
 
-const totalRequired = computed(() => {
-  return mettTasks.value.reduce((sum, task) => sum + task.required, 0)
+const reportStore = useReportStore()
+const { showError } = useSnackbar()
+const isEditMode = ref(false)
+
+// Store edit values for each row
+const editValues = ref({})
+
+// Initialize edit values from tableItems
+const initializeEditValues = () => {
+  const items = reportStore?.tableItems || []
+  items.forEach((item, index) => {
+    editValues.value[index] = {
+      actual: item.actual,
+      datePerformed: item.datePerformed
+    }
+  })
+}
+
+// Toggle edit mode
+const toggleEditMode = () => {
+  if (!isEditMode.value) {
+    initializeEditValues()
+    isEditMode.value = true
+  } else {
+    // Validate before saving
+    if (validateChanges()) {
+      saveChanges()
+      isEditMode.value = false
+    }
+  }
+}
+
+// Validate that if actual has a value, datePerformed must also have a value
+const validateChanges = () => {
+  const items = reportStore?.tableItems || []
+  const errors = []
+  
+  items.forEach((item, index) => {
+    if (editValues.value[index]) {
+      const actual = editValues.value[index].actual
+      const datePerformed = editValues.value[index].datePerformed
+      
+      // If actual has a value but datePerformed is empty
+      if (actual && !datePerformed) {
+        errors.push(`Row ${index + 1} (${item.met}): Actual is filled but Date Performed is empty`)
+      }
+    }
+  })
+  
+  if (errors.length > 0) {
+    showError(errors.join('; '))
+    return false
+  }
+  
+  return true
+}
+
+// Save changes back to store
+const saveChanges = async () => {
+  const items = reportStore?.tableItems || []
+  items.forEach((item, index) => {
+    if (editValues.value[index]) {
+      item.actual = editValues.value[index].actual
+      item.datePerformed = editValues.value[index].datePerformed
+    }
+  })
+  let payload = {
+    items: items
+  }
+  const response = await executeReportAction(payload, 'training', 'update', reportStore.reportId)
+  console.log(items, 'Updated tableItems after saving changes')
+}
+
+// Calculate rowspan for METL cells based on metl_id grouping
+const metlRowspans = computed(() => {
+  const rowspans = {}
+  const tableItems = reportStore?.tableItems || []
+  
+  let i = 0
+  while (i < tableItems.length) {
+    const currentMetlId = tableItems[i].metl_id
+    let count = 1
+    
+    // Count consecutive rows with same metl_id
+    while (i + count < tableItems.length && tableItems[i + count].metl_id === currentMetlId) {
+      count++
+    }
+    
+    // Mark the first row of this group with the rowspan
+    rowspans[i] = count
+    
+    i += count
+  }
+  
+  return rowspans
 })
 
-const totalActual = computed(() => {
-  return mettTasks.value.reduce((sum, task) => sum + task.actual, 0)
-})
+// Check if this row should display the METL cell
+const shouldShowMetl = (index) => {
+  return metlRowspans.value[index] !== undefined
+}
 
-const totalPercentage = computed(() => {
-  if (totalRequired.value === 0) return 0
-  return Math.round((totalActual.value / totalRequired.value) * 100)
-})
+// Get the rowspan value for a METL cell
+const getMetlRowspan = (index) => {
+  return metlRowspans.value[index] || 1
+}
 </script>
 
 <style scoped>
@@ -143,5 +267,23 @@ const totalPercentage = computed(() => {
 
 .text-center {
   text-align: center;
+}
+
+.cell-edit {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.actual-edit {
+  max-width: 120px;
+  margin: 0 auto;
+}
+
+.date-edit {
+  justify-content: center;
+  max-width: 150px;
+  margin: 0 auto;
 }
 </style>

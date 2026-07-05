@@ -93,11 +93,11 @@ const assessmentsTemp = ref({
 })
 
 const readinessTableData = computed(()=>{
-  return reportStore?.personnelReportData?.result
+  return reportStore?.reportData?.result
 })
 
 const assessments = computed(()=>{
-  return reportStore?.personnelReportData?.assessment ?? assessmentsTemp.value
+  return reportStore?.reportData?.assessment ?? assessmentsTemp.value
 })
 
 
@@ -149,9 +149,9 @@ const handleConfirmSave = async () => {
   let payload ={
     assessment: pendingAssessmentData.value
   }
-  const response = await executeReportAction (payload, 'personnel','update', reportStore.personnelReportData?.id)
+  const response = await executeReportAction (payload, 'personnel','update', reportStore.reportData?.id)
   console.log(response)
-  reportStore.personnelReportData = response?.data
+  reportStore.reportData = response?.data
   showConfirmDialog.value = false
   alert('Report saved successfully!')
 }

@@ -87,11 +87,12 @@ export const ENDPOINTS = {
 
   // SETTING_TRAINING endpoints
   SETTING_TRAINING: {
-    LIST: `${BASE_PATH}/settings/trainings`,
-    GET: (id) => `${BASE_PATH}/settings/trainings/${id}`,
-    CREATE: `${BASE_PATH}/settings/trainings`,
-    UPDATE: (id) => `${BASE_PATH}/settings/trainings/${id}`,
-    DELETE: (id) => `${BASE_PATH}/settings/trainings/${id}`,
+    LIST: `${BASE_PATH}/settings/training-items`,
+    GET: (id) => `${BASE_PATH}/settings/training-items/${id}`,
+    GET_BY_UNIT: (unitId) => `${BASE_PATH}/settings/training-items/unit/${unitId}`,
+    CREATE: `${BASE_PATH}/settings/training-items`,
+    UPDATE: (id) => `${BASE_PATH}/settings/training-items/${id}`,
+    DELETE: (id) => `${BASE_PATH}/settings/training-items/${id}`,
   },
 
   // personnel report
@@ -100,6 +101,15 @@ export const ENDPOINTS = {
     // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     CREATE: `${BASE_PATH}/report/personnels`,
     UPDATE: (id) => `${BASE_PATH}/report/personnels/${id}`,
+    // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+  },
+
+   // personnel report
+  REPORT_TRAINING: {
+    LIST: `${BASE_PATH}/report/trainings`,
+    // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+    CREATE: `${BASE_PATH}/report/trainings`,
+    UPDATE: (id) => `${BASE_PATH}/report/trainings/${id}`,
     // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
   },
 }

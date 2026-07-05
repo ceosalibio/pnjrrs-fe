@@ -3,6 +3,8 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useUserStore } from '@/stores/userStore'
 import { useAppStore } from '@/stores/appStore'
+import { useFilterStore } from '@/stores/filterStore'
+import { useReportStore } from '@/stores/reportStore'
 import { login as loginService, logout as logoutService } from '@/services/authService'
 
 export const useAuth = () => {
@@ -10,6 +12,8 @@ export const useAuth = () => {
   const authStore = useAuthStore()
   const userStore = useUserStore()
   const appStore = useAppStore()
+  const filterStore = useFilterStore()
+  const reportStore = useReportStore()
 
   const isLoading = ref(false)
   const error = ref(null)
@@ -68,8 +72,13 @@ export const useAuth = () => {
       const result = await logoutService()
 
       if (result.success) {
+        // Clear all persisted store data
         authStore.logout()
         userStore.clearUserData()
+        filterStore.clearFilterData()
+        reportStore.clearReportData()
+        appStore.setSidebarOpen(true) // Reset sidebar to default
+        
         appStore.showSnackbar('You have been logged out.', 'success')
         await router.push('/login')
       }

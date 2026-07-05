@@ -9,10 +9,12 @@ const REPORT_CONFIG = {
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_PERSONNEL.UPDATE(id) },
     // submit: { method: 'post', endpoint: (id) => `${ENDPOINTS.REPORT_PERSONNEL.SUBMIT}/${id}` },
   },
-  // training: {
-  //   create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.CREATE },
-  //   getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_TRAINING.GET },
-  // },
+  training: {
+    create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.CREATE },
+    getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_TRAINING.LIST },
+    update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_TRAINING.UPDATE(id) },
+
+  },
 }
 
 export const executeReportAction  = async (payload, reportType, action = 'create', id = null) => {

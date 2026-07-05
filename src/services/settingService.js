@@ -92,6 +92,16 @@ export const getTrainingSettings = async (filters = {}) => {
     }
 }
 
+export const getTrainingSettingsByUnit = async (unitId) => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_TRAINING.GET_BY_UNIT(unitId));
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching training settings:', error);
+        throw error;
+    }
+}
+
 /**
  * Create training settings
  * @param {Object} payload - Training settings data to create

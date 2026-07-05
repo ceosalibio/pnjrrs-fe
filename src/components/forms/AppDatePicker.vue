@@ -10,6 +10,7 @@
     class="app-date-picker"
     v-bind="$attrs"
     @update:model-value="$emit('update:modelValue', $event)"
+    :hide-details="hideDetails"
   />
 </template>
 
@@ -22,7 +23,11 @@ defineProps({
     default: 'outlined'
   },
   error: String,
-  disabled: Boolean
+  disabled: Boolean,
+  hideDetails: {
+    type: Boolean,
+    default: false
+  }
 })
 
 defineEmits(['update:modelValue'])

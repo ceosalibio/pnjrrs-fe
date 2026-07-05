@@ -60,9 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     isAuthenticated.value = false
     captchaVerified.value = false
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    localStorage.removeItem('isAuthenticated')
+    localStorage.clear()
   }
 
   return {

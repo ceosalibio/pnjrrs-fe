@@ -52,18 +52,18 @@ const routes = [
         path: 'trainings',
         redirect: '/trainings/1'
       },
+      // {
+      //   path: 'trainings/1',
+      //   name: 'Orac',
+      //   component: () => import('@/views/trainings/Orac.vue')
+      // },
       {
         path: 'trainings/1',
-        name: 'Orac',
-        component: () => import('@/views/trainings/Orac.vue')
-      },
-      {
-        path: 'trainings/2',
         name: 'Mett',
         component: () => import('@/views/trainings/Mett.vue')
       },
       {
-        path: 'trainings/3',
+        path: 'trainings/2',
         name: 'TrainingReadinessReports',
         component: () => import('@/views/trainings/ReadinessReports.vue')
       },
