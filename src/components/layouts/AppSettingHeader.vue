@@ -45,6 +45,14 @@
                 <v-spacer />
 
                 <AppButton
+                    v-if="showGenerate"
+                    color="warning"
+                    @on-click="emit('generate')"
+                >
+                   Generate
+                </AppButton>
+
+                <AppButton
                     v-if="isUpload"
                     color="primary"
                     @on-click="isUploadDialogOpen = true"
@@ -99,8 +107,10 @@
     import { useFilterStore } from '@/stores/filterStore.js';
 
     const filterStore = useFilterStore();
-
     const isUploadDialogOpen = ref(false)
+
+    // Define emitted events
+    const emit = defineEmits(['generate', 'upload-success', 'upload-error'])
 
     defineProps({
         withYear : {
@@ -108,6 +118,10 @@
             default : false
         },
         isUpload : {
+            type : Boolean,
+            default : false
+        },
+        showGenerate : {
             type : Boolean,
             default : false
         },
@@ -136,17 +150,15 @@
      * Handle successful upload
      */
     const handleUploadSuccess = (result) => {
-        console.log('File uploaded successfully:', result)
         isUploadDialogOpen.value = false
-        // TODO: Emit event to parent or show notification
+        emit('upload-success', result)
     }
 
     /**
      * Handle upload error
      */
     const handleUploadError = (error) => {
-        console.error('Upload error:', error)
-        // TODO: Show error notification
+        emit('upload-error', error)
     }
 </script>
 

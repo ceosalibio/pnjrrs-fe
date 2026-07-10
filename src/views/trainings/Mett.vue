@@ -158,7 +158,10 @@ const saveChanges = async () => {
     items: items
   }
   const response = await executeReportAction(payload, 'training', 'update', reportStore.reportId)
-  console.log(items, 'Updated tableItems after saving changes')
+  console.log(response, 'Updated tableItems after saving changes')
+  if(response?.status === 'success'){
+    reportStore.reportData = response?.data
+  }
 }
 
 // Calculate rowspan for METL cells based on metl_id grouping

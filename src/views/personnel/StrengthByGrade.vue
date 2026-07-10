@@ -157,7 +157,7 @@ const civilianGrades = ref([
  * ACTUAL = count of items with matching grade_actual
  */
 const updateGradeStats = () => {
-  const items = reportStore.personnelItems || []
+  const items = reportStore.tableItems || []
 
   // Reset all counts
   ;[...officerGrades.value, ...enlistedGrades.value, ...civilianGrades.value].forEach(g => {

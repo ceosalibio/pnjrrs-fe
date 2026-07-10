@@ -13,7 +13,11 @@ const REPORT_CONFIG = {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.CREATE },
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_TRAINING.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_TRAINING.UPDATE(id) },
-
+  },
+  equipment: {
+    create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.CREATE },
+    getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.LIST },
+    update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_EQUIPMENT.UPDATE(id) },
   },
 }
 

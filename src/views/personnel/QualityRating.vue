@@ -216,10 +216,18 @@ const onAfposChange = (item, selectedId) => {
       item.afpos_points = 1
     }
   } else {
+    let afposName = item.afpos?.toLowerCase() || ''
     // For Officer and Civilian: compare afpos ID
-    if (item.item_afpos_id == found?.id) {
+    console.log(item)
+    if (afposName == 'open rating' || 
+        item.item_afpos_id == found?.id) {
       item.afpos_points = 1
     }
+    if(afposName.includes('civ') && item.afpos_actual_name?.toLowerCase().includes('civ')){
+      item.afpos_points = 1
+    }
+
+
   }
 }
 
@@ -317,6 +325,7 @@ router.beforeEach((to, from, next) => {
     if (confirmed) {
       handleSave().then(() => next())
     } else {
+      handleGenerate()
       hasUnsavedChanges.value = false
       next()
     }
@@ -330,6 +339,8 @@ onBeforeUnmount(() => {
     const confirmed = confirm('You have unsaved changes. Do you want to save before leaving?')
     if (confirmed) {
       handleSave()
+    }else{
+      handleGenerate()
     }
   }
 })

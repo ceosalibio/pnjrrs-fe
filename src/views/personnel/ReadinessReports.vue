@@ -37,7 +37,7 @@
             </tr>
             <tr class="total-row">
               <td colspan="2">REDCON</td>
-              <td class="text-center"></td>
+              <td class="text-center">{{ readinessTableData?.redcon || 0 }}</td>
             </tr>
           </tbody>
         </v-table>

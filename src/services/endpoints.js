@@ -76,6 +76,8 @@ export const ENDPOINTS = {
     DELETE: (id) => `${BASE_PATH}/item-afpos/${id}`,
     GET_BY_DIVISION: (divisionId) => `${BASE_PATH}/item-afpos/division/${divisionId}`
   },
+
+  // -----------SETTINGS ENDPOINT ---------------//
   // SETTING_ORGANIZATION endpoints are not included as they are not defined in the Postman collection
   SETTING_ORGANIZATION: {
     LIST: `${BASE_PATH}/settings/organizations`,
@@ -95,6 +97,21 @@ export const ENDPOINTS = {
     DELETE: (id) => `${BASE_PATH}/settings/training-items/${id}`,
   },
 
+   // SETTING_EQUIPMENT endpoints
+  SETTING_EQUIPMENT: {
+    TEMP_LIST: `${BASE_PATH}/settings/equipment-items/template/grouped`,
+    LIST: `${BASE_PATH}/settings/equipment-items`,
+    GET: (id) => `${BASE_PATH}/settings/equipment-items/${id}`,
+    GET_BY_UNIT: (unitId) => `${BASE_PATH}/settings/equipment-items/unit/${unitId}`,
+    CREATE: `${BASE_PATH}/settings/equipment-items`,
+    UPDATE: (id) => `${BASE_PATH}/settings/equipment-items/${id}`,
+    DELETE: (id) => `${BASE_PATH}/settings/equipment-items/${id}`,
+  },
+
+
+
+  //----------- REPORT ENDPOINT ------------------//
+
   // personnel report
   REPORT_PERSONNEL: {
     // LIST: `${BASE_PATH}/settings/organizations`,
@@ -104,12 +121,19 @@ export const ENDPOINTS = {
     // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
   },
 
-   // personnel report
+   // training report
   REPORT_TRAINING: {
     LIST: `${BASE_PATH}/report/trainings`,
     // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     CREATE: `${BASE_PATH}/report/trainings`,
     UPDATE: (id) => `${BASE_PATH}/report/trainings/${id}`,
     // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+  },
+
+  // equipment report
+  REPORT_EQUIPMENT: {
+    LIST: `${BASE_PATH}/report/equipments`,
+    CREATE: `${BASE_PATH}/report/equipments`,
+    UPDATE: (id) => `${BASE_PATH}/report/equipments/${id}`,
   },
 }

@@ -1,8 +1,8 @@
 <template>
     <div>
         <v-card class="pa-4 mb-4" outlined>
-            <div :class="isHideFields ? 'd-flex ga-4 flex-wrap' : 'd-flex ga-4 flex-wrap justify-space-between'">
-                <div>
+            <div class="d-flex ga-4 flex-wrap justify-space-between">
+                <div class="d-flex ga-4">
                     <div class="filter-input-wrapper" v-if="isHideFields">
                         <AppAutocomplete 
                             label="Units"
@@ -214,26 +214,27 @@
     async function handleGenerate() {
        
         emit('generate')
-        let payload
-        reportStore.tableItems = []
-        if(authStore.user?.approver == 1){
-            payload = filterStore.getGenrateReportPayload()
-        }else{
-            payload = {
-                report_month: filterStore.reportMonth,
-                unit_id: authStore.user?.unit_id,
-                sub_unit_id: authStore.user?.sub_unit_id,
-                office_id: authStore.user?.office_id,
-                sub_office_id: authStore.user?.sub_office_id
-            }
-        }
-        console.log(payload,'payload')
-        const response = await executeReportAction (payload, props.reportType)
-        reportStore.reportData = response?.data?.report
-        reportStore.tableItems = response?.data?.report?.items || []
-        reportStore.reportId = response?.data?.report?.id
-        reportStore.approver = response?.data?.approver || []
-        reportStore.final_approver = response?.data?.final_approver || null
+        await reportStore.reportGenerate(props.reportType)
+        // let payload
+        // reportStore.tableItems = []
+        // if(authStore.user?.approver == 1){
+        //     payload = filterStore.getGenrateReportPayload()
+        // }else{
+        //     payload = {
+        //         report_month: filterStore.reportMonth,
+        //         unit_id: authStore.user?.unit_id,
+        //         sub_unit_id: authStore.user?.sub_unit_id,
+        //         office_id: authStore.user?.office_id,
+        //         sub_office_id: authStore.user?.sub_office_id
+        //     }
+        // }
+        // console.log(payload,'payload')
+        // const response = await executeReportAction (payload, props.reportType)
+        // reportStore.reportData = response?.data?.report
+        // reportStore.tableItems = response?.data?.report?.items || []
+        // reportStore.reportId = response?.data?.report?.id
+        // reportStore.approver = response?.data?.approver || []
+        // reportStore.final_approver = response?.data?.final_approver || null
 
     }
 

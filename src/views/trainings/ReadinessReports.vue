@@ -38,7 +38,7 @@
             </tr>
              <tr>
               <td >REDCON </td>
-              <td colspan="2" class="text-center"></td>
+              <td colspan="2" class="text-center">{{reportStore?.reportData?.result?.redcon || 0}}</td>
             </tr>
            
           </tbody>

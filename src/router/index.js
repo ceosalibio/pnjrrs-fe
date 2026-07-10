@@ -81,13 +81,13 @@ const routes = [
       {
         path: 'equipment/2',
         name: 'EquipmentReadinessReport',
-        component: () => import('@/views/equipment/EquipmentReadinessReport.vue')
+        component: () => import('@/views/equipment/ReadinessReport.vue')
       },
-      {
-        path: 'equipment/3',
-        name: 'MaintenanceReadinessReport',
-        component: () => import('@/views/equipment/MaintenanceReadinessReport.vue')
-      },
+      // {
+      //   path: 'equipment/3',
+      //   name: 'MaintenanceReadinessReport',
+      //   component: () => import('@/views/equipment/MaintenanceReadinessReport.vue')
+      // },
 
       // Facilities Routes
       {

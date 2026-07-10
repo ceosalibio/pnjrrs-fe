@@ -147,3 +147,75 @@ export const deleteTrainingSettings = async (id) => {
         throw error;
     }
 }
+
+
+
+// ============================================================
+// setting equipment service functions
+// ============================================================
+
+export const getEquipmentTempSettings = async () => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_EQUIPMENT.TEMP_LIST)
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching equipment settings:', error);
+        throw error;
+    }
+}
+
+export const getEquipmentSettings = async (filters) => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_EQUIPMENT.LIST, { params: filters })
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching equipment settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Create equipment settings
+ * @param {Object} payload - equipment settings data to create
+ * @returns {Promise<Object>} API response for create operation
+ */
+export const saveEquipmentSettings = async (payload) => {
+    try {
+        const response = await api.post(ENDPOINTS.SETTING_EQUIPMENT.CREATE, payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error saving equipment settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Update equipment settings by ID
+ * @param {number} id - ID of the equipment settings to update
+ * @param {Object} payload - equipment settings data to update
+ * @returns {Promise<Object>} API response for update operation
+ */
+export const updateEquipmentSettings = async (id, payload) => {
+    try {
+        const response = await api.put(ENDPOINTS.SETTING_EQUIPMENT.UPDATE(id), payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating equipment settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Delete equipment settings by ID
+ * @param {number} id - ID of the equipment settings to delete
+ * @returns {Promise<Object>} API response for delete operation
+ */
+export const deleteEquipmentSettings = async (id) => {
+    try {
+        const response = await api.delete(ENDPOINTS.SETTING_EQUIPMENT.DELETE(id));
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting equipment settings:', error);
+        throw error;
+    }
+}
