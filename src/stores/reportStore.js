@@ -28,7 +28,7 @@ export const useReportStore = defineStore('report', () => {
     const reportGenerate = async (reportType) =>{
         let payload
         tableItems.value = []
-        if(authStore.user?.approver == 1){
+        if(authStore.user?.role == 1){
             payload = filterStore.getGenrateReportPayload()
         }else{
             payload = {
