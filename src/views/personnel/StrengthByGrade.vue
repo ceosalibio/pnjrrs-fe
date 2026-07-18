@@ -1,5 +1,10 @@
 <template>
-  <div class="personnel-add">
+  <AppEmptyState 
+    v-if="reportStore.tableItems?.length === 0"
+    title="No Data Available"
+    message="Please generate first to view this page"
+  />
+  <div class="personnel-add" v-else>
     <v-row class="mb-6">
       <!-- Summary Cards -->
       <v-col cols="12" md="3">
@@ -95,6 +100,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useReportStore } from '@/stores/reportStore'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 
 const reportStore = useReportStore()
 

@@ -39,11 +39,11 @@
 
           <tr>
             <td colspan="3" class="text-end detail-title">{{ displayTotalLabel }}</td>
-            <td class="text-center detail-title">{{ totalScore }}%</td>
+            <td class="text-center detail-title font-weight-bold">{{ totalScore }}%</td>
           </tr>
           <tr>
-            <td colspan="3" class="text-end detail-title">Equipment REDCON Status</td>
-            <td class="text-center detail-title">{{ data?.redcon }}</td>
+            <td colspan="3" class="text-end detail-title">REDCON</td>
+            <td class="text-center detail-title" :class="red.redStyle(data?.redcon)">{{red.redCon(data?.redcon) }}</td>
           </tr>
         </tbody>
       </v-table>
@@ -52,6 +52,7 @@
 </template>
 
 <script setup>
+import { red } from '@/utils/redcon.js'
 import { computed } from 'vue'
 import EquipmentDivisionRows from './EquipmentDivisionRows.vue'
 

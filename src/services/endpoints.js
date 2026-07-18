@@ -136,4 +136,11 @@ export const ENDPOINTS = {
     CREATE: `${BASE_PATH}/report/equipments`,
     UPDATE: (id) => `${BASE_PATH}/report/equipments/${id}`,
   },
+
+  // facilities report
+  REPORT_FACILITIES: {
+    LIST: `${BASE_PATH}/report/facilities`,
+    CREATE: `${BASE_PATH}/report/facilities`,
+    UPDATE: (id) => `${BASE_PATH}/report/facilities/${id}`,
+  },
 }

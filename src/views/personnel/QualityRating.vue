@@ -22,7 +22,12 @@
       <v-divider />
       
       <v-card-text>
-        <v-table class="data-table">
+        <AppEmptyState 
+          v-if="reportStore.tableItems?.length === 0"
+          title="No Data Available"
+          message="Please generate first to view this page"
+        />
+        <v-table class="data-table" v-else>
           <thead>
             <tr class="header-row">
               <th>DESCRIPTION/POSITION</th>
@@ -110,6 +115,7 @@
 </template>
 
 <script setup>
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { ref, onBeforeUnmount, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
@@ -295,7 +301,7 @@ const handleSave = async () => {
       showError(response?.message || 'Error saving data')
       return
     }
-    
+     await reportStore.reportGenerate('personnel')
     showSuccess('Personnel data saved successfully!')
   } catch (error) {
     showError('Error saving data: ' + error.message)

@@ -15,9 +15,10 @@
           <div class="d-flex ga-2 justify-space-between">
               <div class="search-wrapper">
                 <AppTextField 
-                  v-model="searchQuery"
-                  :label="'Search'" 
-                  :placeholder="'Search equipment here'"
+                    v-if="reportStore?.tableItems?.length > 0"
+                    v-model="searchQuery"
+                    :label="'Search'" 
+                    :placeholder="'Search equipment here'"
                 />
               </div>
 
@@ -53,7 +54,12 @@
           </div>
 
           <div class="table-responsive mt-4">
-              <v-table class="data-table">
+             <AppEmptyState 
+                v-if="reportStore.tableItems?.length === 0"
+                title="No Data Available"
+                message="Please generate first to view this page"
+                />
+              <v-table class="data-table" v-else>
                   <thead>
                       <tr class="header-row">
                           <th></th>
@@ -66,13 +72,6 @@
                       </tr>
                   </thead>
                   <tbody>
-                      <template v-if="filteredTableItems?.length === 0">
-                          <tr>
-                              <td colspan="6" class="text-center text-grey">
-                                  {{ searchQuery ? 'No results found. Try a different search.' : 'No data to display. Click "Generate" to load settings.' }}
-                              </td>
-                          </tr>
-                      </template>
 
                       <template v-for="category in filteredTableItems" :key="`cat-${category.category_id}`">
                           <!-- Category Header -->
@@ -263,6 +262,7 @@ import AppTextField from '@/components/forms/AppTextField.vue';
 import { useReportStore } from '@/stores/reportStore'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 
 const reportStore = useReportStore()
 const { showError, showSuccess } = useSnackbar()
@@ -533,7 +533,7 @@ const searchQuery = ref('')
           const payload = {
               items: reportStore?.tableItems
           }
-          console.log(payload,'payyyy')
+
           const response = await executeReportAction(payload, 'equipment', 'update', reportStore.reportId)
           console.log(response,'response')
             

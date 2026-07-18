@@ -46,8 +46,8 @@ export const MENU_ITEMS = [
     role: ['admin', 'officer'],
     children: [
       { title: 'Fill Up', to: '/facilities/1', icon: 'mdi-view-list' },
-      { title: 'Rating', to: '/facilities/2', icon: 'mdi-information' },
-      { title: 'Readiness Report', to: '/facilities/3', icon: 'mdi-wrench' }
+      // { title: 'Rating', to: '/facilities/2', icon: 'mdi-information' },
+      { title: 'Readiness Report', to: '/facilities/2', icon: 'mdi-wrench' }
     ]
   },
   {

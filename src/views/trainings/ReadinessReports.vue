@@ -10,7 +10,7 @@
         <v-table class="rating-summary-table mb-8">
     
           <tbody>
-            <tr>
+            <tr height="90vh">
               <td rowspan="2">Training Readiness = </td>
               <td class="text-center">
                 <div>
@@ -22,7 +22,7 @@
               </td>
               <td rowspan="2" class="text-center">x 100</td>
             </tr>
-            <tr>
+            <tr height="90vh">
               <td class="text-center">
                 <div>
                     Nr of METT Programmed (Until Current Quarter)
@@ -32,13 +32,13 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr height="90vh" class="total-row">
               <td >Training Readiness Rating </td>
-              <td colspan="2" class="text-center">{{reportStore?.reportData?.result?.readiness || 0}} %</td>
+              <td colspan="2" class="text-center font-weight-bold">{{reportStore?.reportData?.result?.readiness || 0}} %</td>
             </tr>
-             <tr>
+             <tr height="90vh" class="total-row">
               <td >REDCON </td>
-              <td colspan="2" class="text-center">{{reportStore?.reportData?.result?.redcon || 0}}</td>
+              <td colspan="2" class="text-center"  :class="red.redStyle(reportStore?.reportData?.result?.redcon)">{{ red.redCon(reportStore?.reportData?.result?.redcon) }}</td>
             </tr>
            
           </tbody>
@@ -68,6 +68,7 @@
 </template>
 
 <script setup>
+import { red } from '@/utils/redcon.js'
 import { ref, computed } from 'vue'
 import AssessmentForm from '@/components/common/AssessmentForm.vue'
 import AppDialog from '@/components/common/AppDialog.vue'

@@ -31,7 +31,12 @@
       <v-divider />
 
       <v-card-text>
-        <table class="mett-table">
+        <AppEmptyState 
+          v-if="reportStore.tableItems?.length === 0"
+          title="No Data Available"
+          message="Please generate first to view this page"
+        />
+        <table class="mett-table" v-else>
           <thead>
             <tr class="header-row">
               <th>METL</th>
@@ -43,7 +48,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(training,i) in reportStore?.tableItems" :key="i">
+            <tr v-for="(training,i) in reportStore?.tableItems" :key="i" height="90vh">
               <td v-if="shouldShowMetl(i)" class="text-center" :rowspan="getMetlRowspan(i)">{{ training.metl }}</td>
               <td class="text-center">{{ training.met }}</td>
               <td class="text-center">{{ training.required }}</td>
@@ -79,6 +84,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
 import AppTextField from '@/components/forms/AppTextField.vue'

@@ -19,6 +19,12 @@ const REPORT_CONFIG = {
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_EQUIPMENT.UPDATE(id) },
   },
+
+  facilities: {
+    create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.CREATE },
+    getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_FACILITIES.LIST },
+    update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_FACILITIES.UPDATE(id) },
+  },
 }
 
 export const executeReportAction  = async (payload, reportType, action = 'create', id = null) => {

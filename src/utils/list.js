@@ -48,3 +48,4 @@ export const rankList = [
   { label: 'SG2', value: 'SG2' },
   { label: 'SG1', value: 'SG1' }
 ]
+

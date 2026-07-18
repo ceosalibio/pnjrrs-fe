@@ -1,6 +1,13 @@
 <template>
-  <div class="personnel-reports">
-    <v-card class="mb-6">
+  <AppEmptyState 
+      v-if="reportStore.tableItems?.length === 0"
+      title="No Data Available"
+      message="Please generate first to view this page"
+    />
+  <div class="personnel-reports" v-else>
+    <!-- Show empty state if no data -->
+    
+    <v-card class="mb-6" \>
       <v-card-title>Personnel Readiness Report</v-card-title>
       <v-card-subtitle>Overall personnel readiness assessment and rating</v-card-subtitle>
       <v-divider />
@@ -32,12 +39,12 @@
               <td class="text-center">{{ readinessTableData?.finalAfposRating || 0 }}%</td>
             </tr>
             <tr class="total-row">
-              <td colspan="2">TOTAL</td>
+              <td colspan="2" class="text-right">TOTAL</td>
               <td class="text-center">{{ readinessTableData?.readiness || 0 }}%</td>
             </tr>
             <tr class="total-row">
-              <td colspan="2">REDCON</td>
-              <td class="text-center">{{ readinessTableData?.redcon || 0 }}</td>
+              <td colspan="2" class="text-right">REDCON</td>
+              <td class="text-center"  :class="red.redStyle(reportStore?.reportData?.result?.redcon)">{{ red.redCon(reportStore?.reportData?.result?.redcon) }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -66,6 +73,8 @@
 </template>
 
 <script setup>
+import { red } from '@/utils/redcon.js'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { ref, computed } from 'vue'
 import AssessmentForm from '@/components/common/AssessmentForm.vue'
 import AppDialog from '@/components/common/AppDialog.vue'

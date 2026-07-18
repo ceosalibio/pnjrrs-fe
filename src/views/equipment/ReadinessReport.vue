@@ -1,5 +1,10 @@
 <template>
-  <div class="equipment-readiness">
+  <AppEmptyState 
+      v-if="reportStore.tableItems?.length === 0"
+      title="No Data Available"
+      message="Please generate first to view this page"
+    />
+  <div class="equipment-readiness" v-else>
     <div class="d-flex">
       <ReadinessTable
         title="Equipment Readiness Report"
@@ -17,11 +22,14 @@
     <v-card>
       <v-card-text>
          <!-- Assessment Section -->
-          <AssessmentForm 
-            v-model:assessments="assessments"
-            @save="save"
-            @clear="reset"
-          />
+          <div class="ma-5">
+            <AssessmentForm 
+              v-model:assessments="assessments"
+              @save="save"
+              @clear="reset"
+            />
+          </div>
+          
       </v-card-text>
     </v-card>
 
@@ -40,6 +48,7 @@
 </template>
 
 <script setup>
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { computed, ref } from 'vue'
 import { useReportStore } from '@/stores/reportStore'
 import AssessmentForm from '@/components/common/AssessmentForm.vue'

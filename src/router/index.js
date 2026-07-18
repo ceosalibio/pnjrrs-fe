@@ -99,13 +99,13 @@ const routes = [
         name: 'FillUp',
         component: () => import('@/views/facilities/Fillup.vue')
       },
+      // {
+      //   path: 'facilities/2',
+      //   name: 'Rating',
+      //   component: () => import('@/views/facilities/Rating.vue')
+      // },
       {
         path: 'facilities/2',
-        name: 'Rating',
-        component: () => import('@/views/facilities/Rating.vue')
-      },
-      {
-        path: 'facilities/3',
         name: 'FacilityReadinessReport',
         component: () => import('@/views/facilities/ReadinessReport.vue')
       },

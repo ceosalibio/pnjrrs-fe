@@ -1,12 +1,12 @@
  function redCon(data){
     let val
-    if(data <= 100 && data >= 85){
+    if(data == 'R1'){
         val = 'R1 - Fully Mission Capable'
     }
-    else if(data <= 84 && data >= 75){
+    else if(data == 'R2'){
         val = 'R2 - Mission Capable'
     }
-    else if(data <= 74 && data >= 51){
+    else if(data == 'R3'){
         val = 'R3 - Partially Mission Capable'
     }
     else{

@@ -41,6 +41,7 @@ export const useReportStore = defineStore('report', () => {
         }
         console.log(payload,'payload')
         const response = await executeReportAction (payload, reportType)
+        // console.log(response,'response')
         reportData.value = response?.data?.report
         tableItems.value = response?.data?.report?.items || []
         reportId.value = response?.data?.report?.id
@@ -60,16 +61,16 @@ export const useReportStore = defineStore('report', () => {
         reportGenerate
     }
 },
-{
-    persist: {
-        paths: [
-            "reportData",
-            // "tableItems",
-            "approver",
-            "final_approver",
+// {
+//     persist: {
+//         paths: [
+//             "reportData",
+//             "tableItems",
+//             "approver",
+//             "final_approver",
             
-        ],
-    },
-}
+//         ],
+//     },
+// }
 
 )
