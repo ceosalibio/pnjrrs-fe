@@ -5,6 +5,32 @@
       message="Please generate first to view this page"
     />
   <div class="equipment-readiness" v-else>
+    <div class="mb-2">
+      <v-card>
+        <div class="d-flex justify-space-between align-center pa-4">
+          <div>
+            <v-card-title>
+              Equipment & Maintenance Readiness Report
+            </v-card-title>
+            <v-card-subtitle>
+              Overall equipment readiness assessment and rating
+            </v-card-subtitle>
+          </div>
+
+          <v-spacer />
+
+          <AppButton
+            v-if="reportStore.reportData?.status"
+            @click="printReport"
+          >
+            Print
+            <v-icon>mdi-printer-outline</v-icon>
+          </AppButton>
+        </div>
+      </v-card>
+    </div>
+      
+
     <div class="d-flex">
       <ReadinessTable
         title="Equipment Readiness Report"
@@ -27,6 +53,8 @@
               v-model:assessments="assessments"
               @save="save"
               @clear="reset"
+              :status="reportStore?.reportData?.status"
+
             />
           </div>
           
@@ -51,12 +79,15 @@
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { computed, ref } from 'vue'
 import { useReportStore } from '@/stores/reportStore'
+import AppButton from '@/components/common/AppButton.vue'
 import AssessmentForm from '@/components/common/AssessmentForm.vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import ReadinessTable from './ReadinessTable.vue'
-import { executeReportAction  } from '@/services/reportService'
+import { useSnackbar } from '@/composables/useSnackbar'
+import { executeReportAction, printReportReadiness  } from '@/services/reportService'
 
 const reportStore = useReportStore()
+const { showSuccess } = useSnackbar()
 
 const equipmentReadiness = computed(() => reportStore?.reportData?.result?.equipment || {})
 const maintenanceReadiness = computed(() => reportStore?.reportData?.result?.maintenance || {})
@@ -69,6 +100,10 @@ const assessmentsTemp = ref({
   b: '',
   c: '',
   d: ''
+})
+
+const assessments = computed(()=>{
+  return reportStore?.reportData?.assessment ?? assessmentsTemp.value
 })
 
 const save = (assessmentData) => {
@@ -85,10 +120,18 @@ const handleConfirmSave = async () => {
     assessment: pendingAssessmentData.value
   }
   const response = await executeReportAction (payload, 'equipment','update', reportStore.reportId)
-  console.log(response)
   reportStore.reportData = response?.data
   showConfirmDialog.value = false
   // alert('Report saved successfully!')
+}
+
+const reset = () => {
+  assessments.value = {
+    a: '',
+    b: '',
+    c: '',
+    d: ''
+  }
 }
 
 /**
@@ -97,6 +140,16 @@ const handleConfirmSave = async () => {
 const handleCancelSave = () => {
   showConfirmDialog.value = false
   pendingAssessmentData.value = null
+}
+
+const printReport = async () => {
+ let payload = {
+    assessment: reportStore?.reportData?.assessment,
+    rating: reportStore?.reportData?.result
+    
+  }
+  await printReportReadiness(payload, 'equipment', 'equipment-readiness-report.xlsx') 
+  showSuccess('Report printed successfully!')
 }
 </script>
 

@@ -12,9 +12,10 @@
           <v-card-subtitle>Manage and view all personnel records</v-card-subtitle>
         </div>
         <AppButton
-          v-if="reportStore.tableItems?.length > 0"
+          v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn"
           :color="isEditMode ? 'success' : 'primary'"
           @click="toggleEditMode"
+          
         >
           {{ isEditMode ? 'Save' : 'Update' }}
         </AppButton>
@@ -122,6 +123,7 @@ import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import { useReportStore } from '@/stores/reportStore'
+import { useAuthStore } from '@/stores/authStore'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
 import { getRank } from '@/services/userService'
@@ -134,6 +136,7 @@ import {
 } from '@/utils/personnelCalculations'
 
 const reportStore = useReportStore()
+const authtStore = useAuthStore()
 const router = useRouter()
 const { showSuccess, showError } = useSnackbar()
 

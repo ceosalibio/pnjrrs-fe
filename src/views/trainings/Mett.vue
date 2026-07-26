@@ -11,7 +11,7 @@
           </div>
           <div class="d-flex ga-2">
              <AppButton
-                v-if="reportStore.tableItems?.length > 0 && !reportStore?.reportData?.status"
+                v-if="reportStore.tableItems?.length > 0 && !reportStore?.reportData?.status && !authtStore.hideUpdateBtn"
                 :color="isEditMode ? 'success' : 'primary'"
                 @click="toggleEditMode"
               >
@@ -92,9 +92,10 @@ import AppDatePicker from '@/components/forms/AppDatePicker.vue'
 import { useReportStore } from '@/stores/reportStore'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
-
+import { useAuthStore } from '@/stores/authStore'
 
 const reportStore = useReportStore()
+const authtStore = useAuthStore()
 const { showError } = useSnackbar()
 const isEditMode = ref(false)
 
@@ -127,6 +128,7 @@ const toggleEditMode = () => {
 }
 
 // Validate that if actual has a value, datePerformed must also have a value
+// Also validate that actual cannot be higher than required
 const validateChanges = () => {
   const items = reportStore?.tableItems || []
   const errors = []
@@ -135,10 +137,16 @@ const validateChanges = () => {
     if (editValues.value[index]) {
       const actual = editValues.value[index].actual
       const datePerformed = editValues.value[index].datePerformed
+      const required = item.required
       
       // If actual has a value but datePerformed is empty
       if (actual && !datePerformed) {
         errors.push(`Row ${index + 1} (${item.met}): Actual is filled but Date Performed is empty`)
+      }
+      
+      // If actual is higher than required
+      if (actual > required) {
+        errors.push(`Row ${index + 1} (${item.met}): Actual (${actual}) cannot be higher than Required (${required})`)
       }
     }
   })

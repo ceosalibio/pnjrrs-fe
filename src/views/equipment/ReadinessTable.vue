@@ -3,7 +3,7 @@
   <v-card>
     <v-card-title class="text-center">{{ title }}</v-card-title>
     <v-card-text class="pa-0">
-      <v-table class="elevation-1 custom-table" fixed-header height="70vh">
+      <v-table class="elevation-1 custom-table">
         <thead>
           <tr>
             <th class="text-center">Equipment Category</th>

@@ -43,10 +43,12 @@
               <tr class="item-title-row">
                 <td
                   class="item-title"
-                  colspan="5"
+                  colspan="2"
                 >
                   {{ category.category_name }}
                 </td>
+                <td  class="item-title text-center">{{getCategorySum(category.category_name).numerical_rating}}</td>
+                <td  class="item-title text-center">{{getCategorySum(category.category_name).percentage ?? 0}}%</td>
               </tr>
 
               <!-- Item Rows -->
@@ -109,6 +111,14 @@
                   {{ item.percentage }}%
                 </td>
               </tr>
+
+              <!-- Category Subtotal Row -->
+              <!-- <tr class="category-subtotal-row">
+                <td class="subtotal-label text-left font-weight-bold">{{ category.category_name }} Subtotal</td>
+                <td class="text-center"></td>
+                <td class="text-center font-weight-bold">{{ getCategorySum(category.category_name).numerical_rating }}</td>
+                <td class="text-center font-weight-bold">{{ getCategorySum(category.category_name).percentage }}%</td>
+              </tr> -->
               
             </template>
             <tr>
@@ -340,6 +350,51 @@ const calculateTotalPercentage = () => {
 }
 
 /**
+ * Calculate sum per category
+ * @returns {Object} Object with category_name as key and { numerical_rating, percentage } as value
+ */
+const calculateCategorySums = () => {
+  const categorySums = {}
+  
+  if (!props.facilities || !props.facilities.categories || !Array.isArray(props.facilities.categories)) {
+    return categorySums
+  }
+  
+  props.facilities.categories.forEach((category) => {
+    let numericalRatingSum = 0
+    let percentageSum = 0
+    
+    if (category.items && Array.isArray(category.items)) {
+      category.items.forEach((item) => {
+        if (item.numerical_rating && !isNaN(item.numerical_rating)) {
+          numericalRatingSum += parseFloat(item.numerical_rating)
+        }
+        if (item.percentage && !isNaN(item.percentage)) {
+          percentageSum += parseFloat(item.percentage)
+        }
+      })
+    }
+    
+    categorySums[category.category_name] = {
+      numerical_rating: parseFloat(numericalRatingSum.toFixed(2)),
+      percentage: parseFloat(percentageSum.toFixed(2))
+    }
+  })
+  
+  return categorySums
+}
+
+/**
+ * Get category sum by name
+ * @param {string} categoryName - Category name
+ * @returns {Object} { numerical_rating, percentage }
+ */
+const getCategorySum = (categoryName) => {
+  const sums = calculateCategorySums()
+  return sums[categoryName] || { numerical_rating: 0, percentage: 0 }
+}
+
+/**
  * Update totals in facilities object
  */
 const updateTotals = () => {
@@ -509,6 +564,23 @@ const save = async () => {
 .item-detail {
   font-weight: 500;
   padding: 12px 16px !important;
+}
+
+/* Category Subtotal Row Styling */
+.category-subtotal-row {
+  background-color: #fff3e0;
+  border-top: 2px solid #ffb74d;
+  border-bottom: 2px solid #ffb74d;
+}
+
+.category-subtotal-row td {
+  padding: 10px 12px !important;
+  font-weight: 600;
+}
+
+.subtotal-label {
+  color: #e65100;
+  font-style: italic;
 }
 
 /* Numeric Display */

@@ -98,7 +98,7 @@
     </div>
 </template>
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onMounted } from 'vue'
     import AppAutocomplete from '../forms/AppAutocomplete.vue'
     import AppButton from '../common/AppButton.vue'
     import AppTextField from '../forms/AppTextField.vue'
@@ -160,6 +160,11 @@
     const handleUploadError = (error) => {
         emit('upload-error', error)
     }
+
+     onMounted(async () => {
+        // Initialize filter data (categories and units) when component mounts
+        await filterStore.initializeFilterData()
+    })
 </script>
 
 <style scoped>

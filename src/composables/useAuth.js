@@ -25,12 +25,39 @@ export const useAuth = () => {
       authStore.setLoading(true)
 
       const result = await loginService(username, password)
+      console.log(result,'result')
+      
+      // Check if password change is required
+      if(result?.error == "Password change required"){
+        console.log('✅ Password change required detected')
+        console.log('📝 Username:', username)
+        console.log('🔒 Temporary Password:', password ? 'Present' : 'Missing')
+        
+        // Store username and password for password change form
+        authStore.setPendingPasswordChange(username, password)
+        
+        console.log('📦 After setPendingPasswordChange:')
+        console.log('   getPendingUsername:', authStore.getPendingUsername)
+        console.log('   getPendingPassword:', authStore.getPendingPassword ? 'Present' : 'Missing')
+        
+        appStore.showSnackbar('Password change required', 'warning')
+        
+        console.log('🚀 Attempting router.push to /change-password')
+        try {
+          await router.push('/change-password')
+          console.log('✅ Router.push successful')
+        } catch (routeError) {
+          console.error('❌ Router.push failed:', routeError)
+        }
+        return true // Consider it a "successful" flow that requires password change
+      }
       
       if (!result?.success) {
         // Extract error message - handle nested errors from API
         let errorMsg = result.error
         
         if (result.errors) {
+          
           // If there are field-specific errors, show first one
           const firstErrorKey = Object.keys(result.errors)[0]
           if (result.errors[firstErrorKey]) {

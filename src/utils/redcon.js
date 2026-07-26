@@ -17,13 +17,13 @@
 
 function redStyle(val){
     let style
-    if(val.includes('R1')){
+    if(val?.includes('R1')){
         style = 'redCon1'
     }
-    else if(val.includes('R2')){
+    else if(val?.includes('R2')){
         style = 'redCon2'
     }
-    else if(val.includes('R3')){
+    else if(val?.includes('R3')){
 
         style = 'redCon3'
     }

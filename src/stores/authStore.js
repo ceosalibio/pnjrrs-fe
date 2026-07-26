@@ -8,6 +8,8 @@ export const useAuthStore = defineStore('auth', () => {
   const rememberMe = ref(false)
   const isLoading = ref(false)
   const captchaVerified = ref(false)
+  const pendingUsername = ref(null)
+  const pendingPassword = ref(null)
 
   const getUser = computed(() => user.value)
   const getToken = computed(() => token.value)
@@ -15,6 +17,11 @@ export const useAuthStore = defineStore('auth', () => {
   const getRememberMe = computed(() => rememberMe.value)
   const getIsLoading = computed(() => isLoading.value)
   const getCaptchaVerified = computed(() => captchaVerified.value)
+  const getPendingUsername = computed(() => pendingUsername.value)
+  const getPendingPassword = computed(() => pendingPassword.value)
+  const hideUpdateBtn = computed(()=>{
+    return user.value?.role == 2
+  })
 
   const setUser = (userData) => {
     user.value = userData
@@ -40,6 +47,16 @@ export const useAuthStore = defineStore('auth', () => {
     captchaVerified.value = status
   }
 
+  const setPendingPasswordChange = (username, password) => {
+    pendingUsername.value = username
+    pendingPassword.value = password
+  }
+
+  const clearPendingPasswordChange = () => {
+    pendingUsername.value = null
+    pendingPassword.value = null
+  }
+
   const login = (userData, authToken) => {
     // console.log('[authStore] Login called with:', { userData, authToken })
     setUser(userData)
@@ -60,6 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     isAuthenticated.value = false
     captchaVerified.value = false
+    clearPendingPasswordChange()
     localStorage.clear()
   }
 
@@ -70,18 +88,25 @@ export const useAuthStore = defineStore('auth', () => {
     rememberMe,
     isLoading,
     captchaVerified,
+    pendingUsername,
+    pendingPassword,
     getUser,
     getToken,
     getIsAuthenticated,
     getRememberMe,
     getIsLoading,
     getCaptchaVerified,
+    getPendingUsername,
+    getPendingPassword,
+    hideUpdateBtn,
     setUser,
     setToken,
     setAuthenticated,
     setRememberMe,
     setLoading,
     setCaptchaVerified,
+    setPendingPasswordChange,
+    clearPendingPasswordChange,
     login,
     logout
   }

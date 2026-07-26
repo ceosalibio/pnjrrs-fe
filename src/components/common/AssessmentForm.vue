@@ -12,6 +12,7 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
+        :readonly="status"
       />
     </div>
 
@@ -25,6 +26,7 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
+        :readonly="status"
       />
     </div>
 
@@ -38,6 +40,7 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
+        :readonly="status"
       />
     </div>
 
@@ -51,10 +54,11 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
+        :readonly="status"
       />
     </div>
 
-    <div class="d-flex gap-2 justify-end mt-6">
+    <div class="d-flex gap-2 justify-end mt-6" v-if="!status">
       <v-btn variant="outlined" @click="handleClear">{{ clearButtonText }}</v-btn>
       <v-btn color="primary" @click="handleSave">{{ saveButtonText }}</v-btn>
     </div>
@@ -125,6 +129,10 @@ const props = defineProps({
   saveButtonText: {
     type: String,
     default: 'Save Report'
+  },
+  status: {
+    type: Number,
+    default: 0
   }
 })
 

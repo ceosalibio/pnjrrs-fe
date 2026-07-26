@@ -92,7 +92,7 @@
                         </AppButton>
                     </div>
 
-                    <div v-if="showPrint">
+                    <!-- <div v-if="showPrint">
                         <AppButton
                             color="primary"
                             @on-click="handlePrint()"
@@ -100,7 +100,7 @@
                         >
                             Print Report
                         </AppButton>
-                    </div>
+                    </div> -->
                 </div>
                 
 
@@ -139,12 +139,14 @@
     import { useAuthStore } from '@/stores/authStore.js';
     import { executeReportAction  } from '@/services/reportService'
     import { formatToPhilippineTime } from '@/utils/dateFormatter.js'
+    import { useSnackbar } from '@/composables/useSnackbar'
 
     const emit = defineEmits(['generate','submit','print'])
     const filterStore = useFilterStore();
     const reportStore = useReportStore();
     const authStore = useAuthStore();
     const showSubmitDialog = ref(false);
+    const { showSuccess, showError } = useSnackbar()
 
     onMounted(async () => {
         // Initialize filter data (categories and units) when component mounts
@@ -250,10 +252,16 @@
             status: status,
             is_final:  reportStore.final_approver == authStore.user?.approver ? 1 : 0
         }
+        console.log(reportStore.reportData,'payload')
+        if(reportStore.reportData?.assessment == null || reportStore.reportData?.assessment == undefined){
+            showError('Please fill out the assessment before submitting the report.')
+            return false
+        }
         const response = await executeReportAction (payload, props.reportType,'update',reportStore.reportId)
         if(response?.status == "success"){
             await handleGenerate()
             showSubmitDialog.value = false
+            showSuccess(status > 1 ? 'Report approved successfully!' : 'Report submitted successfully!')
         }
     }
 

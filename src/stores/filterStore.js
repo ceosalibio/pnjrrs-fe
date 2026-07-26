@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { getCategories, getUnits, getSubUnits, getOffices, getSubOffices } from '@/services/organizationService'
 import { useReportStore } from './reportStore';
-
+import { getItem } from '@/utils/storage'
 export const useFilterStore = defineStore('filter', () => {
     const reportStore = useReportStore()
     const search = ref('')
@@ -13,13 +13,14 @@ export const useFilterStore = defineStore('filter', () => {
     const suboffice = ref('')
     const reportMonth = ref('')
     const organizationFilterItems = ref({})
+    const authStorage = getItem('auth')
 
     // Guard flag para hindi ma-trigger ang reset/cascade logic
     // habang nire-restore pa lang ng pinia-persist ang naka-save na state
     const isHydrating = ref(true)
 
     watch(() => category.value, async (newCategory, oldCategory) => {
-        if (isHydrating.value) return
+     
 
         if (newCategory !== oldCategory && newCategory !== '' && newCategory != null) {
             unit.value = ''
@@ -32,8 +33,8 @@ export const useFilterStore = defineStore('filter', () => {
     }, { immediate: false })
 
     watch(() => unit.value, async (newUnit, oldUnit) => {
-        if (isHydrating.value) return
-
+        // if (isHydrating.value) return
+            console.log(newUnit, oldUnit)
         if (newUnit !== oldUnit && newUnit !== '' && newUnit != null) {
             subunit.value = ''
             office.value = ''
@@ -48,8 +49,8 @@ export const useFilterStore = defineStore('filter', () => {
     }, { immediate: false })
 
     watch(() => subunit.value, async (newSubUnit, oldSubUnit) => {
-        if (isHydrating.value) return
-
+        // if (isHydrating.value) return
+        console.log(newSubUnit, oldSubUnit)
         if (newSubUnit !== oldSubUnit && newSubUnit !== '' && newSubUnit != null) {
             office.value = ''
             suboffice.value = ''
@@ -63,7 +64,7 @@ export const useFilterStore = defineStore('filter', () => {
     }, { immediate: false })
 
     watch(() => office.value, async (newOffice, oldOffice) => {
-        if (isHydrating.value) return
+        // if (isHydrating.value) return
 
         if (newOffice !== oldOffice && newOffice !== '' && newOffice != null) {
             suboffice.value = ''
@@ -76,49 +77,40 @@ export const useFilterStore = defineStore('filter', () => {
         }
     }, { immediate: false })
 
-    onMounted(async () => {
-        // Kapag walang naka-save na options sa categories, kunin ang default list
-        if (!organizationFilterItems.value.categories) {
-            const categoryResult = await getCategories()
-            organizationFilterItems.value.categories = categoryResult.data
-        }
-
-        // Igalang ang naka-restore na category kapag nagfetch ng units,
-        // para hindi ma-overwrite ng unfiltered/page-1 list ang tamang selection
-        if (category.value) {
-            const result = await getUnits(1, null, category.value)
-            organizationFilterItems.value.units = result.data
-        } else if (!organizationFilterItems.value.units || organizationFilterItems.value.units.length === 0) {
-            const result = await getUnits()
-            organizationFilterItems.value.units = result.data
-        }
-
-        // Hintayin ang susunod na DOM tick para tiyak na tapos na
-        // ang restore ng pinia-persist bago patayin ang guard
-        await nextTick()
-        isHydrating.value = false
-    })
-
     const initializeFilterData = async () => {
         // Fetch categories if not already loaded
-        if (!organizationFilterItems.value.categories || organizationFilterItems.value.categories.length === 0) {
+        console.log(authStorage)
+        if (authStorage.user.role == 1) {
             const categoryResult = await getCategories()
             organizationFilterItems.value.categories = categoryResult.data
         }
 
         // Igalang din dito ang naka-restore na category, kung meron
-        if (category.value) {
-            const result = await getUnits(1, null, category.value)
-            organizationFilterItems.value.units = result.data
-        } else if (!organizationFilterItems.value.units || organizationFilterItems.value.units.length === 0) {
+        if(authStorage.user.role != 1){
+            if (category.value ) {
+                const result = await getUnits(1, null, category.value)
+                organizationFilterItems.value.units = result.data
+            } else if (!organizationFilterItems.value.units || organizationFilterItems.value.units.length === 0) {
+                const result = await getUnits()
+                organizationFilterItems.value.units = result.data
+            }
+        }else{
             const result = await getUnits()
             organizationFilterItems.value.units = result.data
         }
+        
 
         // Ensure hydration is complete
         await nextTick()
         isHydrating.value = false
     }
+    onMounted(async () => {
+        console.log('test')
+        // Kapag walang naka-save na options sa categories, kunin ang default list
+        await initializeFilterData()
+    })
+
+    
 
     // Build filter payload for API requests
     const getGenrateReportPayload = () => ({

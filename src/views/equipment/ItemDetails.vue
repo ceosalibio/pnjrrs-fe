@@ -25,7 +25,7 @@
               <div class="d-flex ga-2">
                 <!-- Update Button (Always visible when data loaded) -->
                 <AppButton
-                    v-if="reportStore?.tableItems?.length > 0 && !isEditMode"
+                    v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn && !isEditMode"
                     @click="isEditMode = true"
                     color="primary"
                 >
@@ -263,8 +263,10 @@ import { useReportStore } from '@/stores/reportStore'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
+import { useAuthStore } from '@/stores/authStore'
 
 const reportStore = useReportStore()
+const authtStore = useAuthStore()
 const { showError, showSuccess } = useSnackbar()
 const isEditMode = ref(false)
 const isExist = ref(false)

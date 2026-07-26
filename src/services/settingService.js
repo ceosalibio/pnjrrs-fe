@@ -219,3 +219,90 @@ export const deleteEquipmentSettings = async (id) => {
         throw error;
     }
 }
+
+
+
+// ============================================================
+// setting facility service functions
+// ============================================================
+
+
+export const getFacilitySettings = async (filters) => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_FACILITY.LIST, { params: filters })
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching facility settings:', error);
+        throw error;
+    }
+}
+
+export const getFacilitySettingsByUnit = async (unitId) => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_FACILITY.GET_BY_UNIT(unitId));
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching facility settings by unit:', error);
+        throw error;
+    }
+}
+
+/**
+ * Create facility settings
+ * @param {Object} payload - facility settings data to create
+ * @returns {Promise<Object>} API response for create operation
+ */
+export const saveFacilitySettings = async (payload) => {
+    try {
+        const response = await api.post(ENDPOINTS.SETTING_FACILITY.CREATE, payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error saving facility settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Update facility settings by ID
+ * @param {number} id - ID of the facility settings to update
+ * @param {Object} payload - facility settings data to update
+ * @returns {Promise<Object>} API response for update operation
+ */
+export const updateFacilitySettings = async (id, payload) => {
+    try {
+        const response = await api.put(ENDPOINTS.SETTING_FACILITY.UPDATE(id), payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating facility settings:', error);
+        throw error;
+    }
+}
+
+/**
+ * Delete facility settings by ID
+ * @param {number} id - ID of the facility settings to delete
+ * @returns {Promise<Object>} API response for delete operation
+ */
+export const deleteFacilitySettings = async (id) => {
+    try {
+        const response = await api.delete(ENDPOINTS.SETTING_FACILITY.DELETE(id));
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting facility settings:', error);
+        throw error;
+    }
+}
+
+
+// ============================================================
+// setting check report
+// ============================================================
+export const reportStatus = async (filters) => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_REPORT.CHECK_REPORT, { params: filters })
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching report status:', error);
+        throw error;
+    }
+}

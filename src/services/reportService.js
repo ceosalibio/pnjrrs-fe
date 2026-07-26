@@ -7,23 +7,27 @@ const REPORT_CONFIG = {
     // getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_PERSONNEL.GET },
     // getOne: { method: 'get',  endpoint: (id) => `${ENDPOINTS.REPORT_PERSONNEL.GET}/${id}` },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_PERSONNEL.UPDATE(id) },
+    printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_PERSONNEL.PRINT_READINESS },
     // submit: { method: 'post', endpoint: (id) => `${ENDPOINTS.REPORT_PERSONNEL.SUBMIT}/${id}` },
   },
   training: {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.CREATE },
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_TRAINING.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_TRAINING.UPDATE(id) },
+    printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.PRINT_READINESS },
   },
   equipment: {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.CREATE },
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_EQUIPMENT.UPDATE(id) },
+    printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.PRINT_READINESS },
   },
 
   facilities: {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.CREATE },
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_FACILITIES.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_FACILITIES.UPDATE(id) },
+    printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.PRINT_READINESS },
   },
 }
 
@@ -53,6 +57,63 @@ export const executeReportAction  = async (payload, reportType, action = 'create
       success: false,
       error: error.message || `Failed to ${action} ${reportType} report`,
       message: error.response?.data?.message || error.message || `Failed to ${action} ${reportType} report`,
+    }
+  }
+}
+
+export const printReportReadiness = async (
+  payload,
+  reportType,
+  fileName = 'readiness-report.xlsx'
+) => {
+  const reportGroup = REPORT_CONFIG[reportType]
+
+  if (!reportGroup) {
+    return { success: false, error: `Unknown report type: ${reportType}` }
+  }
+
+  const config = reportGroup.printReadiness
+
+  if (!config) {
+    return {
+      success: false,
+      error: `Print readiness action not defined for report type "${reportType}"`,
+    }
+  }
+
+  try {
+    const response = await api.post(
+      config.endpoint(),
+      payload,
+      {
+        responseType: 'blob',
+      }
+    )
+
+    const url = window.URL.createObjectURL(response.data)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+
+    document.body.appendChild(link)
+    link.click()
+
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    return {
+      success: true,
+      message: 'File downloaded successfully.',
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || `Failed to print readiness for ${reportType} report`,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        `Failed to print readiness for ${reportType} report`,
     }
   }
 }

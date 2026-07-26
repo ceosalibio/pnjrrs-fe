@@ -8,7 +8,9 @@ export const ENDPOINTS = {
   // Authentication endpoints
   AUTH: {
     LOGIN: `${BASE_PATH}/login`,
-    LOGOUT: `${BASE_PATH}/logout`
+    LOGOUT: `${BASE_PATH}/logout`,
+    CHANGE_PASSWORD: `${BASE_PATH}/change-password`,
+    FORCE_CHANGE_PASSWORD: `${BASE_PATH}/force-change-password`
   },
 
   // Users management endpoints
@@ -108,6 +110,19 @@ export const ENDPOINTS = {
     DELETE: (id) => `${BASE_PATH}/settings/equipment-items/${id}`,
   },
 
+  SETTING_FACILITY: {
+    LIST: `${BASE_PATH}/settings/facility-items`,
+    GET: (id) => `${BASE_PATH}/settings/facility-items/${id}`,
+    GET_BY_UNIT: (unitId) => `${BASE_PATH}/settings/facility-items/unit/${unitId}`,
+    CREATE: `${BASE_PATH}/settings/facility-items`,
+    UPDATE: (id) => `${BASE_PATH}/settings/facility-items/${id}`,
+    DELETE: (id) => `${BASE_PATH}/settings/facility-items/${id}`,
+  },
+
+  SETTING_REPORT: {
+    CHECK_REPORT: `${BASE_PATH}/settings/report-check-status`,
+  },
+
 
 
   //----------- REPORT ENDPOINT ------------------//
@@ -118,6 +133,7 @@ export const ENDPOINTS = {
     // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     CREATE: `${BASE_PATH}/report/personnels`,
     UPDATE: (id) => `${BASE_PATH}/report/personnels/${id}`,
+    PRINT_READINESS: `${BASE_PATH}/report/personnels/export-readiness`,
     // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
   },
 
@@ -127,6 +143,7 @@ export const ENDPOINTS = {
     // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     CREATE: `${BASE_PATH}/report/trainings`,
     UPDATE: (id) => `${BASE_PATH}/report/trainings/${id}`,
+    PRINT_READINESS: `${BASE_PATH}/report/trainings/export-readiness`,
     // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
   },
 
@@ -135,6 +152,7 @@ export const ENDPOINTS = {
     LIST: `${BASE_PATH}/report/equipments`,
     CREATE: `${BASE_PATH}/report/equipments`,
     UPDATE: (id) => `${BASE_PATH}/report/equipments/${id}`,
+    PRINT_READINESS: `${BASE_PATH}/report/equipments/export-readiness`,
   },
 
   // facilities report
@@ -142,5 +160,7 @@ export const ENDPOINTS = {
     LIST: `${BASE_PATH}/report/facilities`,
     CREATE: `${BASE_PATH}/report/facilities`,
     UPDATE: (id) => `${BASE_PATH}/report/facilities/${id}`,
+    PRINT_READINESS: `${BASE_PATH}/report/facilities/export-readiness`,
+
   },
 }

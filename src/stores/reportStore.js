@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore.js';
 import { useFilterStore } from '@/stores/filterStore.js';
 import { executeReportAction  } from '@/services/reportService'
+import { useSnackbar } from '@/composables/useSnackbar'
 
 export const useReportStore = defineStore('report', () => {
     // const personnelReportData = ref([])
@@ -26,27 +27,51 @@ export const useReportStore = defineStore('report', () => {
     }
 
     const reportGenerate = async (reportType) =>{
+        const { showSuccess, showError, showLoading } = useSnackbar()
         let payload
         tableItems.value = []
-        if(authStore.user?.role == 1){
-            payload = filterStore.getGenrateReportPayload()
-        }else{
-            payload = {
-                report_month: filterStore.reportMonth,
-                unit_id: authStore.user?.unit_id,
-                sub_unit_id: authStore.user?.sub_unit_id,
-                office_id: authStore.user?.office_id,
-                sub_office_id: authStore.user?.sub_office_id
+        
+        try {
+            if(authStore.user?.role == 1){
+                payload = filterStore.getGenrateReportPayload()
+            }else{
+                payload = {
+                    report_month: filterStore.reportMonth,
+                    category_id: authStore.user?.category_id,
+                    unit_id: authStore.user?.unit_id,
+                    sub_unit_id: authStore.user?.sub_unit_id,
+                    office_id: authStore.user?.office_id,
+                    sub_office_id: authStore.user?.sub_office_id
+                }
             }
+            console.log(payload,'payload')
+            
+            const response = await executeReportAction (payload, reportType)
+            console.log(response,'response')
+            if(response?.data?.report) {
+                reportData.value = response?.data?.report
+                tableItems.value = response?.data?.report?.items || []
+                reportId.value = response?.data?.report?.id
+                approver.value = response?.data?.approver || []
+                final_approver.value = response?.data?.final_approver || null
+                
+                showSuccess(`${reportType} report generated successfully`)
+            } else {
+
+                showError(response?.message || 'Failed to generate report: Invalid response data')
+            }
+        } catch (error) {
+            console.log(error)
+            console.error('Error generating report:', error)
+            showError(error?.response?.data?.message || `Failed to generate ${reportType} report`)
+            
+            // Clear data on error
+            reportData.value = []
+            tableItems.value = []
+            reportId.value = null
+            approver.value = []
+            final_approver.value = null
         }
-        console.log(payload,'payload')
-        const response = await executeReportAction (payload, reportType)
-        // console.log(response,'response')
-        reportData.value = response?.data?.report
-        tableItems.value = response?.data?.report?.items || []
-        reportId.value = response?.data?.report?.id
-        approver.value = response?.data?.approver || []
-        final_approver.value = response?.data?.final_approver || null
     }
 
     return {

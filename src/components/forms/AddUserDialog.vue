@@ -49,7 +49,7 @@
             required
             class="field"
           />
-          <v-text-field
+          <!-- <v-text-field
             v-model="formData.password"
             label="Password"
             :type="showPassword ? 'text' : 'password'"
@@ -61,7 +61,7 @@
             class="field"
             :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append-inner="showPassword = !showPassword"
-          />
+          /> -->
         </div>
       </div>
 
@@ -248,11 +248,11 @@ const handleSubmit = async () => {
       response = await editUser(editingUserId.value, payload)
     } else {
       // Create mode requires password
-      if (!formData.value.password) {
-        emit('error', 'Password is required for new users')
-        return
-      }
-      payload.password = formData.value.password
+      // if (!formData.value.password) {
+      //   emit('error', 'Password is required for new users')
+      //   return
+      // }
+      payload.password = 'password123'
       response = await addUser(payload)
     }
 

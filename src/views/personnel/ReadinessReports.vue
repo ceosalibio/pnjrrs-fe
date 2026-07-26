@@ -8,8 +8,25 @@
     <!-- Show empty state if no data -->
     
     <v-card class="mb-6" \>
-      <v-card-title>Personnel Readiness Report</v-card-title>
-      <v-card-subtitle>Overall personnel readiness assessment and rating</v-card-subtitle>
+      <div class="d-flex justify-space-between align-center pa-4">
+        <div>
+          <v-card-title>Personnel Readiness Report</v-card-title>
+          <v-card-subtitle>Overall personnel readiness assessment and rating</v-card-subtitle>
+        </div>
+        <AppButton
+          v-if="reportStore.reportData?.status"
+          @click="printReport"
+          
+        >
+
+          print
+            <v-icon>
+              mdi-printer-outline
+            </v-icon>
+        </AppButton>
+      </div>
+      
+     
       <v-divider />
 
       <v-card-text>
@@ -54,6 +71,7 @@
           v-model:assessments="assessments"
           @save="save"
           @clear="reset"
+          :status="reportStore?.reportData?.status"
         />
       </v-card-text>
     </v-card>
@@ -75,23 +93,22 @@
 <script setup>
 import { red } from '@/utils/redcon.js'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
+import AppButton from '@/components/common/AppButton.vue'
 import { ref, computed } from 'vue'
 import AssessmentForm from '@/components/common/AssessmentForm.vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import { useReportStore } from '@/stores/reportStore'
-import { executeReportAction  } from '@/services/reportService'
+import { useSnackbar } from '@/composables/useSnackbar'
+import { executeReportAction, printReportReadiness } from '@/services/reportService'
 
 const reportStore = useReportStore()
+const { showSuccess, showError } = useSnackbar()
 
 // Dialog state
 const showConfirmDialog = ref(false)
 const pendingAssessmentData = ref(null)
 
-// Rating percentages
-const psgrPercentage = ref(0)
-const pqrPercentage = ref(0)
-const pqrDetailPercentage = ref(0)
-const psrPercentage = ref(0)
+
 
 // Assessment object
 const assessmentsTemp = ref({
@@ -110,33 +127,7 @@ const assessments = computed(()=>{
 })
 
 
-
-// Computed weighted percentages
-const psgrWeightedPercentage = computed(() => {
-  return Math.round((psgrPercentage.value * 50) / 100)
-})
-
-const pqrWeightedPercentage = computed(() => {
-  return Math.round((pqrPercentage.value * 50) / 100)
-})
-
-const pqrDetailWeightedPercentage = computed(() => {
-  return Math.round((pqrDetailPercentage.value * 40) / 100)
-})
-
-const psrWeightedPercentage = computed(() => {
-  return Math.round((psrPercentage.value * 60) / 100)
-})
-
-const totalWeightedPercentage = computed(() => {
-  return psgrWeightedPercentage.value + pqrWeightedPercentage.value
-})
-
 const reset = () => {
-  psgrPercentage.value = 0
-  pqrPercentage.value = 0
-  pqrDetailPercentage.value = 0
-  psrPercentage.value = 0
   assessments.value = {
     a: '',
     b: '',
@@ -159,10 +150,9 @@ const handleConfirmSave = async () => {
     assessment: pendingAssessmentData.value
   }
   const response = await executeReportAction (payload, 'personnel','update', reportStore.reportData?.id)
-  console.log(response)
   reportStore.reportData = response?.data
   showConfirmDialog.value = false
-  alert('Report saved successfully!')
+  showSuccess('Assessment saved successfully!')
 }
 
 /**
@@ -172,6 +162,18 @@ const handleCancelSave = () => {
   showConfirmDialog.value = false
   pendingAssessmentData.value = null
 }
+
+const printReport = async () => {
+ let payload = {
+    assessment: reportStore?.reportData?.assessment,
+    rating: reportStore?.reportData?.result
+    
+  }
+  await printReportReadiness(payload, 'personnel', 'personnel-readiness-report.xlsx') 
+  showSuccess('Report printed successfully!')
+}
+
+
 </script>
 
 <style scoped>

@@ -13,6 +13,7 @@ export const login = async (username, password) => {
     // Actual API call - uncomment when backend is ready
     const response = await api.post(ENDPOINTS.AUTH.LOGIN, { username, password })
     console.log('API response:', response)
+    
     // Handle response based on API format
     if (response.data.status === 'error') {
       return {
@@ -114,6 +115,93 @@ export const getUserProfile = async () => {
     return {
       success: false,
       error: error.message || 'Failed to fetch profile'
+    }
+  }
+}
+
+/**
+ * Change password for user with temporary password
+ * @param {string} token - Authentication token
+ * @param {string} temporaryPassword - Current temporary password
+ * @param {string} newPassword - New password to set
+ * @returns {Promise<Object>} Password change response
+ */
+export const changePassword = async (token, temporaryPassword, newPassword) => {
+  try {
+    const response = await api.post(
+      ENDPOINTS.AUTH.CHANGE_PASSWORD,
+      {
+        temporary_password: temporaryPassword,
+        new_password: newPassword,
+        new_password_confirmation: newPassword
+      },
+      // {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // }
+    )
+
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to change password'
+      }
+    }
+
+    return {
+      success: true,
+      message: response.data.message || 'Password changed successfully'
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to change password'
+    }
+  }
+}
+
+
+
+
+/**
+ * Change password for user with temporary password
+ * @param {string} token - Authentication token
+ * @param {string} temporaryPassword - Current temporary password
+ * @param {string} newPassword - New password to set
+ * @returns {Promise<Object>} Password change response
+ */
+export const forceChangePassword = async (username, temporaryPassword, newPassword) => {
+  try {
+    const response = await api.post(
+      ENDPOINTS.AUTH.FORCE_CHANGE_PASSWORD,
+      {
+        username : username,
+        current_password: temporaryPassword,
+        new_password: newPassword,
+      },
+      // {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // }
+    )
+
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to change password'
+      }
+    }
+
+    return {
+      success: true,
+      message: response.data.message || 'Password changed successfully'
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to change password'
     }
   }
 }

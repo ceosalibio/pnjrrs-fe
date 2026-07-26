@@ -6,8 +6,23 @@
     />
   <div class="readiness-report" v-else>
     <v-card  class="mb-6">
-      <v-card-title>Facility Readiness Report</v-card-title>
-      <v-card-subtitle>Overall facility readiness assessment and rating</v-card-subtitle>
+      <div class="d-flex justify-space-between align-center pa-4">
+        <div>
+          <v-card-title>Facility Readiness Report</v-card-title>
+          <v-card-subtitle>Overall facility readiness assessment and rating</v-card-subtitle>
+        </div>
+        <AppButton
+          v-if="reportStore.reportData?.status"
+          @click="printReport"
+        >
+
+          print
+            <v-icon>
+              mdi-printer-outline
+            </v-icon>
+        </AppButton>
+      </div>
+   
       <v-card-text class="pa-0">
         <v-table class="data-table">
           <thead>
@@ -24,8 +39,8 @@
           <tbody>
             <tr v-for="(item, idx) in reportStore?.reportData?.result?.categories || []" :key="idx" height="90vh">
               <td class="text-center">{{item.category}} ({{ item.weight_percentage }}%)</td>
-              <td class="text-center">{{item.required_area}}</td>
-              <td class="text-center">{{item.actual_area}}</td>             
+              <td class="text-center">{{item.required_area_sqm}}</td>
+              <td class="text-center">{{item.actual_area_sqm}}</td>             
               <td class="text-center">{{item.quantitative_percentage}}%</td>
               <td class="text-center">{{item.qualitative_percentage}}%</td>
               <td class="text-center">{{item.average_percentage}}%</td>
@@ -52,6 +67,7 @@
             v-model:assessments="assessments"
             @save="save"
             @clear="reset"
+            :status="reportStore?.reportData?.status"
           />
          </div>
        
@@ -76,11 +92,15 @@
 import { red } from '@/utils/redcon.js'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { ref, computed } from 'vue'
+import AppButton from '@/components/common/AppButton.vue'
 import AssessmentForm from '@/components/common/AssessmentForm.vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import { useReportStore } from '@/stores/reportStore'
-import { executeReportAction  } from '@/services/reportService'
+import { executeReportAction, printReportReadiness  } from '@/services/reportService'
+import { useSnackbar } from '@/composables/useSnackbar'
+
 const reportStore = useReportStore()
+const { showSuccess, showError } = useSnackbar()
 // Dialog state
 const showConfirmDialog = ref(false)
 const pendingAssessmentData = ref(null)
@@ -118,10 +138,9 @@ const handleConfirmSave = async () => {
     assessment: pendingAssessmentData.value
   }
   const response = await executeReportAction (payload, 'facilities','update', reportStore.reportId)
-  console.log(response)
   reportStore.reportData = response?.data
   showConfirmDialog.value = false
-  alert('Report saved successfully!')
+  showSuccess('Report saved successfully!')
 }
 
 /**
@@ -130,6 +149,16 @@ const handleConfirmSave = async () => {
 const handleCancelSave = () => {
   showConfirmDialog.value = false
   pendingAssessmentData.value = null
+}
+
+const printReport = async () => {
+ let payload = {
+    assessment: reportStore?.reportData?.assessment,
+    rating: reportStore?.reportData?.result
+    
+  }
+  await printReportReadiness(payload, 'facilities', 'facilities-readiness-report.xlsx') 
+  showSuccess('Report printed successfully!')
 }
 
 </script>

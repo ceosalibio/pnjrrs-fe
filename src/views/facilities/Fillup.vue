@@ -13,7 +13,7 @@
           <div class="d-flex ga-2">
             <!-- Update Button (Always visible when data loaded) -->
             <AppButton
-                v-if="reportStore?.tableItems?.length > 0 && !isEditMode"
+                v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn && !isEditMode"
                 @click="() => { originalData = JSON.parse(JSON.stringify(reportStore.tableItems)); isEditMode = true }"
                 color="primary"
             >
@@ -44,55 +44,65 @@
         title="No Data Available"
         message="Please generate first to view this page"
       />
-      <v-table class="data-table" v-else>
+      <v-table class="data-table pa-2" v-else>
         <thead>
           <tr class="header-row">
-            <th class="text-left">Category</th>
+            <th class="text-left">NAME OF THE BUILDING</th>
+            <th class="text-left">FACILITY TYPE</th>
+            <th class="text-left">STRUCTURE TYPE</th>
             <th class="text-center">Required Area sqm</th>
             <th class="text-center">Actual Area sqm</th>
             <th class="text-center">Quantitative<br>(Actual Area/Required)</th>
             <th class="text-center">Qualitative</th>
-            <th class="text-center">Percentage<br>(Quantitative+Qualitative)/2</th>
+            <!-- <th class="text-center">Percentage<br>(Quantitative+Qualitative)/2</th> -->
             <th class="text-center">View</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, idx) in reportStore.tableItems" :key="idx" height="90vh" >
-            <td class="text-center">{{item.category}}</td>
-            <td class="text-center">
-              <input 
-                v-model.number="item.required_area_sqm" 
-                type="number" 
-                class="input-field"
-                :disabled="!isEditMode"
-                @change="calculateQuantitative(item)"
-      
-              />
-            </td>
-            <td class="text-center">
-              <input 
-                v-model.number="item.actual_area_sqm" 
-                type="number" 
-                class="input-field"
-                :disabled="!isEditMode"
-                @change="calculateQuantitative(item)"
+          <template v-for="(item, idx) in reportStore.tableItems" :key="idx">
+            <tr>
+              <td colspan="8" class="bg-light-blue font-weight-bold">{{item.category?.toUpperCase()}}</td>
+            </tr>
+            <tr  v-for="(structure, i) in item.structure_data" :key="idx">
+              <td class="text-center">{{structure.structure_name}}</td>
+              <td class="text-center">{{structure.facility_type}}</td>
+              <td class="text-center">{{structure.structure_type}}</td>
+              <td class="text-center">
+                <input 
+                  v-model.number="structure.required_area_sqm" 
+                  type="number" 
+                  class="input-field"
+                  :disabled="!isEditMode"
+                  @change="calculateQuantitative(structure)"
+        
+                />
+              </td>
+              <td class="text-center">
+                <input 
+                  v-model.number="structure.actual_area_sqm" 
+                  type="number" 
+                  class="input-field"
+                  :disabled="!isEditMode"
+                  @change="calculateQuantitative(structure)"
 
-              />
-            </td>
-            <td class="text-center">{{item.quantitative_percentage}}%</td>
-            <td class="text-center">{{item.qualitative_percentage}}%</td>
-            <td class="text-center">{{item.average_percentage}}%</td>
-            <td class="text-center">
-              <v-btn
-                v-if="!item.title"
-                icon
-                @click="openDialog(item)"
-              >
-                <v-icon>mdi-eye</v-icon>
-              </v-btn>
-            </td>
+                />
+              </td>
+              <td class="text-center">{{structure.quantitative_percentage ?? 0}}%</td>
+              <td class="text-center">{{structure.qualitative_percentage ?? 0}}%</td>
+              <!-- <td class="text-center">{{structure.average_percentage}}%</td> -->
+              <td class="text-center">
+                <v-btn
+                  v-if="!structure.title"
+                  icon
+                  @click="openDialog(structure)"
+                >
+                  <v-icon>mdi-eye</v-icon>
+                </v-btn>
+              </td>
 
-          </tr>
+            </tr>
+          </template>
+          
         </tbody>
       </v-table>
     </v-card>
@@ -119,8 +129,10 @@ import FacilityDetailsDialog from '@/components/facilities/FacilityDetailsDialog
 import { useReportStore } from '@/stores/reportStore'
 import { executeReportAction  } from '@/services/reportService'
 import { useSnackbar } from '@/composables/useSnackbar'
+import { useAuthStore } from '@/stores/authStore'
 
 const reportStore = useReportStore()
+const authtStore = useAuthStore()
 const { showError, showSuccess } = useSnackbar()
 // State
 const edit = ref(false)
@@ -154,11 +166,12 @@ const calculateQuantitative = (item) => {
  * @param {Object} item - Item to edit
  */
 const openDialog = (item) => {
+  console.log(item,'item')
   currentItem.value = item // Store the current item for later update
-  dialogTitle.value = `Update Details - ${item.category}`
+  dialogTitle.value = `Update Details - ${item.structure_name}`
   // Set facility data with the building_physical_inspection_report structure
   currentFacilityData.value = {
-    categories: item.building_physical_inspection_report?.categories || [],
+    categories: item.structure_rating || [],
     total_percentage: item.total_percentage || 0,
     total_numerical_rating: item.total_numerical_rating || 0
   }

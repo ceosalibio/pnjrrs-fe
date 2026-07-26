@@ -17,6 +17,11 @@ const routes = [
     component: () => import('@/views/auth/CaptchaView.vue')
   },
   {
+    path: '/change-password',
+    name: 'ChangePassword',
+    component: () => import('@/views/auth/ChangePassword.vue')
+  },
+  {
     path: '/',
     component: () => import('@/layouts/DashboardLayout.vue'),
     children: [
@@ -157,6 +162,11 @@ const routes = [
         path: 'settings/facility',
         name: 'SettingFacility',
         component: () => import('@/views/settings/SettingFacility.vue')
+      },
+      {
+        path: 'settings/report',
+        name: 'SettingReport',
+        component: () => import('@/views/settings/SettingReport.vue')
       },
     ]
   },
