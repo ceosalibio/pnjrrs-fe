@@ -12,7 +12,7 @@ export const MENU_ITEMS = [
     role: ['admin', 'officer'],
     children: [
       { title: 'Fill Up Rating', to: '/personnel/1', icon: 'mdi-view-list' },
-      { title: 'Grade Rating', to: '/personnel/2', icon: 'mdi-account-plus' },
+      { title: 'Grade Rating', to: '/personnel/2', icon: 'mdi-view-list' },
       { title: 'Readiness Reports', to: '/personnel/3', icon: 'mdi-file-chart' }
     ]
   },
@@ -24,7 +24,7 @@ export const MENU_ITEMS = [
     children: [
       // { title: 'ORAC', to: '/trainings/1', icon: 'mdi-view-list' },
       { title: 'METT', to: '/trainings/1', icon: 'mdi-calendar-plus' },
-      { title: 'Readiness Reports', to: '/trainings/2', icon: 'mdi-history' }
+      { title: 'Readiness Reports', to: '/trainings/2', icon: 'mdi-file-chart' }
     ]
   },
   {
@@ -34,7 +34,7 @@ export const MENU_ITEMS = [
     role: ['admin', 'officer'],
     children: [
       { title: 'Item Details', to: '/equipment/1', icon: 'mdi-view-list' },
-      { title: 'Readiness Report', to: '/equipment/2', icon: 'mdi-plus-circle' },
+      { title: 'Readiness Report', to: '/equipment/2', icon: 'mdi-file-chart' },
       // { title: 'Maintenance Readiness Report', to: '/equipment/3', icon: 'mdi-plus-circle' },
       // { title: 'Equipment Status', to: '/equipment/3', icon: 'mdi-check-circle' }
     ]
@@ -47,7 +47,7 @@ export const MENU_ITEMS = [
     children: [
       { title: 'Fill Up', to: '/facilities/1', icon: 'mdi-view-list' },
       // { title: 'Rating', to: '/facilities/2', icon: 'mdi-information' },
-      { title: 'Readiness Report', to: '/facilities/2', icon: 'mdi-wrench' }
+      { title: 'Readiness Report', to: '/facilities/2', icon: 'mdi-file-chart' }
     ]
   },
   {
@@ -65,7 +65,7 @@ export const MENU_ITEMS = [
       // { title: 'System Settings', to: '/settings/system', icon: 'mdi-cog' },
       { title: 'User Management', to: '/settings/users', icon: 'mdi-account-cog' },
       { title: 'Table Organization Management', to: '/settings/to', icon: 'mdi-cog' },
-      { title: 'Personnel Management', to: '/settings/personnel', icon: 'mdi-cog' },
+      // { title: 'Personnel Management', to: '/settings/personnel', icon: 'mdi-cog' },
       { title: 'Training Management', to: '/settings/training', icon: 'mdi-cog' },
       { title: 'Equipment Management', to: '/settings/equipment', icon: 'mdi-cog' },
       { title: 'Facilities Management', to: '/settings/facility', icon: 'mdi-cog' },

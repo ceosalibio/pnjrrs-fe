@@ -133,8 +133,11 @@ export const ENDPOINTS = {
     // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     CREATE: `${BASE_PATH}/report/personnels`,
     UPDATE: (id) => `${BASE_PATH}/report/personnels/${id}`,
+    UPDATE: (id) => `${BASE_PATH}/report/personnels/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/personnels/export-readiness`,
     // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+   SUMMARY_READINESS: `${BASE_PATH}/report/summary/personnel`,
+   PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/personnel-export`
   },
 
    // training report
@@ -143,8 +146,10 @@ export const ENDPOINTS = {
     // GET: (id) => `${BASE_PATH}/settings/organizations/${id}`,
     CREATE: `${BASE_PATH}/report/trainings`,
     UPDATE: (id) => `${BASE_PATH}/report/trainings/${id}`,
+    UPDATE: (id) => `${BASE_PATH}/report/trainings/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/trainings/export-readiness`,
-    // DELETE: (id) => `${BASE_PATH}/settings/organizations/${id}`,
+    SUMMARY_READINESS: `${BASE_PATH}/report/summary/training`,
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/trainings-export`
   },
 
   // equipment report
@@ -153,6 +158,8 @@ export const ENDPOINTS = {
     CREATE: `${BASE_PATH}/report/equipments`,
     UPDATE: (id) => `${BASE_PATH}/report/equipments/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/equipments/export-readiness`,
+    SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipment`,
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipments-export`
   },
 
   // facilities report
@@ -161,6 +168,8 @@ export const ENDPOINTS = {
     CREATE: `${BASE_PATH}/report/facilities`,
     UPDATE: (id) => `${BASE_PATH}/report/facilities/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/facilities/export-readiness`,
+    SUMMARY_READINESS: `${BASE_PATH}/report/summary/facility`,
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/facilities-export`
 
   },
 }

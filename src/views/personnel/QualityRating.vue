@@ -11,14 +11,24 @@
           <v-card-title>Personnel List</v-card-title>
           <v-card-subtitle>Manage and view all personnel records</v-card-subtitle>
         </div>
-        <AppButton
-          v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn"
-          :color="isEditMode ? 'success' : 'primary'"
-          @click="toggleEditMode"
-          
-        >
-          {{ isEditMode ? 'Save' : 'Update' }}
-        </AppButton>
+        <div class="d-flex ga-2">
+          <AppButton
+            v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn"
+            :color="isEditMode ? 'success' : 'primary'"
+            @click="toggleEditMode"
+            
+          >
+            {{ isEditMode ? 'Save' : 'Update' }}
+          </AppButton>
+          <AppButton
+            v-if="isEditMode"
+            :color="'grey'"
+            @click="isEditMode = false"
+            >
+            Cancel
+          </AppButton>
+        </div>
+        
       </div>
       <v-divider />
       
@@ -92,7 +102,7 @@
               <td v-if="!item?.office" class="text-center">{{ item.grade_actual }}</td>
               <td v-if="!item?.office">{{ item.grade_points }}</td>
               <td v-if="!item?.office" class="text-center">{{ item.afpos }}</td>
-               <td v-if="!item?.office" :class="{ 'editable-cell': isEditMode && item.grade }">
+              <td v-if="!item?.office" :class="{ 'editable-cell': isEditMode && item.grade }">
                 <AppAutocomplete
                   v-if="isEditMode && item.grade"
                   v-model="item.afpos_actual_id"
@@ -292,9 +302,7 @@ const handleSave = async () => {
     }
     // console.log(payload, 'payload')
     
-    // Exit edit mode immediately to stop watcher from marking changes as unsaved
-    isEditMode.value = false
-    hasUnsavedChanges.value = false
+    
     
     const response = await executeReportAction(payload, 'personnel', 'update', reportStore.reportId)
     // console.log(response, 'response')
@@ -304,6 +312,9 @@ const handleSave = async () => {
       showError(response?.message || 'Error saving data')
       return
     }
+    // Exit edit mode immediately to stop watcher from marking changes as unsaved
+    isEditMode.value = false
+    hasUnsavedChanges.value = false
      await reportStore.reportGenerate('personnel')
     showSuccess('Personnel data saved successfully!')
   } catch (error) {

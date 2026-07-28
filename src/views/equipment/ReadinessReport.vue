@@ -49,12 +49,11 @@
       <v-card-text>
          <!-- Assessment Section -->
           <div class="ma-5">
-            <AssessmentForm 
+            <AssessmentForm
               v-model:assessments="assessments"
               @save="save"
               @clear="reset"
               :status="reportStore?.reportData?.status"
-
             />
           </div>
           

@@ -182,6 +182,7 @@
                                             v-model="item.required"
                                             @input="handleNumberInput(item, 'required', $event)"
                                             class="te-input"
+                                            @blur="removeItemNew(item)"
                                         />
                                         <span v-else>{{item.required}}</span>
                                       </td>
@@ -442,12 +443,17 @@ const searchQuery = ref('')
             
             item[fieldName] = sanitized;
             event.target.value = sanitized;
+            if(item.point){
+                item.point = urrsPointMap[item.urrs] *  item.onhand|| 0
+            }
         }
     };
 
     // remove item.isNew to false
     const removeItemNew = (item) =>{
-        item.isNew = false
+        if(item.required && item.name){
+            item.isNew = false
+        }
     }
     // URRS to Point mapping
     const urrsPointMap = {
@@ -460,11 +466,13 @@ const searchQuery = ref('')
 
     // Handle URRS selection and update point
     const handleUrrsChange = (item) => {
-        item.point = urrsPointMap[item.urrs] || 0
+       
+        item.point = urrsPointMap[item.urrs] *  item.onhand|| 0
     }
 
     // Get point value for an item
     const getItemPoint = (item) => {
+        
         return item.point || urrsPointMap[item.urrs] || 0
     }
 

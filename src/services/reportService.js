@@ -4,23 +4,26 @@ import { ENDPOINTS } from './endpoints'
 const REPORT_CONFIG = {
   personnel: {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_PERSONNEL.CREATE },
-    // getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_PERSONNEL.GET },
-    // getOne: { method: 'get',  endpoint: (id) => `${ENDPOINTS.REPORT_PERSONNEL.GET}/${id}` },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_PERSONNEL.UPDATE(id) },
     printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_PERSONNEL.PRINT_READINESS },
-    // submit: { method: 'post', endpoint: (id) => `${ENDPOINTS.REPORT_PERSONNEL.SUBMIT}/${id}` },
+    summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_PERSONNEL.SUMMARY_READINESS },
+    printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_PERSONNEL.PRINT_SUMMARY_READINESS },
   },
   training: {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.CREATE },
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_TRAINING.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_TRAINING.UPDATE(id) },
     printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.PRINT_READINESS },
+    summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_TRAINING.SUMMARY_READINESS },
+    printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_TRAINING.PRINT_SUMMARY_READINESS },
   },
   equipment: {
     create: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.CREATE },
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_EQUIPMENT.UPDATE(id) },
     printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.PRINT_READINESS },
+    summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.SUMMARY_READINESS },
+    printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.PRINT_SUMMARY_READINESS },
   },
 
   facilities: {
@@ -28,6 +31,8 @@ const REPORT_CONFIG = {
     getAll: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_FACILITIES.LIST },
     update: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_FACILITIES.UPDATE(id) },
     printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.PRINT_READINESS },
+    summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_FACILITIES.SUMMARY_READINESS },
+    printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.PRINT_SUMMARY_READINESS },
   },
 }
 
@@ -73,6 +78,64 @@ export const printReportReadiness = async (
   }
 
   const config = reportGroup.printReadiness
+
+  if (!config) {
+    return {
+      success: false,
+      error: `Print readiness action not defined for report type "${reportType}"`,
+    }
+  }
+
+  try {
+    const response = await api.post(
+      config.endpoint(),
+      payload,
+      {
+        responseType: 'blob',
+      }
+    )
+
+    const url = window.URL.createObjectURL(response.data)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+
+    document.body.appendChild(link)
+    link.click()
+
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    return {
+      success: true,
+      message: 'File downloaded successfully.',
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || `Failed to print readiness for ${reportType} report`,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        `Failed to print readiness for ${reportType} report`,
+    }
+  }
+}
+
+
+export const printSummaryReportReadiness = async (
+  payload,
+  reportType,
+  fileName = 'readiness-report.xlsx'
+) => {
+  const reportGroup = REPORT_CONFIG[reportType]
+
+  if (!reportGroup) {
+    return { success: false, error: `Unknown report type: ${reportType}` }
+  }
+
+  const config = reportGroup.printSummaryReadiness
 
   if (!config) {
     return {

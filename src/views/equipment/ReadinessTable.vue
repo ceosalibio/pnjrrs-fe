@@ -14,36 +14,52 @@
         </thead>
         <tbody>
           <template v-if="isMissionCritical">
-            <tr><td class="detail-title" colspan="4">MISSION CRITICAL EQUIPMENT</td></tr>
+            <tr><td class="font-weight-bold " colspan="4">MISSION CRITICAL EQUIPMENT</td></tr>
             <EquipmentDivisionRows :divisions="data?.mce?.divisions" />
+            <tr>
+              <td colspan="3" class="text-end font-weight-bold  ">Total Average MCE</td>
+              <td class="text-center">{{ data?.mce?.total_average }}%</td>
+            </tr>
+             <tr>
+              <td colspan="3" class="text-end font-weight-bold ">MCE({{ data?.mce?.weight_percent }}%)</td>
+              <td class="text-center font-weight-bold ">{{ data?.mce?.weighted_score }}%</td>
+            </tr>
           </template>
 
-          <tr><td class="detail-title" colspan="4">MISSION ESSENTIAL EQUIPMENT</td></tr>
+          <tr><td class="font-weight-bold " colspan="4">MISSION ESSENTIAL EQUIPMENT</td></tr>
           <EquipmentDivisionRows :divisions="data?.mee?.divisions" />
 
           <tr>
-            <td colspan="3" class="text-end detail-title">Total Average MEE</td>
+            <td colspan="3" class="text-end font-weight-bold ">Total Average MEE</td>
             <td class="text-center">{{ data?.mee?.total_average }}%</td>
           </tr>
           <tr>
-            <td colspan="3" class="text-end detail-title">MEE({{ data?.mee?.weight_percent }}%)</td>
-            <td class="text-center detail-title">{{ data?.mee?.weighted_score }}%</td>
+            <td colspan="3" class="text-end font-weight-bold ">MEE({{ data?.mee?.weight_percent }}%)</td>
+            <td class="text-center font-weight-bold ">{{ data?.mee?.weighted_score }}%</td>
           </tr>
 
           <tr v-for="(item, i) in data?.se?.divisions" :key="i">
-            <td class="detail-title">{{ item.name }}</td>
+            <td class="font-weight-bold ">{{ item.name }}</td>
             <td class="text-center">{{ item.required }}</td>
             <td class="text-center">{{ item.onhand }}</td>
             <td class="text-center">{{ item.rating ? item.rating + '%' : '' }}</td>
           </tr>
+          <tr>
+            <td colspan="3" class="text-end font-weight-bold  ">Total Average SE</td>
+            <td class="text-center">{{ data?.se?.total_average }}%</td>
+          </tr>
+            <tr>
+            <td colspan="3" class="text-end font-weight-bold ">SE({{ data?.se?.weight_percent }}%)</td>
+            <td class="text-center font-weight-bold ">{{ data?.se?.weighted_score }}%</td>
+          </tr>
 
           <tr>
-            <td colspan="3" class="text-end detail-title">{{ displayTotalLabel }}</td>
-            <td class="text-center detail-title font-weight-bold">{{ totalScore }}%</td>
+            <td colspan="3" class="text-end font-weight-bold ">{{ displayTotalLabel }}</td>
+            <td class="text-center font-weight-bold  font-weight-bold">{{ totalScore }}%</td>
           </tr>
           <tr>
-            <td colspan="3" class="text-end detail-title">REDCON</td>
-            <td class="text-center detail-title" :class="red.redStyle(data?.redcon)">{{red.redCon(data?.redcon) }}</td>
+            <td colspan="3" class="text-end font-weight-bold ">REDCON</td>
+            <td class="text-center font-weight-bold " :class="red.redStyle(data?.redcon)">{{red.redCon(data?.redcon) }}</td>
           </tr>
         </tbody>
       </v-table>

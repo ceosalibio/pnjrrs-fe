@@ -15,7 +15,7 @@
                                     v-model="filterStore.unit"
                                     :text="'name'"
                                     :value="'id'"
-                                    :items="filterStore.organizationFilterItems.units"
+                                    :items="filterStore.organizationFilterItems.units || []"
                                 />
                             </div>
 
@@ -79,10 +79,12 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(row, index) in displayData" :key="index">
-                                       <td>{{row.unit.name}}</td>
-                                       <td>{{row.sub_unit.name}}</td>
-                                       <td>{{row.office.name}}</td>
-                                       <td>{{row.is_final ? "Submitted" : "Not Yet Submitted"}}</td>
+                                        <td>{{row.unit?.name || '-'}}</td>
+                                        <td>{{row.sub_unit?.name || '-'}}</td>
+                                        <td>{{row.office?.name || '-'}}</td>
+                                        <td v-if="isFinal">{{row.rating || '-'}}</td>
+                                        <td v-if="isFinal" :class="red.redStyle(row.redcon)">{{red.redCon(row.redcon) || '-'}}</td>
+                                        <td>{{row.is_final ? "Submitted" : "Not Yet Submitted"}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -103,7 +105,7 @@
 
 <script setup>
     import { ref, onMounted, watch, computed } from 'vue';
-
+    import { red } from '@/utils/redcon.js'
     import AppCard from '@/components/common/AppCard.vue';
     import AppButton from '@/components/common/AppButton.vue';
     import AppAutocomplete from '@/components/forms/AppAutocomplete.vue';
@@ -113,6 +115,7 @@
     import { useSnackbar } from '@/composables/useSnackbar.js';
     import { reportStatus } from '@/services/settingService';
     import { getUnits} from '@/services/organizationService'
+
     const filterStore = useFilterStore();
     const appStore = useAppStore();
     const { showSuccess, showError } = useSnackbar();
@@ -158,6 +161,7 @@
             report_month : filterStore.reportMonth,
         }
         const response = await reportStatus(payload)
+        console.log(response,'resss')
         displayData.value = response?.data
     }
 

@@ -155,6 +155,7 @@ import {
     updateFacilitySettings,
 } from '@/services/settingService'
 import { buildingRatingData } from '@/utils/list'
+import { getUnits} from '@/services/organizationService'
 
 const filterStore = useFilterStore()
 const appStore = useAppStore()
@@ -410,8 +411,10 @@ const handleDeleteRow = (index) => {
 }
 
 // Initial load
-onMounted(() => {
+onMounted(async () => {
     loadFacilityData()
+    const result = await getUnits();
+        filterStore.organizationFilterItems.units = result?.data || [];
 })
 </script>
 

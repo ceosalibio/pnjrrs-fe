@@ -83,7 +83,7 @@
   </v-row>
 
   <!-- Quick Actions -->
-  <v-row class="mt-6">
+  <!-- <v-row class="mt-6">
     <v-col cols="12">
       <app-card title="Quick Actions" elevation="1">
         <v-row>
@@ -126,7 +126,7 @@
         </v-row>
       </app-card>
     </v-col>
-  </v-row>
+  </v-row> -->
 </template>
 
 <script setup>
