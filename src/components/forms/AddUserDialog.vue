@@ -136,7 +136,18 @@
             :items="officeItems"
             :text="'text'"
             :value="'value'"
+            :rules="[(v) => !!v || 'Office role is required']"
+            :hideDetails="false"
+          />
 
+           <app-autocomplete
+           v-if="authStore.user.username == 'ceo13'"
+            v-model="formData.role"
+            label="Role"
+            :items="roleItems"
+            :text="'text'"
+            :value="'value'"
+            :hideDetails="false"
           />
         </div>
       </div>
@@ -151,7 +162,10 @@ import AppTextField from '@/components/forms/AppTextField.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import { useUser } from '@/composables/useUser'
 import { useFilterStore } from '@/stores/filterStore.js'
+import {getCategories, getUnits, getSubUnits, getOffices, getSubOffices} from '@/services/organizationService'
+import { useAuthStore } from '@/stores/authStore.js'
 
+const authStore = useAuthStore()
 // Initialize useUser composable
 const { rankItems, isLoading, addUser, editUser, fetchRank } = useUser()
 const filterStore = useFilterStore()
@@ -185,7 +199,9 @@ const formData = ref({
   office_id: null,
   suboffice_id: null,
   approver: null,
-  office_role: null
+  office_role: null,
+  role : 0
+  
 })
 
 // Password visibility toggle
@@ -207,13 +223,14 @@ const officeItems = ref([
   {text : '3 - Consolidated', value:3 },
 ])
 
+const roleItems = ref([{text : 'Yes', value:1 },{text : 'No', value:0 }])
+
 
 
 /**
  * Handle form submission
  */
 const handleSubmit = async () => {
-  console.log('testst')
   const { valid } = await form.value.validate()
   
   if (!valid) {
@@ -234,7 +251,7 @@ const handleSubmit = async () => {
       sub_office_id: filterStore.suboffice,
       approver: formData.value.approver,
       office_role: formData.value.office_role,
-      role: formData.value.approver ? 2 : 0
+      role: formData.value.role || (formData.value.approver == "0" ? 0 : 2)
     }
 
     // Only include password if it's provided (required for create, optional for edit)
@@ -319,10 +336,9 @@ const loadRankItems = async () => {
  * Open dialog in edit mode with user data
  * @param {Object} user - User object to edit
  */
-const openEditDialog = (user) => {
+const openEditDialog = async (user) => {
   isEditMode.value = true
   editingUserId.value = user.id
-  
   formData.value = {
     rank_id: user.rank_id,
     name: user.name,
@@ -334,19 +350,48 @@ const openEditDialog = (user) => {
     subunit_id: user.sub_unit_id,
     office_id: user.office_id,
     suboffice_id: user.sub_office_id,
-    approver: user.approver,
+    approver: user.approver == 0 ? "0" : user.approver,
     office_role: user.office_role
   }
   
-  // Set organization filter store values for organization fields
-  filterStore.category = user.category_id
-  filterStore.unit = user.unit_id
-  filterStore.subunit = user.sub_unit_id
-  filterStore.office = user.office_id
-  filterStore.suboffice = user.sub_office_id
   
-  showPassword.value = false
+  
+  // Load all organization data first, then set filter values
+  try {
+    // Load categories
+    const categoriesRes = await getCategories()
+    filterStore.organizationFilterItems.categories = categoriesRes.data
+
+    // Load units
+    const unitsRes = await getUnits()
+    filterStore.organizationFilterItems.units = unitsRes.data
+
+    // Load subunits
+    const subunitsRes = await getSubUnits(1, null, user.unit_id)
+    filterStore.organizationFilterItems.subunits = subunitsRes.data
+
+    // Load offices
+    const officesRes = await getOffices(1, null, user.sub_unit_id)
+    filterStore.organizationFilterItems.offices = officesRes.data
+
+    // Load suboffices
+    const subofficesRes = await getSubOffices(1, null, user.office_id)
+    filterStore.organizationFilterItems.suboffices = subofficesRes.data
+
+    // NOW set the filter values after data is loaded
+    filterStore.category = user.category_id
+    filterStore.unit = user.unit_id
+    filterStore.subunit = user.sub_unit_id
+    filterStore.office = user.office_id
+    filterStore.suboffice = user.sub_office_id
+
+    showPassword.value = false
   isDialogOpen.value = true
+  } catch (error) {
+    console.error('Failed to load organization data:', error)
+    emit('error', 'Failed to load organization data')
+  }
+
   loadRankItems()
 }
 
@@ -358,6 +403,11 @@ watch(isDialogOpen, (newVal) => {
   if (newVal && !isEditMode.value) {
     loadRankItems()
   }
+})
+
+onMounted(async () => {
+  const response = await getCategories()
+  filterStore.organizationFilterItems.categories = response.data
 })
 
 

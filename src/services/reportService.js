@@ -34,6 +34,10 @@ const REPORT_CONFIG = {
     summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_FACILITIES.SUMMARY_READINESS },
     printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.PRINT_SUMMARY_READINESS },
   },
+  all: {
+    summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_ALL.SUMMARY_READINESS },
+    printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_ALL.PRINT_SUMMARY_READINESS },
+  },
 }
 
 export const executeReportAction  = async (payload, reportType, action = 'create', id = null) => {
@@ -157,7 +161,7 @@ export const printSummaryReportReadiness = async (
 
     const link = document.createElement('a')
     link.href = url
-    link.download = fileName
+    link.download = `${reportType}-${fileName}`
 
     document.body.appendChild(link)
     link.click()

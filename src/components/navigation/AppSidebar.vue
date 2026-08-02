@@ -93,6 +93,7 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
+import { useAuthStore } from '@/stores/authStore'
 import { useAuth } from '@/composables/useAuth'
 import { MENU_ITEMS } from '@/utils/constants'
 import AppDialog from '../common/AppDialog.vue'
@@ -100,12 +101,76 @@ import AppDialog from '../common/AppDialog.vue'
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
+const authStore = useAuthStore()
 const { logout } = useAuth()
 
 const showLogoutDialog = ref(false)
 
+// Check if user has access to item based on role and office
+const hasAccess = (item) => {
+  if (!authStore.user) return false
+
+  const userRole = authStore.user.role
+  const userOffice = authStore.office
+
+  console.log(`Checking ${item.title}: role=${userRole}, office=${userOffice}`, item)
+
+  // Check role: if 'all' is in role array, show to everyone
+  // Also treat role 0 as admin (can access everything)
+  const roleAllowed = item.role?.includes('all') || item.role.includes(userRole) || userRole === 0
+  const officeAllowed = item.office?.includes(userOffice)
+  console.log(`  Role allowed: ${roleAllowed} (item.role=${item.role}, userRole=${userRole})`)
+  if (!roleAllowed && !officeAllowed) return false
+
+  // Check office: if no office restriction, show it
+  if (!item.office || item.office.length === 0) {
+    console.log(`  Office allowed: true (no restriction)`)
+    return true
+  }
+
+  return true
+}
+
+// Check if child has access (considers both parent and child permissions)
+const childHasAccess = (child, parent) => {
+  if (!authStore.user) return false
+  
+  const userRole = authStore.user.role
+  const userOffice = authStore.office
+  
+  // Use child's role/office if defined, otherwise use parent's
+  const itemToCheck = child.role || child.office ? child : parent
+  
+  // Check role: if 'all' is in role array, show to everyone
+  // Also treat role 0 as admin (can access everything)
+  const roleAllowed = itemToCheck.role?.includes('all') || itemToCheck.role?.includes(userRole) || userRole === 0
+  const officeAllowed = itemToCheck.office?.includes(userOffice)
+  
+  if (!roleAllowed && !officeAllowed) return false
+
+  // Check office: if no office restriction, show it
+  if (!itemToCheck.office || itemToCheck.office.length === 0) {
+    return true
+  }
+
+  return officeAllowed
+}
+
 const menuItems = computed(() => {
-  return MENU_ITEMS
+  return MENU_ITEMS.filter(item => hasAccess(item))
+    .map(item => {
+      if (item.children) {
+        const filteredChildren = item.children.filter(child => childHasAccess(child, item))
+        // Only show parent if it has at least one child visible
+        if (filteredChildren.length === 0) return null
+        return {
+          ...item,
+          children: filteredChildren
+        }
+      }
+      return item
+    })
+    .filter(item => item !== null)
 })
 
 const isActive = (itemPath) => {

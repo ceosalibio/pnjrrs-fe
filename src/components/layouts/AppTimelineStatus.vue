@@ -8,7 +8,6 @@
         </button>
       </div>
     </div>
-    
     <div v-if="isExpanded" class="timeline-content">
       <v-timeline direction="horizontal" side="end">
         <v-timeline-item
@@ -32,19 +31,88 @@
                   <v-icon size="12" class="timestamp-icon">mdi-clock-outline</v-icon>
                   {{ item.timestamp }}
                 </p>
+                <p v-if="item.declined?.reasons?.length > 0" class="timeline-declined-reason">
+                  <v-btn
+                    variant="text"
+                    size="small"
+                    color="error"
+                    prepend-icon="mdi-alert-circle"
+                    @click="openDeclinedDialog(item)"
+                  >
+                    View Declined Reason ({{ item.declined.reasons.length }})
+                  </v-btn>
+                </p>
               </div>
             </div>
           </div>
         </v-timeline-item>
       </v-timeline>
     </div>
+
+    <!-- Declined Reasons Dialog -->
+    <v-dialog v-model="showDeclinedDialog" max-width="700">
+      <v-card>
+        <v-card-title class="d-flex align-center gap-2">
+          <v-icon color="error">mdi-alert-circle</v-icon>
+          Declined Reasons
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="py-4">
+          <v-table density="compact" hover>
+            <thead>
+              <tr>
+                <th class="text-left">Date & Time</th>
+                <!-- <th class="text-left">Declined By</th> -->
+                <th class="text-left">Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(reason, idx) in selectedDeclinedItem?.declined?.reasons" :key="idx">
+                <td class="font-weight-500">
+                  <v-icon size="16" class="mr-1">mdi-calendar-clock</v-icon>
+                  {{ formatTime(reason.created_at) }}
+                </td>
+                <!-- <td>
+                  <v-chip size="small" variant="outlined">
+                    {{ reason.declined_by }}
+                  </v-chip>
+                </td> -->
+                <td>
+                  <div class="reason-text">{{ reason.reason }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+          <div v-if="!selectedDeclinedItem?.declined?.reasons?.length" class="text-center py-4 text-grey">
+            No declined reasons found
+          </div>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="primary" @click="showDeclinedDialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { formatToPhilippineTime } from '@/utils/dateFormatter.js'
 
 const isExpanded = ref(false)
+const showDeclinedDialog = ref(false)
+const selectedDeclinedItem = ref(null)
+
+const formatTime = (dateTime) => {
+  return formatToPhilippineTime(dateTime)
+}
+
+const openDeclinedDialog = (item) => {
+  selectedDeclinedItem.value = item
+  showDeclinedDialog.value = true
+}
 
 defineProps({
   title: {
@@ -255,6 +323,24 @@ defineProps({
 .timestamp-icon {
   color: #1976d2 !important;
   flex-shrink: 0;
+}
+
+.timeline-declined-reason {
+  margin: 6px 0 0 0 !important;
+  display: flex;
+  justify-content: center;
+}
+
+.reason-text {
+  max-height: 100px;
+  overflow-y: auto;
+  padding: 4px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* Mobile Responsive */

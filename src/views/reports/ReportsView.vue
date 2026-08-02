@@ -8,12 +8,14 @@
       <v-card-text>
         <!-- Report Type Selection Buttons -->
         <v-row class="mb-6">
-          <v-col cols="12" md="3">
+          <v-col cols="12" :md="adminAccess ? '2':'3'">
             <v-btn
               class="report-btn h-100"
               :color="selectedReportType === 'personnel' ? 'info' : 'grey-lighten-2'"
               :text="selectedReportType !== 'personnel'"
               @click="selectedReportType = 'personnel'"
+              :disabled="authStore.office != 1 && !adminAccess"
+
             >
               <div class="btn-content">
                 <div class="text-h4">Personnel</div>
@@ -21,12 +23,13 @@
               </div>
             </v-btn>
           </v-col>
-          <v-col cols="12" md="3">
+          <v-col cols="12" :md="adminAccess ? '2':'3'">
             <v-btn
               class="report-btn h-100"
               :color="selectedReportType === 'training' ? 'success' : 'grey-lighten-2'"
               :text="selectedReportType !== 'training'"
               @click="selectedReportType = 'training'"
+              :disabled="authStore.office != 8 && !adminAccess"
             >
               <div class="btn-content">
                 <div class="text-h4">Training</div>
@@ -40,6 +43,7 @@
               :color="selectedReportType === 'equipment' ? 'warning' : 'grey-lighten-2'"
               :text="selectedReportType !== 'equipment'"
               @click="selectedReportType = 'equipment'"
+              :disabled="![4, 6, 8].includes(authStore.office) && !adminAccess"
             >
               <div class="btn-content">
                 <div class="text-h5">Equipment & Maintenance</div>
@@ -54,9 +58,24 @@
               :color="selectedReportType === 'facilities' ? 'error' : 'grey-lighten-2'"
               :text="selectedReportType !== 'facilities'"
               @click="selectedReportType = 'facilities'"
+              :disabled="![4, 6, 8].includes(authStore.office) && !adminAccess"
             >
               <div class="btn-content">
                 <div class="text-h4">Facilities</div>
+                <!-- <div class="text-subtitle2">{{ reportStats.facilities }} Reports</div> -->
+              </div>
+            </v-btn>
+          </v-col>
+
+          <v-col cols="12" md="2" v-if="adminAccess">
+            <v-btn
+              class="report-btn h-100"
+              :color="selectedReportType === 'all' ? 'blue-darken-4' : 'grey-lighten-2'"
+              :text="selectedReportType !== 'all'"
+              @click="selectedReportType = 'all'"
+            >
+              <div class="btn-content">
+                <div class="text-h4">ALL</div>
                 <!-- <div class="text-subtitle2">{{ reportStats.facilities }} Reports</div> -->
               </div>
             </v-btn>
@@ -70,6 +89,7 @@
           <div class="d-flex ga-4">
             <div class="d-flex flex-grow-1">
                 <AppAutocomplete 
+                 v-if="adminAccess"
                   label="Units"
                   v-model="filterStore.unit"
                   :text="'name'"
@@ -87,7 +107,7 @@
           </div>
           <div class="d-flex ga-2">
             <v-btn
-              v-if="selectedReportType"
+              v-if="selectedReportType && filterStore.reportMonth"
               color="primary"
               prepend-icon="mdi-refresh"
               @click="handleGenerate"
@@ -111,11 +131,12 @@
           <TrainingTable v-else-if="selectedReportType === 'training'" :displayData="tableData" :unit="unit"/>
           <EquipmentTable v-else-if="selectedReportType === 'equipment'" :displayData="tableData" :unit="unit"/>
           <FacilitiesTable v-else-if="selectedReportType === 'facilities'" :displayData="tableData" :unit="unit"/>
+          <AllTable v-else-if="selectedReportType === 'all'" :displayData="tableData" :unit="unit"/>
         </div>
 
         <!-- Empty State -->
         <v-alert v-else type="info" title="No Reports Found">
-          Click "Generate" to create reports for the selected filters
+          Select "Rport Type" and "Month and Year" then Click "Generate" to create reports for the selected filters
         </v-alert>
       </v-card-text>
     </v-card>
@@ -123,17 +144,22 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import AppMonthYearPicker from '@/components/forms/AppMonthYearPicker.vue'
 import { useFilterStore } from '@/stores/filterStore.js'
 import { useAuthStore } from '@/stores/authStore.js'
-import { executeReportAction } from '@/services/reportService'
+import { executeReportAction, printSummaryReportReadiness } from '@/services/reportService'
 import PersonnelTable from './PersonnelTable.vue'
 import TrainingTable from './TrainingTable.vue'
 import EquipmentTable from './EquipmentTable.vue'
 import FacilitiesTable from './FacilitiesTable.vue'
+import AllTable from './AllTable.vue'
 import { getUnits} from '@/services/organizationService'
+import { useSnackbar } from '@/composables/useSnackbar'
+
+const { showSuccess, showError } = useSnackbar()
+
 
 
 const authStore = useAuthStore();
@@ -145,11 +171,26 @@ const tableData = ref([])
 const unit = ref(null)
 
 
+const adminAccess = computed(()=>{
+  return authStore.user?.role == 1 || authStore.n3_access
+})
 
+// Get initial report type based on office
+const getInitialReportType = () => {
+  const office = authStore.office
+  const reportTypeMap = {
+    1: 'personnel',
+    8: 'training',
+    4: 'equipment',
+    6: 'equipment',
+    3: 'all'
+  }
+  return reportTypeMap[office] || ''
+}
 
 const handleGenerate = async () => {
 
-  if(authStore.user?.role == 1){
+  if(adminAccess.value){
     unit.value = filterStore.unit
   }else{
     unit.value = authStore.user?.unit_id
@@ -164,12 +205,14 @@ const handleGenerate = async () => {
   tableData.value = result?.data
 }
 
-const handlePrint = () => {
-  console.log('Print report:', {
-    type: selectedReportType.value,
-    unit: selectedUnit.value,
-    month: selectedMonth.value
-  })
+const handlePrint = async () => {
+  let payload = {
+    summary : tableData.value,
+    assessment : {}
+  }
+
+  await printSummaryReportReadiness(payload, selectedReportType.value)
+  showSuccess('Report printed successfully!');
   // TODO: Implement print functionality
 }
 
@@ -190,6 +233,9 @@ watch(() => selectedReportType.value, async (newCategory, __oldCategory) => {
 onMounted(async () => {
     const result = await getUnits();
     filterStore.organizationFilterItems.units = result?.data || [];
+    // Set initial report type based on user's office
+    selectedReportType.value = getInitialReportType()
+
 })
 </script>
 

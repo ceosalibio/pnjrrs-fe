@@ -63,7 +63,7 @@
                         </AppButton>
                     </div>
                     
-                    <div v-if="showSubmit && authStore.user?.approver == 0">
+                    <div v-if="showSubmit && authStore.user?.approver == 0 && reportStore?.tableItems?.length > 0">
                         <AppButton
                             :disabled="reportStore?.reportData?.status > 0"
                             color="success"
@@ -86,7 +86,7 @@
                         <AppButton
                             :disabled="authStore.user?.approver != reportStore?.reportData?.status"
                             color="red"
-                    
+                            @on-click="handleDecline()"
                         >
                             Declined Report
                         </AppButton>
@@ -125,6 +125,37 @@
             confirm-color="success"
             @confirm="confirmSubmit"
         />
+
+        <!-- Decline Confirmation Dialog -->
+        <v-dialog v-model="showDeclineDialog" max-width="500">
+            <v-card>
+                <v-card-title class="text-h6">Decline Report</v-card-title>
+                <v-divider />
+                <v-card-text class="py-4">
+                    <p class="mb-3">Please provide a reason for declining this report:</p>
+                    <v-textarea
+                        v-model="declineReason"
+                        label="Reason"
+                        placeholder="Enter your reason for declining..."
+                        outlined
+                        dense
+                        rows="4"
+                    />
+                </v-card-text>
+                <v-divider />
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="grey" @click="showDeclineDialog = false">Cancel</v-btn>
+                    <v-btn 
+                        color="error" 
+                        @click="confirmDecline()"
+                        :disabled="!declineReason?.trim()"
+                    >
+                        Decline
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 <script setup>
@@ -146,6 +177,8 @@
     const reportStore = useReportStore();
     const authStore = useAuthStore();
     const showSubmitDialog = ref(false);
+    const showDeclineDialog = ref(false);
+    const declineReason = ref('');
     const { showSuccess, showError } = useSnackbar()
 
     onMounted(async () => {
@@ -169,7 +202,8 @@
         reportType : {
             type : String,
             default : "personnel"
-        }
+        },
+
 
     })
 
@@ -188,8 +222,9 @@
             return {
                 label: userNames,
                 sublabel: stage.position,
-                isDone: !!philippineTime, // If timestamp exists, it's done
-                ...(philippineTime && { timestamp: philippineTime })
+                isDone: reportStore?.reportData?.status > stage.approver, // If timestamp exists, it's done
+                ...(philippineTime && { timestamp: philippineTime }),
+                declined : stage.declined
             };
         });
     });
@@ -244,15 +279,20 @@
         showSubmitDialog.value = true
     }
 
+    async function handleDecline() {
+        showDeclineDialog.value = true
+        declineReason.value = ''
+    }
+
     async function confirmSubmit() {
-        console.log(reportStore.final_approver,authStore.user?.approver)
+        // console.log(reportStore.final_approver,authStore.user?.approver)
         let status = authStore.user?.approver + 1;
         emit('submit')
         let payload = {
             status: status,
             is_final:  reportStore.final_approver == authStore.user?.approver ? 1 : 0
         }
-        console.log(reportStore.reportData,'payload')
+        // console.log(reportStore.reportData,'payload')
         if(reportStore.reportData?.assessment == null || reportStore.reportData?.assessment == undefined){
             showError('Please fill out the assessment before submitting the report.')
             return false
@@ -262,6 +302,34 @@
             await handleGenerate()
             showSubmitDialog.value = false
             showSuccess(status > 1 ? 'Report approved successfully!' : 'Report submitted successfully!')
+        }
+    }
+
+    async function confirmDecline() {
+        if (!declineReason.value?.trim()) {
+            showError('Please provide a reason for declining')
+            return
+        }
+
+        try {
+            let status = authStore.user?.approver - 1;
+            let payload = {
+                status: status, // Declined status
+                reason: declineReason.value
+            }
+            
+            const response = await executeReportAction(payload, props.reportType, 'update', reportStore.reportId)
+            
+            if (response?.status == "success") {
+                await handleGenerate()
+                showDeclineDialog.value = false
+                declineReason.value = ''
+                showSuccess('Report declined successfully!')
+            } else {
+                showError(response?.message || 'Failed to decline report')
+            }
+        } catch (error) {
+            showError(error.message || 'Failed to decline report')
         }
     }
 

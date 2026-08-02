@@ -149,7 +149,7 @@ export const ENDPOINTS = {
     UPDATE: (id) => `${BASE_PATH}/report/trainings/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/trainings/export-readiness`,
     SUMMARY_READINESS: `${BASE_PATH}/report/summary/training`,
-    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/trainings-export`
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/training-export`
   },
 
   // equipment report
@@ -159,7 +159,7 @@ export const ENDPOINTS = {
     UPDATE: (id) => `${BASE_PATH}/report/equipments/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/equipments/export-readiness`,
     SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipment`,
-    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipments-export`
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipment-export`
   },
 
   // facilities report
@@ -169,7 +169,13 @@ export const ENDPOINTS = {
     UPDATE: (id) => `${BASE_PATH}/report/facilities/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/facilities/export-readiness`,
     SUMMARY_READINESS: `${BASE_PATH}/report/summary/facility`,
-    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/facilities-export`
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/facility-export`
 
+  },
+
+  // personnel report
+  REPORT_ALL: {
+   SUMMARY_READINESS: `${BASE_PATH}/report/summary/all`,
+   PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/all-export`
   },
 }

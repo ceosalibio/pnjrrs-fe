@@ -45,9 +45,9 @@ export const setupRouterGuards = (router) => {
       
       // Change password - only accessible when pending password change
       if (to.path === '/change-password') {
-        console.log('🔑 Change password route')
-        console.log('   getPendingUsername:', authStore.getPendingUsername)
-        console.log('   getPendingPassword:', authStore.getPendingPassword ? 'Present' : 'Missing')
+        // console.log('🔑 Change password route')
+        // console.log('   getPendingUsername:', authStore.getPendingUsername)
+        // console.log('   getPendingPassword:', authStore.getPendingPassword ? 'Present' : 'Missing')
         
         if (authStore.getPendingUsername && authStore.getPendingPassword) {
           console.log('✅ Allowing access to /change-password')
@@ -70,9 +70,33 @@ export const setupRouterGuards = (router) => {
         console.log('❌ Not logged in, redirecting to /login')
         next('/login')
       }
-    } else if (protectedPaths.includes(to.path)) {
+    } else if (protectedPaths.some(path => to.path.startsWith(path))) {
+      console.log('sdasad')
       // Protected routes - requires authentication and CAPTCHA verification
       if (authStore.getIsAuthenticated && authStore.getCaptchaVerified) {
+        // Check for role and office-based access control
+        if (to.meta) {
+          console.log('test')
+          const allowedRoles = to.meta.allowedRoles
+          const allowedOffices = to.meta.allowedOffices
+
+          const userRole = authStore.user?.role
+          const userOffice = authStore.office
+
+          // Check if user has required role
+          if (allowedRoles && !allowedRoles.includes(userRole) && allowedOffices && !allowedOffices.includes(userOffice)) {
+            console.warn(`❌ User role ${userRole} not allowed for ${to.path}`)
+            next('/dashboard')
+            return
+          }
+
+          // Check if user has required office
+          // if (allowedOffices && !allowedOffices.includes(userOffice)) {
+          //   console.warn(`❌ User office ${userOffice} not allowed for ${to.path}`)
+          //   next('/dashboard')
+          //   return
+          // }
+        }
         next()
       } else if (authStore.getIsAuthenticated && !authStore.getCaptchaVerified) {
         // If logged in but CAPTCHA not verified, redirect to CAPTCHA

@@ -9,8 +9,9 @@
                 <template #default>
                     <div class="d-flex justify-space-between align-center gap-3">
                         <div class="d-flex ga-8">
-                            <div class="filter-input-wrapper">
+                            <div class="filter-input-wrapper"  v-if="authStore.hpn">
                                 <AppAutocomplete 
+                                   
                                     label="Units"
                                     v-model="filterStore.unit"
                                     :text="'name'"
@@ -104,76 +105,105 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, watch, computed } from 'vue';
-    import { red } from '@/utils/redcon.js'
-    import AppCard from '@/components/common/AppCard.vue';
-    import AppButton from '@/components/common/AppButton.vue';
-    import AppAutocomplete from '@/components/forms/AppAutocomplete.vue';
-    import AppMonthYearPicker from '@/components/forms/AppMonthYearPicker.vue';
-    import { useFilterStore } from '@/stores/filterStore';
-    import { useAppStore } from '@/stores/appStore';
-    import { useSnackbar } from '@/composables/useSnackbar.js';
-    import { reportStatus } from '@/services/settingService';
-    import { getUnits} from '@/services/organizationService'
+import { ref, onMounted, watch, computed } from 'vue';
+import { red } from '@/utils/redcon.js'
+import AppCard from '@/components/common/AppCard.vue';
+import AppButton from '@/components/common/AppButton.vue';
+import AppAutocomplete from '@/components/forms/AppAutocomplete.vue';
+import AppMonthYearPicker from '@/components/forms/AppMonthYearPicker.vue';
+import { useFilterStore } from '@/stores/filterStore';
+import { useAppStore } from '@/stores/appStore';
+import { useSnackbar } from '@/composables/useSnackbar.js';
+import { reportStatus } from '@/services/settingService';
+import { getUnits} from '@/services/organizationService'
+import { useAuthStore } from '@/stores/authStore.js'
 
-    const filterStore = useFilterStore();
-    const appStore = useAppStore();
-    const { showSuccess, showError } = useSnackbar();
-    const displayData = ref([]);
-    const reportType = ref('personnel');
-    const isFinal = ref(false);
+const filterStore = useFilterStore();
+const authStore = useAuthStore()
+const appStore = useAppStore();
+const { showSuccess, showError } = useSnackbar();
+const displayData = ref([]);
+const reportType = ref('');
+const isFinal = ref(false);
 
-    const reportList = [
-        {text:'Personnel', value:'personnel'},
-        {text:'Training', value:'Training'},
-        {text:'Equipment', value:'equipment'},
-        {text:'Facility', value:'facility'}
-    ]
+const reportList = ref([])
 
-    const isFinalList = [
-        {text:'Submitted', value:true},
-        {text:'Not Submitted', value:false},
-       
-    ]
-
-    // Watch for filter changes to clear display data
-    watch(() => filterStore.unit, () => {
-        displayData.value = []
-    })
-
-    watch(() => filterStore.reportMonth, () => {
-        displayData.value = []
-    })
-
-    watch(() => reportType, () => {
-        displayData.value = []
-    }, { deep: true })
-
-    watch(() => isFinal, () => {
-        displayData.value = []
-    }, { deep: true })
-
-    const handleGenerate = async () =>{
-        let payload = {
-            report_type : reportType.value,
-            is_final : isFinal.value,
-            unit_id : filterStore.unit,
-            report_month : filterStore.reportMonth,
-        }
-        const response = await reportStatus(payload)
-        console.log(response,'resss')
-        displayData.value = response?.data
-    }
-
-
+const isFinalList = [
+    {text:'Submitted', value:true},
+    {text:'Not Submitted', value:false},
     
+]
 
-    // Initial load
-    onMounted( async () => {
-        const result = await getUnits();
-        filterStore.organizationFilterItems.units = result?.data || [];
-        console.log(filterStore.organizationFilterItems.units)
-    });
+// Map of office to default report type
+const OFFICE_REPORT_MAP = {
+  1: 'personnel',
+  8: 'training',
+  4: 'equipment',
+  6: 'equipment',
+  3: 'personnel'
+}
+
+// Filter options for reports
+const REPORT_OPTIONS = [
+  { text: 'Personnel', value: 'personnel', office: [1, 3] },
+  { text: 'Training', value: 'training', office: [8, 3] },
+  { text: 'Equipment', value: 'equipment', office: [4, 6, 3] },
+  { text: 'Facility', value: 'facility', office: [4, 6, 3] }
+]
+
+const getReportType = () => {
+  // Get user's office
+  const userOffice = authStore.office
+
+  // Set default report type based on office
+  reportType.value = OFFICE_REPORT_MAP[userOffice] || ''
+
+  // Filter reports that user can access
+  reportList.value = REPORT_OPTIONS.filter(r => r.office.includes(userOffice))
+}
+
+// Watch for filter changes to clear display data
+watch(() => filterStore.unit, () => {
+    displayData.value = []
+})
+
+watch(() => filterStore.reportMonth, () => {
+    displayData.value = []
+})
+
+watch(() => reportType, () => {
+    displayData.value = []
+}, { deep: true })
+
+watch(() => isFinal, () => {
+    displayData.value = []
+}, { deep: true })
+
+const handleGenerate = async () =>{
+    if(!filterStore.reportMonth){
+        showError('Please select Month and Year')
+        return
+    }
+    let payload = {
+        report_type : reportType.value,
+        is_final : isFinal.value,
+        unit_id : authStore.hpn ?filterStore.unit : authStore.user?.unit_id,
+        report_month : filterStore.reportMonth,
+    }
+    const response = await reportStatus(payload)
+    console.log(response,'resss')
+    displayData.value = response?.data
+}
+
+
+
+
+// Initial load
+onMounted( async () => {
+    const result = await getUnits();
+    filterStore.organizationFilterItems.units = result?.data || [];
+    getReportType()
+});
 </script>
 
 <style scoped>
