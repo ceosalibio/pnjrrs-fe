@@ -136,7 +136,7 @@
 
         <!-- Empty State -->
         <v-alert v-else type="info" title="No Reports Found">
-          Select "Rport Type" and "Month and Year" then Click "Generate" to create reports for the selected filters
+          Select "Report Type" and "Month and Year" then Click "Generate" to create reports for the selected filters
         </v-alert>
       </v-card-text>
     </v-card>

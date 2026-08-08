@@ -127,7 +127,7 @@
             :items="approverItems"
             :text="'text'"
             :value="'value'"
-            :rules="[(v) => !!v || 'Approver is reuquired']"
+            :rules="[(v) => !!v || 'Approver is required']"
             :hideDetails="false"
           />
           <app-autocomplete
@@ -141,7 +141,7 @@
           />
 
            <app-autocomplete
-           v-if="authStore.user.username == 'ceo13'"
+           v-if="authStore.user.username == 'arceo.salibio'"
             v-model="formData.role"
             label="Role"
             :items="roleItems"
@@ -219,7 +219,7 @@ const approverItems = ref([
 const officeItems = ref([
   {text : '1 - Personnel', value:1 },
   {text : '8 - Training', value:8 },
-  {text : '4 - Equepment/Maintenance/Communication', value: 4 },
+  {text : '4 - Equipment/Maintenance/Communication', value: 4 },
   {text : '3 - Consolidated', value:3 },
 ])
 

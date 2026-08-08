@@ -8,7 +8,7 @@
       </div>
 
       <div class="d-flex gap-4">
-        <v-btn
+        <!-- <v-btn
           variant="text"
           color="white"
           size="small"
@@ -31,7 +31,7 @@
           href="#"
         >
           Contact Us
-        </v-btn>
+        </v-btn> -->
       </div>
 
       <div class="text-sm">
