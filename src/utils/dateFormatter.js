@@ -154,3 +154,36 @@ export const formatToHumanReadable = (utcDatetime) => {
         return utcDatetime;
     }
 }
+
+
+/**
+ * Get current date in human-readable format
+ * Format: "Monday, August 04, 2026"
+ * @returns {string} Formatted current date
+ * 
+ * @example
+ * currentDate()
+ * // Returns: "Monday, August 04, 2026"
+ */
+export const currentDate = () => {
+  const today = new Date()
+  const options = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: '2-digit',
+    timeZone: 'Asia/Manila' // Philippine timezone
+  }
+  return today.toLocaleDateString('en-PH', options)
+}
+
+// Get current month in MM/YYYY format
+export const getCurrentMonth = () => {
+  const today = new Date()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const year = today.getFullYear()
+  return `${month}/${year}`
+}
+
+
+

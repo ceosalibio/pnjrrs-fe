@@ -175,6 +175,7 @@ export const ENDPOINTS = {
 
   // personnel report
   REPORT_ALL: {
+   SUMMARY_STATS: `${BASE_PATH}/report/summary/stats`,
    SUMMARY_READINESS: `${BASE_PATH}/report/summary/all`,
    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/all-export`
   },

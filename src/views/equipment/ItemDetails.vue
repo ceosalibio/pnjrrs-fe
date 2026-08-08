@@ -439,6 +439,7 @@ const searchQuery = ref('')
                     item.onhand = 0
                     return;
                 }
+                handleUrrsChange(item)
             }
             
             item[fieldName] = sanitized;

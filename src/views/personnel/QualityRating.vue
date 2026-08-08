@@ -220,14 +220,14 @@ const onRankChange = (item, selectedName) => {
 }
 
 const onAfposChange = (item, selectedId) => {
-  // console.log(item,'itemmm')
+  console.log(item,'itemmm',selectedId,'selectedId')
   const found = afposItems.value.find((r) => r.id === selectedId)
   // console.log(found,'found')
   item.afpos_actual_name = found?.name || ''
   
   // Initialize afpos_points to 0
   item.afpos_points = null
-  
+ 
   // Check if grade starts with 'E' (Enlisted)
   if (item.grade && item.grade.startsWith('E')) {
     // For Enlisted: compare cluster group
@@ -239,7 +239,8 @@ const onAfposChange = (item, selectedId) => {
     // For Officer and Civilian: compare afpos ID
     console.log(item)
     if (afposName == 'open rating' || 
-        item.item_afpos_id == found?.id) {
+        item.item_afpos_id == found?.id && selectedId) {
+          console.log('testtt')
       item.afpos_points = 1
     }
     if(afposName.includes('civ') && item.afpos_actual_name?.toLowerCase().includes('civ')){
@@ -247,6 +248,10 @@ const onAfposChange = (item, selectedId) => {
     }
 
 
+  }
+
+   if(!selectedId){
+    item.afpos_points = null
   }
 }
 

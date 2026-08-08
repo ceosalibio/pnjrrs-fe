@@ -35,6 +35,7 @@ const REPORT_CONFIG = {
     printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_FACILITIES.PRINT_SUMMARY_READINESS },
   },
   all: {
+    stats: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_ALL.SUMMARY_STATS },
     summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_ALL.SUMMARY_READINESS },
     printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_ALL.PRINT_SUMMARY_READINESS },
   },

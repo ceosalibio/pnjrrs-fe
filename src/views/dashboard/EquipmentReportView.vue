@@ -5,34 +5,34 @@
       <h1 class="text-h4 font-weight-600">Equipment Readiness Report</h1>
       <p class="text-gray-600">Overview of equipment status and operational ratings</p>
     </v-col>
-    <v-col auto class="d-flex align-center">
+    <!-- <v-col auto class="d-flex align-center">
       <p class="text-sm text-gray-600">{{ currentDate }}</p>
-    </v-col>
+    </v-col> -->
   </v-row>
 
-  <!-- Stats Section (2x2 grid) -->
+ <!-- Stats Section (2x2 grid) -->
   <v-row class="mb-6">
-    <v-col cols="12" sm="6" md="3">
+    <!-- <v-col cols="12" sm="6" md="3">
       <app-card elevation="1" class="h-100">
         <div class="d-flex flex-column align-center justify-center pa-4">
-          <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Required Number</p>
-          <p class="text-h3 font-weight-700">318</p>
+          <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Nr of METT Programmed</p>
+          <p class="text-h3 font-weight-700">{{stats.required}}</p>
         </div>
       </app-card>
     </v-col>
     <v-col cols="12" sm="6" md="3">
       <app-card elevation="1" class="h-100">
         <div class="d-flex flex-column align-center justify-center pa-4">
-          <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Actual Number</p>
-          <p class="text-h3 font-weight-700">305</p>
+          <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Nr of METT Conducted</p>
+          <p class="text-h3 font-weight-700">{{stats.actual}}</p>
         </div>
       </app-card>
-    </v-col>
+    </v-col> -->
     <v-col cols="12" sm="6" md="3">
       <app-card elevation="1" class="h-100">
         <div class="d-flex flex-column align-center justify-center pa-4">
           <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Submitted Report</p>
-          <p class="text-h3 font-weight-700">298</p>
+          <p class="text-h3 font-weight-700">{{stats.submitted}}</p>
         </div>
       </app-card>
     </v-col>
@@ -40,7 +40,7 @@
       <app-card elevation="1" class="h-100">
         <div class="d-flex flex-column align-center justify-center pa-4">
           <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Not Yet Submitted</p>
-          <p class="text-h3 font-weight-700">7</p>
+          <p class="text-h3 font-weight-700">{{stats.not_submitted}}</p>
         </div>
       </app-card>
     </v-col>
@@ -48,47 +48,85 @@
 
   <!-- Main Content: Announcement + Graphs -->
   <v-row class="mb-6">
-    <!-- Announcement (Top Right) -->
-    <v-col cols="12" lg="4">
-      <announcement-card
-        title="Equipment Notice"
-        message="Schedule preventive maintenance for all equipment. Deadline for compliance: August 20, 2026."
-      />
-    </v-col>
 
     <!-- Readiness Graph (Bottom Left) -->
     <v-col cols="12" lg="6">
-      <readiness-graph :data="readinessData" />
+      <ratings-line-graph :data="ratingsData" :title="'Equipment Readiness Rating Line Graph'"/>
     </v-col>
 
     <!-- Ratings Line Graph (Bottom Right) -->
     <v-col cols="12" lg="6">
-      <ratings-line-graph :data="ratingsData" />
+      <ratings-line-graph :data="ratingsDataMaintenance" :title="'Maintenance Readiness Rating Line Graph'"/>
     </v-col>
   </v-row>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import AppCard from '@/components/common/AppCard.vue'
-import AnnouncementCard from './AnnouncementCard.vue'
-import ReadinessGraph from './ReadinessGraph.vue'
+// import AnnouncementCard from './AnnouncementCard.vue'
+// import ReadinessGraph from './ReadinessGraph.vue'
 import RatingsLineGraph from './RatingsLineGraph.vue'
-
-const currentDate = computed(() => {
-  const today = new Date()
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-  return today.toLocaleDateString('en-US', options)
+import {currentDate , getCurrentMonth} from "@/utils/dateFormatter.js"
+const props = defineProps({
+  data: {
+    type: Object,
+    required: true
+  }
 })
 
-const readinessData = ref({
-  labels: ['Operational', 'Under Maintenance', 'For Replacement', 'Inspection Due'],
-  values: [210, 54, 23, 31]
+
+
+const stats = computed(() => {
+  const currentMonth = getCurrentMonth()
+  const result = props.data?.equipment?.find(r => r.report_month == currentMonth && r.is_total) || {}
+  // console.log('📊 stats filtered:', { currentMonth, result })
+  return result
 })
 
-const ratingsData = ref({
-  labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
-  values: [88, 86, 89, 91, 93, 94]
+const lineValue = computed(() => {
+  const result = props.data?.equipment?.filter(r => r.is_total) || []
+  return result
+})
+
+
+
+
+const readinessData = computed(() => {
+  const labels = lineValue.value?.map(item => item.report_month)
+  const values = lineValue.value?.map(item => item.actual)
+  return {
+    labels,
+    values
+  }
+})
+
+const ratingsData = computed(() => {
+  const labels = lineValue.value.map(item => item.report_month)
+  const values = lineValue.value.map(item => item.rating_equipment)
+  const redconStatuses = lineValue.value.map(item => item.redcon_equipment)
+  
+  console.log('📈 ratingsData:', { labels, values, redconStatuses })
+  
+  return {
+    labels,
+    values,
+    redconStatuses // Include REDCON status for color coding
+  }
+})
+
+const ratingsDataMaintenance = computed(() => {
+  const labels = lineValue.value.map(item => item.report_month)
+  const values = lineValue.value.map(item => item.rating_maintenance)
+  const redconStatuses = lineValue.value.map(item => item.redcon_maintenance)
+  
+  // console.log('📈 ratingsData:', { labels, values, redconStatuses })
+  
+  return {
+    labels,
+    values,
+    redconStatuses // Include REDCON status for color coding
+  }
 })
 </script>
 
