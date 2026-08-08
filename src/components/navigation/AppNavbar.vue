@@ -11,21 +11,23 @@
       @click="appStore.toggleSidebar()"
     />
     
-    <v-icon size="32" class="mx-2">mdi-shield-anchor</v-icon>
+    <v-icon size="32" class="navbar-icon">mdi-shield-anchor</v-icon>
     
-    <v-app-bar-title class="font-weight-600">
+    <v-app-bar-title class="navbar-title font-weight-600">
       Automated Philippine Navy AFPJRRS
     </v-app-bar-title>
 
     <!-- Right Section -->
     <v-spacer />
 
-    <div class="align-center gap-3 mr-10">
-      <div>
-        {{ userName }}
-      </div>
-      <div>
-        {{ unitName }}
+    <div class="user-info-container">
+      <div class="user-details">
+        <div class="user-name">
+          {{ userName }}
+        </div>
+        <div class="unit-name">
+          {{ unitName }}
+        </div>
       </div>
 
       <!-- User Info -->
@@ -147,5 +149,116 @@ const confirmLogout = async () => {
 <style scoped>
 .app-navbar {
   box-shadow: 0 2px 8px rgba(0, 31, 84, 0.1);
+}
+
+.navbar-icon {
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+
+.navbar-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.user-info-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 40px;
+  flex-shrink: 0;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.unit-name {
+  font-size: 12px;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+
+/* Tablet screens */
+@media (max-width: 1024px) {
+  .user-info-container {
+    margin-right: 20px;
+    gap: 8px;
+  }
+
+  .navbar-title {
+    font-size: 16px;
+  }
+
+  .user-name {
+    font-size: 13px;
+  }
+
+  .unit-name {
+    font-size: 11px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .navbar-title {
+    font-size: 14px;
+    max-width: 150px;
+  }
+
+  .user-info-container {
+    margin-right: 8px;
+    gap: 4px;
+  }
+
+  .user-name {
+    font-size: 12px;
+  }
+
+  .unit-name {
+    font-size: 10px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .navbar-title {
+    font-size: 12px;
+    max-width: 100px;
+  }
+
+  .navbar-icon {
+    margin: 0 4px;
+  }
+
+  .user-info-container {
+    margin-right: 0;
+    gap: 0;
+    flex-direction: column;
+  }
+
+  .user-details {
+    gap: 0;
+    text-align: right;
+  }
+
+  .user-name {
+    font-size: 11px;
+  }
+
+  .unit-name {
+    font-size: 9px;
+  }
 }
 </style>

@@ -1,13 +1,10 @@
 <template>
   <!-- Page Header -->
-  <v-row class="mb-6">
+  <v-row class="mb-6 header-row">
     <v-col>
-      <h1 class="text-h4 font-weight-600">Training Readiness Report</h1>
-      <p class="text-gray-600">Overview of training programs and completion ratings</p>
+      <h1 class="text-h4 font-weight-600 header-title">Training Readiness Report</h1>
+      <p class="text-gray-600 header-subtitle">Overview of training programs and completion ratings</p>
     </v-col>
-    <!-- <v-col auto class="d-flex align-center">
-      <p class="text-sm text-gray-600">{{ currentDate }}</p>
-    </v-col> -->
   </v-row>
 
   <!-- Stats Section (2x2 grid) -->
@@ -119,5 +116,46 @@ const ratingsData = computed(() => {
 <style scoped>
 .text-gray-600 {
   color: #666 !important;
+}
+
+.header-row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.header-title {
+  margin: 0 !important;
+  line-height: 1.3;
+}
+
+.header-subtitle {
+  margin: 8px 0 0 0 !important;
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .header-row {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .header-title {
+    font-size: 20px !important;
+  }
+
+  .header-subtitle {
+    font-size: 14px !important;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 18px !important;
+  }
+
+  .header-subtitle {
+    font-size: 12px !important;
+  }
 }
 </style>
