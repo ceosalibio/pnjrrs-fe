@@ -23,7 +23,6 @@
                     </div>
                     <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.offices?.length > 0 && isHideFields">
                         <AppAutocomplete 
-                            
                             label="Offices"
                             v-model="filterStore.office"
                             :text="'name'"
@@ -33,7 +32,6 @@
                     </div>
                     <div class="filter-input-wrapper" v-if="filterStore.organizationFilterItems.suboffices?.length > 0 && isHideFields">
                         <AppAutocomplete 
-                            
                             label="Suboffices"
                             v-model="filterStore.suboffice"
                             :text="'name'"
@@ -45,7 +43,6 @@
                     <div 
                         class="filter-input-wrapper"
                         :class="{ 'filter-input-wrapper--compact': !isHideFields }"
-                    
                     >
                         <AppMonthYearPicker 
                             v-model="filterStore.reportMonth"
@@ -96,16 +93,11 @@
                         <AppButton
                             color="primary"
                             @on-click="handlePrint()"
-
                         >
                             Print Report
                         </AppButton>
                     </div> -->
                 </div>
-                
-
-                
-
             </div>
             <div>
                 <app-timeline-status 
@@ -113,7 +105,6 @@
                     :activeIndex="reportStore?.reportData?.status"
                 />
             </div>
-           
         </v-card>
 
         <!-- Submit Confirmation Dialog -->
@@ -182,7 +173,6 @@
     const { showSuccess, showError } = useSnackbar()
 
     onMounted(async () => {
-        // Initialize filter data (categories and units) when component mounts
         await filterStore.initializeFilterData()
     })
 
@@ -203,8 +193,6 @@
             type : String,
             default : "personnel"
         },
-
-
     })
 
     const timelineItems = computed(() => {
@@ -214,15 +202,13 @@
         
         return reportStore.approver.map((stage) => {
             const userNames = stage.users?.map(u => u.name).join('/ ') || stage.position;
-            // Get created_at from actual array (first actual record if it exists)
             const createdAt = stage.actual?.[0]?.created_at;
-            // Format to Philippine time
             const philippineTime = createdAt ? formatToPhilippineTime(createdAt) : null;
             
             return {
                 label: userNames,
                 sublabel: stage.position,
-                isDone: reportStore?.reportData?.status > stage.approver, // If timestamp exists, it's done
+                isDone: reportStore?.reportData?.status > stage.approver,
                 ...(philippineTime && { timestamp: philippineTime }),
                 declined : stage.declined
             };
@@ -249,30 +235,8 @@
     })
 
     async function handleGenerate() {
-       
         emit('generate')
         await reportStore.reportGenerate(props.reportType)
-        // let payload
-        // reportStore.tableItems = []
-        // if(authStore.user?.approver == 1){
-        //     payload = filterStore.getGenrateReportPayload()
-        // }else{
-        //     payload = {
-        //         report_month: filterStore.reportMonth,
-        //         unit_id: authStore.user?.unit_id,
-        //         sub_unit_id: authStore.user?.sub_unit_id,
-        //         office_id: authStore.user?.office_id,
-        //         sub_office_id: authStore.user?.sub_office_id
-        //     }
-        // }
-        // console.log(payload,'payload')
-        // const response = await executeReportAction (payload, props.reportType)
-        // reportStore.reportData = response?.data?.report
-        // reportStore.tableItems = response?.data?.report?.items || []
-        // reportStore.reportId = response?.data?.report?.id
-        // reportStore.approver = response?.data?.approver || []
-        // reportStore.final_approver = response?.data?.final_approver || null
-
     }
 
     async function handleSubmit() {
@@ -285,14 +249,12 @@
     }
 
     async function confirmSubmit() {
-        // console.log(reportStore.final_approver,authStore.user?.approver)
         let status = authStore.user?.approver + 1;
         emit('submit')
         let payload = {
             status: status,
             is_final:  reportStore.final_approver == authStore.user?.approver ? 1 : 0
         }
-        // console.log(reportStore.reportData,'payload')
         if(reportStore.reportData?.assessment == null || reportStore.reportData?.assessment == undefined){
             showError('Please fill out the assessment before submitting the report.')
             return false
@@ -314,7 +276,7 @@
         try {
             let status = authStore.user?.approver - 1;
             let payload = {
-                status: status, // Declined status
+                status: status,
                 reason: declineReason.value
             }
             
@@ -345,9 +307,54 @@
 }
 
 .filter-input-wrapper--compact {
-    flex: 0 0 250px;   /* fixed width, hindi na "kumakain" ng buong row */
+    flex: 0 0 250px;
     max-width: 250px;
     min-width: 200px;
 }
 
+/* ===== MOBILE RESPONSIVENESS (bago) ===== */
+@media (max-width: 768px) {
+    .filter-input-wrapper,
+    .filter-input-wrapper--compact {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+    }
+}
+
+@media (max-width: 600px) {
+    :deep(.pa-4.mb-4) {
+        padding: 12px !important;
+    }
+
+    :deep(.d-flex.ga-4.flex-wrap.justify-space-between) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    :deep(.d-flex.ga-4.flex-wrap.justify-space-between) > .d-flex.ga-4:first-child {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    :deep(.d-flex.ga-4.flex-wrap.justify-space-between) > .d-flex.ga-4:last-child {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px !important;
+    }
+
+    :deep(.d-flex.ga-4.flex-wrap.justify-space-between) > .d-flex.ga-4:last-child > div {
+        width: 100%;
+    }
+
+    :deep(.d-flex.ga-4.flex-wrap.justify-space-between) > .d-flex.ga-4:last-child button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    :deep(.v-dialog) {
+        margin: 12px;
+    }
+}
 </style>

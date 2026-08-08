@@ -28,7 +28,7 @@
 
       <v-card-text>
         <!-- Filters and Action Button Row -->
-        <div class="d-flex gap-3 mb-4 align-center">
+        <div class="d-flex gap-3 mb-4 align-center filters-row">
 
           <AppTextField
             v-model="filterStore.search"
@@ -81,33 +81,35 @@
 
        
 
-        <v-table>
-          <thead class="table-header">
-            <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Unit</th>
-              <th>Sub Unit</th>
-              <th>Office</th>
-              <th>Sub office</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(user,i) in users" :key="i">
-              <td>{{ user?.rank?.name }}  {{ user.name }}</td>
-              <td>{{ user.email || user.username }}</td>
-              <td>{{ user?.unit?.name }}</td>
-              <td>{{ user?.sub_unit?.name }}</td>
-              <td>{{ user?.office?.name }}</td>
-              <td>{{ user?.sub_office?.name }}</td>
-              <td>
-                <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="handleEditUser(user)" />
-                <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="handleDeleteUser(user)" />
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
+        <div class="table-scroll-wrapper">
+          <v-table>
+            <thead class="table-header">
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Unit</th>
+                <th>Sub Unit</th>
+                <th>Office</th>
+                <th>Sub office</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(user,i) in users" :key="i">
+                <td>{{ user?.rank?.name }}  {{ user.name }}</td>
+                <td>{{ user.email || user.username }}</td>
+                <td>{{ user?.unit?.name }}</td>
+                <td>{{ user?.sub_unit?.name }}</td>
+                <td>{{ user?.office?.name }}</td>
+                <td>{{ user?.sub_office?.name }}</td>
+                <td>
+                  <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="handleEditUser(user)" />
+                  <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="handleDeleteUser(user)" />
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </div>
 
         <!-- Pagination -->
           <AppPagination
@@ -355,5 +357,49 @@ const getRoleColor = (role) => {
     min-width: 100%;
   }
 }
-</style>
 
+/* ===== MOBILE RESPONSIVENESS (bago) ===== */
+
+/* Table: gawing horizontal scroll sa maliit na screen imbes na mag-squeeze/mag-overflow ng buong page */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+:deep(.v-table) {
+  min-width: 700px; /* para hindi masyadong maliit/paikpik ang mga columns kapag naka-scroll */
+}
+
+@media (max-width: 960px) {
+  .filters-row {
+    flex-wrap: wrap;
+  }
+
+  .filters-row :deep(.v-spacer) {
+    display: none; /* di na kailangan ng spacer kapag naka-wrap na */
+  }
+}
+
+@media (max-width: 600px) {
+  .settings-users {
+    padding: 0.5rem;
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-row > * {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Ang Add User button, gawing full width sa mobile */
+  .filters-row :deep(button) {
+    width: 100%;
+  }
+}
+</style>

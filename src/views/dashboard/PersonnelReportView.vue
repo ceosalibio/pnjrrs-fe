@@ -9,33 +9,33 @@
 
   <!-- Stats Section (2x2 grid) -->
   <v-row class="mb-6">
-    <v-col cols="12" sm="6" md="3">
-      <app-card elevation="1" class="h-100">
-        <div class="d-flex flex-column align-center justify-center pa-4">
+    <v-col cols="3" sm="6" md="3">
+      <app-card elevation="1" class="h-100 stats-card">
+        <div class="d-flex flex-column align-center justify-center pa-4 stats-card-content text-center">
           <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Required TO</p>
           <p class="text-h3 font-weight-700">{{personnelStats.required}}</p>
         </div>
       </app-card>
     </v-col>
-    <v-col cols="12" sm="6" md="3">
-      <app-card elevation="1" class="h-100">
-        <div class="d-flex flex-column align-center justify-center pa-4">
+    <v-col cols="3" sm="6" md="3">
+      <app-card elevation="1" class="h-100 stats-card">
+        <div class="d-flex flex-column align-center justify-center pa-4 stats-card-content text-center">
           <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Actual Personnel</p>
           <p class="text-h3 font-weight-700">{{personnelStats.actual}}</p>
         </div>
       </app-card>
     </v-col>
-    <v-col cols="12" sm="6" md="3">
-      <app-card elevation="1" class="h-100">
-        <div class="d-flex flex-column align-center justify-center pa-4">
+    <v-col cols="3" sm="6" md="3">
+      <app-card elevation="1" class="h-100 stats-card">
+        <div class="d-flex flex-column align-center justify-center pa-4 stats-card-content text-center">
           <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Submitted Report</p>
           <p class="text-h3 font-weight-700">{{personnelStats.submitted}}</p>
         </div>
       </app-card>
     </v-col>
-    <v-col cols="12" sm="6" md="3">
-      <app-card elevation="1" class="h-100">
-        <div class="d-flex flex-column align-center justify-center pa-4">
+    <v-col cols="3" sm="6" md="3">
+      <app-card elevation="1" class="h-100 stats-card">
+        <div class="d-flex flex-column align-center justify-center pa-4 stats-card-content text-center">
           <p class="text-sm text-gray-600 mb-3 text-uppercase font-weight-600">Not Yet Submitted</p>
           <p class="text-h3 font-weight-700">{{personnelStats.not_submitted}}</p>
         </div>
@@ -134,6 +134,19 @@ const ratingsData = computed(() => {
   margin: 8px 0 0 0 !important;
 }
 
+.stats-card-content {
+  padding: 16px !important;
+}
+
+.stats-card-content p:first-child {
+  font-size: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.stats-card-content p:last-child {
+  font-size: 24px !important;
+}
+
 /* Mobile devices */
 @media (max-width: 768px) {
   .header-row {
@@ -148,6 +161,19 @@ const ratingsData = computed(() => {
   .header-subtitle {
     font-size: 14px !important;
   }
+
+  .stats-card-content {
+    padding: 12px !important;
+  }
+
+  .stats-card-content p:first-child {
+    font-size: 10px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .stats-card-content p:last-child {
+    font-size: 18px !important;
+  }
 }
 
 /* Small mobile devices */
@@ -158,6 +184,19 @@ const ratingsData = computed(() => {
 
   .header-subtitle {
     font-size: 12px !important;
+  }
+
+  .stats-card-content {
+    padding: 10px !important;
+  }
+
+  .stats-card-content p:first-child {
+    font-size: 9px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .stats-card-content p:last-child {
+    font-size: 16px !important;
   }
 }
 </style>
