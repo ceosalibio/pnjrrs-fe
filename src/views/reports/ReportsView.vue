@@ -263,6 +263,20 @@ onMounted(async () => {
   justify-content: center;
   width: 100%;
   gap: 8px;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.btn-content .text-h4 {
+  font-size: 1.5rem !important;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.btn-content .text-h5 {
+  font-size: 1.25rem !important;
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
 .filters-section {
@@ -313,7 +327,6 @@ onMounted(async () => {
   height: 100%;
 }
 
-/* Responsive */
 @media (max-width: 960px) {
   .filters-section {
     flex-direction: column;
@@ -322,6 +335,14 @@ onMounted(async () => {
 
   .report-btn {
     height: 100px !important;
+  }
+
+  .btn-content .text-h4 {
+    font-size: 1.25rem !important;
+  }
+
+  .btn-content .text-h5 {
+    font-size: 1.1rem !important;
   }
 }
 
@@ -336,6 +357,15 @@ onMounted(async () => {
 
   .btn-content {
     gap: 4px;
+    padding: 6px;
+  }
+
+  .btn-content .text-h4 {
+    font-size: 1rem !important;
+  }
+
+  .btn-content .text-h5 {
+    font-size: 0.9rem !important;
   }
 
   .btn-content .text-h6 {
