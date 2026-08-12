@@ -19,7 +19,7 @@ export const MENU_ITEMS = [
   },
   {
     title: 'Trainings',
-    icon: 'mdi-school',
+    icon: 'mdi-bullseye-arrow',
     to: '/trainings',
     role: [1],
     office: [3,8],
