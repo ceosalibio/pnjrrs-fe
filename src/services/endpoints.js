@@ -10,7 +10,8 @@ export const ENDPOINTS = {
     LOGIN: `${BASE_PATH}/login`,
     LOGOUT: `${BASE_PATH}/logout`,
     CHANGE_PASSWORD: `${BASE_PATH}/change-password`,
-    FORCE_CHANGE_PASSWORD: `${BASE_PATH}/force-change-password`
+    FORCE_CHANGE_PASSWORD: `${BASE_PATH}/force-change-password`,
+    RESET_PASSWORD: `${BASE_PATH}/reset-password`
   },
 
   // Users management endpoints

@@ -206,4 +206,39 @@ export const forceChangePassword = async (username, temporaryPassword, newPasswo
   }
 }
 
+
+
+/**
+ * Reset password for user
+ * @param {string} id - User ID
+ * @returns {Promise<Object>} Password reset response
+ */
+export const resetPassword = async (id) => {
+  try {
+    const response = await api.post(
+      ENDPOINTS.AUTH.RESET_PASSWORD,
+      {
+        id : id
+      }
+    )
+
+    if (response.data.status === 'error') {
+      return {
+        success: false,
+        error: response.data.message || 'Failed to reset password'
+      }
+    }
+
+    return {
+      success: true,
+      message: response.data.message || 'Password reset successfully'
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.response?.data?.message || error.message || 'Failed to reset password'
+    }
+  }
+}
+
 export default api

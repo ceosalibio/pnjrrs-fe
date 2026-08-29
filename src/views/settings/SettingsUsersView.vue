@@ -21,6 +21,19 @@
       @confirm="confirmDeleteUser"
     />
 
+
+    <!-- reset Confirmation Dialog -->
+    <app-dialog
+      v-model="isResetDialogOpen"
+      title="Reset Password"
+      :message="`Are you sure you want to reset the password for user '${userToReset?.name}'? This action cannot be undone.`"
+      confirm-text="Reset"
+      cancel-text="Cancel"
+      confirm-color="error"
+      max-width="400px"
+      @confirm="confirmResetPassword"
+    />
+
     <v-card class="mb-6">
       <v-card-title>User Management</v-card-title>
       <v-card-subtitle>Manage system users and their roles</v-card-subtitle>
@@ -105,6 +118,7 @@
                 <td>
                   <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="handleEditUser(user)" />
                   <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="handleDeleteUser(user)" />
+                  <v-btn v-if="authStore.user?.office_role == 3 && authStore.user?.unit_id == 1" icon="mdi-lock-reset" size="small" variant="text" color="error" @click="handleResetPassword(user)" />
                 </td>
               </tr>
             </tbody>
@@ -136,6 +150,7 @@ import { useAuthStore } from '@/stores/authStore.js'
 import { useFilterStore } from '@/stores/filterStore.js'
 import { useUser } from '@/composables/useUser.js'
 import { useSnackbar } from '@/composables/useSnackbar.js'
+import { resetPassword } from '@/services/authService'
 
 const filterStore = useFilterStore()
 const authStore = useAuthStore()
@@ -161,7 +176,9 @@ const isAddUserDialogOpen = ref(false)
 
 // Delete confirmation dialog state
 const isDeleteDialogOpen = ref(false)
+const isResetDialogOpen = ref(false)
 const userToDelete = ref(null)
+const userToReset = ref(null)
 
 // Users data
 // const users = ref([])
@@ -225,6 +242,35 @@ const handleDialogError = (errorMessage) => {
 const handleDeleteUser = (user) => {
   userToDelete.value = user
   isDeleteDialogOpen.value = true
+}
+
+/**
+ * Open reset confirmation dialog
+ * @param {Object} user - User to reset password
+ */
+const handleResetPassword = (user) => {
+  userToReset.value = user
+  isResetDialogOpen.value = true
+}
+
+const confirmResetPassword = async () => {
+  if (!userToReset.value) return
+
+  try {
+    const response = await resetPassword(userToReset.value?.id)
+    
+    if (response?.success) {
+      showSuccess(response?.message || 'Password reset successfully')
+      // Close dialog
+      isResetDialogOpen.value = false
+      userToReset.value = null
+    } else {
+      showError(response?.message || response?.error || 'Failed to reset password')
+    }
+  } catch (error) {
+    console.error('Error resetting password:', error)
+    showError('Error resetting password')
+  }
 }
 
 /**

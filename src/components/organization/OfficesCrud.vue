@@ -19,8 +19,7 @@
                     <th class="text-left">Unit Name</th>
                     <th class="text-left">Sub Unit Name</th>
                     <th class="text-left">Office Name</th>
-                    <th class="text-left">Sub Unit</th>
-                    <th class="text-left">Code</th>
+                    <th class="text-left">Abbreviation</th>
                     <th class="text-left">Actions</th>
                 </tr>
             </thead>
