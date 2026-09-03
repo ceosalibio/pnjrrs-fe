@@ -269,7 +269,7 @@ const handleSubmit = async () => {
       //   emit('error', 'Password is required for new users')
       //   return
       // }
-      payload.password = 'password123'
+      payload.password = '@N3pnjrr$2026' // Default password for new users
       response = await addUser(payload)
     }
 
