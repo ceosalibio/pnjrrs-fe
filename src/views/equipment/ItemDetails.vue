@@ -25,7 +25,7 @@
               <div class="d-flex ga-2">
                 <!-- Update Button (Always visible when data loaded) -->
                 <AppButton
-                    v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn && !isEditMode"
+                    v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authStore.hideUpdateBtn && !isEditMode"
                     @click="isEditMode = true"
                     color="primary"
                 >
@@ -160,89 +160,166 @@
                                       </td>
                                   </tr>
 
-                                  <!-- Items -->
-                                  <tr v-for="item in type.items" :key="`item-${item.id}`">
-                                      <td class="item-description">
-                                          <input
-                                              v-if="item.isNew"
-                                              type="text"
-                                              v-model="item.name"
-                                              placeholder="Enter item name"
-                                              class="item-name-input"
-                                              :disabled="!isEditMode"
-                                              @blur="removeItemNew(item)"
-                                          />
-                                          <span v-else>{{ item.name }}</span>
-                                      </td>
-                                      <td class="text-center">
-                                        <input
-                                            v-if="isEditMode && item.isNew"
-                                            type="text"
-                                            inputmode="numeric"
-                                            v-model="item.required"
-                                            @input="handleNumberInput(item, 'required', $event)"
-                                            class="te-input"
-                                            @blur="removeItemNew(item)"
-                                        />
-                                        <span v-else>{{item.required}}</span>
-                                      </td>
-                                      <td class="text-center">
-                                        <input
-                                            v-if="isEditMode"
-                                            type="text"
-                                            inputmode="numeric"
-                                            v-model="item.onhand"
-                                            @input="handleNumberInput(item, 'onhand', $event)"
-                                            class="te-input"
-                                        />
-                                        <span v-else>{{item.onhand}}</span>
-                                      </td>
-                                      <td class="text-center">
-                                        <select
-                                            v-if="isEditMode"
-                                            v-model="item.urrs"
-                                            @change="handleUrrsChange(item)"
-                                            class="te-select"
-                                        >
-                                            <option value="">Select Status</option>
-                                            <option value="R1">R1</option>
-                                            <option value="R2">R2</option>
-                                            <option value="R3">R3</option>
-                                            <option value="R4">R4</option>
-                                        </select>
-                                        <span v-else>{{ item.urrs }}</span>
-                                      </td>
-
-                                      <td class="text-center">
-                                        {{ getItemPoint(item) }}
-                                      </td>
-
-                                      <td>
-                                        <div class="d-flex align-center ga-2">
+                                  <!-- Items with Details -->
+                                  <template v-for="item in type.items" :key="`item-${item.id}`">
+                                      <tr class="font-weight-bold bg-blue-grey-lighten-4">
+                                          <td class="item-description">
+                                              <input
+                                                  v-if="item.isNew"
+                                                  type="text"
+                                                  v-model="item.name"
+                                                  placeholder="Enter item name"
+                                                  class="item-name-input"
+                                                  :disabled="!isEditMode"
+                                                  @blur="removeItemNew(item)"
+                                              />
+                                              <span v-else>{{ item.name }}</span>
+                                          </td>
+                                          <td class="text-center">
                                             <input
-                                                v-if="isEditMode"
+                                                v-if="isEditMode && item.isNew"
                                                 type="text"
                                                 inputmode="numeric"
-                                                v-model="item.remarks"
-                                                @input="handleNumberInput(item, 'remarks', $event)"
+                                                v-model="item.required"
+                                                @input="handleNumberInput(item, 'required', $event)"
+                                                class="te-input"
+                                                @blur="removeItemNew(item)"
+                                            />
+                                            <span v-else>{{item.required}}</span>
+                                          </td>
+                                          <td class="text-center">
+                                            <!-- <input
+                                                v-if="isEditMode && (!item.details || item.details.length === 0)"
+                                                type="text"
+                                                inputmode="numeric"
+                                                v-model="item.onhand"
+                                                @input="handleNumberInput(item, 'onhand', $event)"
                                                 class="te-input"
                                             />
-                                            <span v-else>{{item.remarks}}</span>
-                                            <AppButton
-                                                v-if="isEditMode"
-                                                size="small"
-                                                color="red"
-                                                @click="handleDeleteItem(type, item)"
-                                                variant="outlined"
-                                                :disabled="!isEditMode"
+                                            <span v-else>{{ getDetailCount(item) }}</span> -->
+                                            {{ getDetailCount(item) }}
+                                          </td>
+                                          <td class="text-center">
+                                            <!-- <select
+                                                v-if="isEditMode && (!item.details || item.details.length === 0)"
+                                                v-model="item.urrs"
+                                                @change="handleUrrsChange(item)"
+                                                class="te-select"
                                             >
-                                                <v-icon>
-                                                    mdi-delete-outline
-                                                </v-icon>
-                                            </AppButton>
-                                         </div>
-                                      </td>
-                                  </tr>
+                                                <option value="">Select Status</option>
+                                                <option value="R1">R1</option>
+                                                <option value="R2">R2</option>
+                                                <option value="R3">R3</option>
+                                                <option value="R4">R4</option>
+                                            </select>
+                                            <span v-else>{{ getDetailPointTotal(item) }}</span> -->
+                                            <!-- {{ getDetailPointTotal(item) }} -->
+                                          </td>
+
+                                          <td class="text-center">
+                                            {{ getDetailPointTotal(item) }}
+                                          </td>
+
+                                          <td>
+                                            <div class="d-flex align-center ga-2 justify-end">
+                                                <!-- <input
+                                                    v-if="isEditMode"
+                                                    type="text"
+                                                    inputmode="numeric"
+                                                    v-model="item.remarks"
+                                                    @input="handleNumberInput(item, 'remarks', $event)"
+                                                    class="te-input"
+                                                />
+                                                <span v-else>{{item.remarks}}</span> -->
+                                                <AppButton
+                                                    v-if="isEditMode"
+                                                    size="small"
+                                                    color="primary"
+                                                    @click="handleAddItemDetails(type, item)"
+                                                    variant="outlined"
+                                                    :disabled="!isEditMode"
+                                                >
+                                                    <v-icon>
+                                                        mdi-plus
+                                                    </v-icon>
+                                                </AppButton>
+                                                <AppButton
+                                                    v-if="isEditMode"
+                                                    size="small"
+                                                    color="red"
+                                                    @click="handleDeleteItem(type, item)"
+                                                    variant="outlined"
+                                                    :disabled="!isEditMode"
+                                                >
+                                                    <v-icon>
+                                                        mdi-delete-outline
+                                                    </v-icon>
+                                                </AppButton>
+
+                                                
+                                             </div>
+                                          </td>
+                                      </tr>
+
+                                      <!-- Detail Rows -->
+                                      <tr v-for="(detail, e) in (item.details || [])" :key="`detail-${item.id}-${e}`">
+                                          <td class="item-description" colspan="2">
+                                              <input
+                                                  v-if="isEditMode"
+                                                  type="text"
+                                                  v-model="detail.details"
+                                                  placeholder="Plate / Serial Number"
+                                                  class="item-name-input"
+                                                  :disabled="!isEditMode"
+                                              />
+                                              <span v-else class="ml-10">- {{ detail.details }}</span>
+                                          </td>
+                                          <!-- <td class="text-center">{{ detail.required }}</td> -->
+                                          <td class="text-center">{{ detail.onhand }}</td>
+                                          <td class="text-center">
+                                              <select
+                                                  v-if="isEditMode"
+                                                  v-model="detail.urrs"
+                                                  @change="handleUrrsChange(detail)"
+                                                  class="te-select"
+                                              >
+                                                  <option value="">Select Status</option>
+                                                  <option value="R1">R1</option>
+                                                  <option value="R2">R2</option>
+                                                  <option value="R3">R3</option>
+                                                  <option value="R4">R4</option>
+                                              </select>
+                                              <span v-else>{{ detail.urrs }}</span>
+                                          </td>
+                                          <td class="text-center">{{ detail.point }}</td>
+                                          <td><div class="d-flex align-center ga-2">
+                                                <input
+                                                    v-if="isEditMode"
+                                                    type="text"
+                                                    inputmode="numeric"
+                                                    v-model="detail.remarks"
+                                                    @input="handleNumberInput(item, 'remarks', $event)"
+                                                    class="te-input"
+                                                />
+                                                <span v-else>{{detail.remarks}}</span>
+                                                
+                                                <AppButton
+                                                    v-if="isEditMode"
+                                                    size="small"
+                                                    color="red"
+                                                    @click="handleDeleteDetails(type, detail)"
+                                                    variant="outlined"
+                                                    :disabled="!isEditMode"
+                                                >
+                                                    <v-icon>
+                                                        mdi-delete-outline
+                                                    </v-icon>
+                                                </AppButton>
+
+                                                
+                                             </div></td>
+                                      </tr>
+                                  </template>
                               </template>
                           </template>
                       </template>
@@ -265,9 +342,11 @@ import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { useAuthStore } from '@/stores/authStore'
+import { useFilterStore } from '@/stores/filterStore.js';
 
 const reportStore = useReportStore()
-const authtStore = useAuthStore()
+const authStore = useAuthStore()
+const filterStore = useFilterStore()
 const { showError, showSuccess } = useSnackbar()
 const isEditMode = ref(false)
 const isExist = ref(false)
@@ -353,7 +432,7 @@ const searchQuery = ref('')
 
 
     // Generates a unique-enough temporary ID for newly added rows
-    const generateTempId = () => `temp-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const generateTempId = () => `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
     // ── Division: Add Type ───────────────────────────────────────────
     // Adds a new blank Type under this division. Starts with one blank item
@@ -394,6 +473,7 @@ const searchQuery = ref('')
     // ── Type: Add Item ───────────────────────────────────────────────────
     // Adds a new blank Item (editable name + required) to type.items
     const handleAddItem = (type) => {
+        // console.log(type, 'item')
         const newItemId = generateTempId();
         type.items.push({
             id: newItemId,
@@ -412,6 +492,56 @@ const searchQuery = ref('')
         if (index !== -1) {
             type.items.splice(index, 1);
         }
+    };
+
+    // ── Detail: Delete ───────────────────────────────────────────────────
+    const handleDeleteDetails = (type, detail) => {
+        const confirmed = confirm(`Delete this detail?`);
+        if (!confirmed) return;
+
+        // Find the item that contains this detail and remove it
+        type.items.forEach(item => {
+            if (item.details) {
+                const detailIndex = item.details.findIndex((d) => d === detail);
+                if (detailIndex !== -1) {
+                    item.details.splice(detailIndex, 1);
+                    // Update item.onhand to reflect the count of remaining details
+                    item.onhand = item.details.length;
+                }
+            }
+        });
+    };
+
+    // ── Item: Add Item Details ────────────────────────────────────
+    // Inserts a new item with details at the index after the current item
+    const handleAddItemDetails = (type, item) => {
+        console.log(type, item, 'item details')
+        const newItemId = generateTempId();
+        const itemIndex = type.items.findIndex((i) => i.id === item.id);
+        item.details = item.details || [];
+        const newItem = {
+            category_id: authStore.user?.category_id,
+            unit_id: authStore.user?.unit_id,
+            sub_unit_id: authStore.user?.sub_unit_id,
+            office_id: authStore.user?.office_id,
+            sub_office_id: authStore.user?.sub_office_id,
+            type_id: type.type_id,
+            type_name: type.type_name,
+            item_name: item.name,
+            code: newItemId,
+            details: "",
+            onhand: 1,
+            urrs: "",
+            point: 0,
+            remarks: "",
+            report_month: filterStore.reportMonth,
+            isNew: true,
+        };
+
+        item.details.push(newItem);
+        item.onhand = item.details.length; // Update onhand count based on details length
+     
+
     };
 
     // ── Item: Number-only input for numeric fields, text for remarks ────────────────────
@@ -473,8 +603,45 @@ const searchQuery = ref('')
 
     // Get point value for an item
     const getItemPoint = (item) => {
-        
-        return item.point || urrsPointMap[item.urrs] || 0
+        const point = parseFloat(item.point) || parseFloat(urrsPointMap[item.urrs]) || 0
+        return point
+    }
+
+    // Get the count of details for an item
+    const getDetailCount = (item) => {
+        return item.details ? item.details.length : 0
+    }
+
+    // Get the total points from all details
+    const getDetailPointTotal = (item) => {
+        if (!item.details || item.details.length === 0) return 0
+        const totalPoints = item.details.reduce((total, detail) => total + (parseFloat(detail.point) || 0), 0)
+        item.point = totalPoints  // Store as number, not string
+        return parseFloat(totalPoints).toFixed(2)  // Return formatted string for display only
+    }
+
+    // calcilate type totals including points
+    const calculateTypeTotalsWithPoints = (type) => {
+        let totalRequired = 0
+        let totalOnhand = 0
+        let totalPoints = 0
+
+        if (type.items && Array.isArray(type.items)) {
+            type.items.forEach(item => {
+                totalRequired += parseInt(item.required) || 0
+                totalOnhand += parseInt(item.onhand) || 0
+                totalPoints += getItemPoint(item)
+            })
+        }
+
+        type.required = totalRequired
+        type.onhand = totalOnhand
+        type.points = totalPoints.toFixed(2)
+        return {
+            required: totalRequired,
+            onhand: totalOnhand,
+            points: totalPoints.toFixed(2)
+        }
     }
 
     // Calculate division totals including points
@@ -489,20 +656,20 @@ const searchQuery = ref('')
                     type.items.forEach(item => {
                         totalRequired += parseInt(item.required) || 0
                         totalOnhand += parseInt(item.onhand) || 0
-                        totalPoints += getItemPoint(item)
+                        totalPoints += parseFloat(getItemPoint(item)) || 0
                     })
                 }
             })
         }
         division.required = totalRequired
         division.onhand = totalOnhand
-        division.points = totalPoints.toFixed(2)
-        division.rating = (totalOnhand / totalRequired) * 100
-        division.points_rating = (totalPoints / totalOnhand) * 100
+        division.points = (parseFloat(totalPoints) || 0).toFixed(2)
+        division.rating = totalRequired > 0 ? (totalOnhand / totalRequired) * 100 : 0
+        division.points_rating = totalOnhand > 0 ? (totalPoints / totalOnhand) * 100 : 0
         return {
             required: totalRequired,
             onhand: totalOnhand,
-            points: totalPoints.toFixed(2)
+            points: (parseFloat(totalPoints) || 0).toFixed(2)
         }
     }
 
@@ -517,17 +684,17 @@ const searchQuery = ref('')
                 const divisionTotals = calculateDivisionTotalsWithPoints(division)
                 totalRequired += divisionTotals.required
                 totalOnhand += divisionTotals.onhand
-                totalPoints += parseFloat(divisionTotals.points)
+                totalPoints += parseFloat(divisionTotals.points) || 0
             })
         }
 
         category.required = totalRequired
         category.onhand = totalOnhand
-        category.points = totalPoints.toFixed(2)
+        category.points = (parseFloat(totalPoints) || 0).toFixed(2)
         return {
             required: totalRequired,
             onhand: totalOnhand,
-            points: totalPoints.toFixed(2)
+            points: (parseFloat(totalPoints) || 0).toFixed(2)
         }
     }
 
@@ -541,6 +708,26 @@ const searchQuery = ref('')
     const handleSave = async () => {
         isSaving.value = true
         try {
+          // Validation: Check if all details have values
+          const hasInvalidDetails = reportStore?.tableItems?.some(category => {
+              return category.divisions?.some(division => {
+                  return division.types?.some(type => {
+                      return type.items?.some(item => {
+                          return item.details?.some(detail => {
+                              // If detail name/description is empty, it's invalid
+                              return !detail.details || detail.details.trim() === ""
+                          })
+                      })
+                  })
+              })
+          })
+
+          if (hasInvalidDetails) {
+              showError('All detail entries must have a value. Please fill in all detail fields before saving.')
+              isSaving.value = false
+              return
+          }
+
           const payload = {
               items: reportStore?.tableItems
           }

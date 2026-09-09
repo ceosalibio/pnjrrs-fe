@@ -2,6 +2,7 @@
     <div>
         <AppSettingHeader 
             :showGenerate="true"
+            :hideFilter="true"
             @generate="handleGenerate()"
         />
         <div class="mt-4">

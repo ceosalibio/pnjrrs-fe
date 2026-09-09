@@ -11,8 +11,9 @@
                         :items="filterStore.organizationFilterItems.units"
                     />
                 </div>
-                <div class="filter-input-wrapper">
+                <div class="filter-input-wrapper" v-if="!hideFilter">
                     <AppAutocomplete 
+
                         label="Subunits"
                         v-model="filterStore.subunit"
                         :text="'name'"
@@ -125,6 +126,10 @@
             type : Boolean,
             default : false
         },
+        hideFilter : {
+            type : Boolean,
+            default : false
+        }
     })
 
     /**

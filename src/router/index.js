@@ -128,11 +128,16 @@ const routes = [
           allowedOffices: [4,6,3]
         }
       },
-      // {
-      //   path: 'equipment/3',
-      //   name: 'MaintenanceReadinessReport',
-      //   component: () => import('@/views/equipment/MaintenanceReadinessReport.vue')
-      // },
+      {
+        path: 'equipment/3',
+        name: 'Inventory',
+        component: () => import('@/views/equipment/Inventory.vue'),
+        meta: {
+          requiresAuth: true,
+          allowedRoles: [1],
+          allowedOffices: [4,6,3]
+        }
+      },
 
       // Facilities Routes
       {

@@ -160,7 +160,8 @@ export const ENDPOINTS = {
     UPDATE: (id) => `${BASE_PATH}/report/equipments/${id}`,
     PRINT_READINESS: `${BASE_PATH}/report/equipments/export-readiness`,
     SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipment`,
-    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipment-export`
+    PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/equipment-export`,
+    EQUIPMENT_INVENTORY: `${BASE_PATH}/pn-serial-equipments`,
   },
 
   // facilities report

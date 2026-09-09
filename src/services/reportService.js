@@ -24,6 +24,7 @@ const REPORT_CONFIG = {
     printReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.PRINT_READINESS },
     summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.SUMMARY_READINESS },
     printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.PRINT_SUMMARY_READINESS },
+    inventory: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_EQUIPMENT.EQUIPMENT_INVENTORY },
   },
 
   facilities: {
