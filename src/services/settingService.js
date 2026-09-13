@@ -221,6 +221,20 @@ export const deleteEquipmentSettings = async (id) => {
 }
 
 
+/**
+ * get division list
+ */
+export const getDivisionList = async () => {
+    try {
+        const response = await api.get(ENDPOINTS.SETTING_EQUIPMENT.DIVISION_LIST);
+        return response.data;
+    } catch (error) {
+        console.error('Error equipment division settings:', error);
+        throw error;
+    }
+}
+
+
 
 // ============================================================
 // setting facility service functions

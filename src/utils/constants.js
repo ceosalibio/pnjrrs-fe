@@ -9,7 +9,7 @@ export const MENU_ITEMS = [
     title: 'Personnel',
     icon: 'mdi-account-multiple',
     to: '/personnel',
-    role: [1],
+    role: ['all'],
     office: [1,3],
     children: [
       { title: 'Fill Up Rating', to: '/personnel/1', icon: 'mdi-view-list' },
@@ -21,7 +21,7 @@ export const MENU_ITEMS = [
     title: 'Trainings',
     icon: 'mdi-bullseye-arrow',
     to: '/trainings',
-    role: [1],
+    role: ['all'],
     office: [3,8],
     children: [
       // { title: 'ORAC', to: '/trainings/1', icon: 'mdi-view-list' },
@@ -33,7 +33,7 @@ export const MENU_ITEMS = [
     title: 'Equipment',
     icon: 'mdi-toolbox',
     to: '/equipment',
-    role: [1],
+    role: ['all'],
     office: [4,3,6],
     children: [
       { title: 'Item Details', to: '/equipment/1', icon: 'mdi-view-list' },
@@ -47,7 +47,7 @@ export const MENU_ITEMS = [
     title: 'Facilities',
     icon: 'mdi-home-city',
     to: '/facilities',
-    role: [1],
+    role: ['all'],
     office: [4,3],
     children: [
       { title: 'Fill Up', to: '/facilities/1', icon: 'mdi-view-list' },
@@ -59,25 +59,26 @@ export const MENU_ITEMS = [
     title: 'Reports',
     icon: 'mdi-file-document',
     to: '/reports',
-    role: [1],
-    office: [1,4,3,6],
+    role: ['all'],
+    office: [1,4,3,6,8],
   },
   {
     title: 'Settings',
     icon: 'mdi-cog',
     to: '/settings',
     role: [1,2],
-    office: [1,4,3,6],
+    office: [1,4,3,6,8],
+    unit : [1],
     children: [
       // { title: 'System Settings', to: '/settings/system', icon: 'mdi-cog' },
-      { title: 'User Management', to: '/settings/users', icon: 'mdi-account-cog' ,role : [1] , office: [3] },
-      { title: 'Table Organization Management', to: '/settings/to', icon: 'mdi-cog',role : [1], office: [3]},
+      { title: 'User Management', to: '/settings/users', icon: 'mdi-account-cog' ,role : [1] , office: [3],  unit : [1] },
+      { title: 'Table Organization Management', to: '/settings/to', icon: 'mdi-cog',role : [1], office: [3],  unit : [1]},
       // { title: 'Personnel Management', to: '/settings/personnel', icon: 'mdi-cog' },
-      { title: 'Training Management', to: '/settings/training', icon: 'mdi-cog', office: [8,3] },
-      { title: 'Equipment Management', to: '/settings/equipment', icon: 'mdi-cog', office: [4,6,3] },
-      { title: 'Facilities Management', to: '/settings/facility', icon: 'mdi-cog',office: [4,3] },
-      { title: 'Report Management', to: '/settings/report', icon: 'mdi-cog' ,office: [8,1,4,3]},
-      { title: 'Organization Management', to: '/settings/organization', icon: 'mdi-cog' ,office: [3]}
+      { title: 'Training Management', to: '/settings/training', icon: 'mdi-cog', office: [8,3],  unit : [1] },
+      { title: 'Equipment Management', to: '/settings/equipment', icon: 'mdi-cog', office: [4,6,3],  unit : [1] },
+      { title: 'Facilities Management', to: '/settings/facility', icon: 'mdi-cog',office: [4,3],  unit : [1] },
+      { title: 'Report Management', to: '/settings/report', icon: 'mdi-cog' ,office: [8,1,4,3],  unit : [1]},
+      { title: 'Organization Management', to: '/settings/organization', icon: 'mdi-cog' ,office: [3],  unit : [1]}
     ]
 
   }

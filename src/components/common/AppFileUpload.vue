@@ -140,6 +140,7 @@
           </v-btn>
 
           <v-btn
+            v-if="multiple"
             color="info"
             variant="text"
             size="md"

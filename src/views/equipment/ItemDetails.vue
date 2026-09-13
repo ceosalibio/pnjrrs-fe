@@ -25,15 +25,15 @@
               <div class="d-flex ga-2">
                 <!-- Update Button (Always visible when data loaded) -->
                 <AppButton
-                    v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authStore.hideUpdateBtn && !isEditMode"
-                    @click="isEditMode = true"
+                    v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authStore.hideUpdateBtn && !isEditMode && !commsEdit && !personnelEdit"
+                    @click="updateBtn"
                     color="primary"
                 >
                     Update
                 </AppButton>
 
                 <!-- Save & Clear Buttons (Only visible when in edit mode) -->
-                <template v-if="isEditMode">
+                <template v-if="isEditMode || commsEdit || personnelEdit">
                     <AppButton
                         @click="handleSave"
                         color="success"
@@ -101,7 +101,7 @@
                                   <td >
                                      <div class="d-flex align-center justify-end">
                                         <AppButton
-                                            v-if="isEditMode"
+                                            v-if="canEdit(category)"
                                             size="small"
                                             color="primary"
                                             @click="handleAddType(division)"
@@ -125,14 +125,14 @@
                                                   type="text"
                                                   v-model="type.type_name"
                                                   placeholder="Enter type name"
-                                                  class="type-name-input"
-                                                  :disabled="!isEditMode"
+                                                  :class="canEdit(category) ? 'type-name-input' : ''"
+                                                  :disabled="!canEdit(category)"
                                               />
                                               <span v-else>{{ type.type_name }}</span>
 
                                               <div class="d-flex ga-1">
                                                   <AppButton
-                                                      v-if="isEditMode"
+                                                      v-if="canEdit(category)"
                                                       size="small"
                                                       color="primary"
                                                       @click="handleAddItem(type)"
@@ -144,12 +144,12 @@
                                                       </v-icon>
                                                   </AppButton>
                                                   <AppButton
-                                                      v-if="isEditMode"
+                                                      v-if="canEdit(category)"
                                                       size="small"
                                                       color="red"
                                                       @click="handleDeleteType(division, type)"
                                                       variant="outlined"
-                                                      :disabled="!isEditMode"
+                                                      :disabled="!canEdit(category)"
                                                   >
                                                       <v-icon>
                                                           mdi-delete-outline
@@ -169,15 +169,15 @@
                                                   type="text"
                                                   v-model="item.name"
                                                   placeholder="Enter item name"
-                                                  class="item-name-input"
-                                                  :disabled="!isEditMode"
+                                                   :class="canEdit(category) ? 'type-name-input' : ''"
+                                                  :disabled="!canEdit(category)"
                                                   @blur="removeItemNew(item)"
                                               />
                                               <span v-else>{{ item.name }}</span>
                                           </td>
                                           <td class="text-center">
                                             <input
-                                                v-if="isEditMode && item.isNew"
+                                                v-if="canEdit(category) && item.isNew"
                                                 type="text"
                                                 inputmode="numeric"
                                                 v-model="item.required"
@@ -189,7 +189,7 @@
                                           </td>
                                           <td class="text-center">
                                             <!-- <input
-                                                v-if="isEditMode && (!item.details || item.details.length === 0)"
+                                                v-if="canEdit(category) && (!item.details || item.details.length === 0)"
                                                 type="text"
                                                 inputmode="numeric"
                                                 v-model="item.onhand"
@@ -201,7 +201,7 @@
                                           </td>
                                           <td class="text-center">
                                             <!-- <select
-                                                v-if="isEditMode && (!item.details || item.details.length === 0)"
+                                                v-if="canEdit(category) && (!item.details || item.details.length === 0)"
                                                 v-model="item.urrs"
                                                 @change="handleUrrsChange(item)"
                                                 class="te-select"
@@ -223,7 +223,7 @@
                                           <td>
                                             <div class="d-flex align-center ga-2 justify-end">
                                                 <!-- <input
-                                                    v-if="isEditMode"
+                                                    v-if="canEdit(category)"
                                                     type="text"
                                                     inputmode="numeric"
                                                     v-model="item.remarks"
@@ -232,24 +232,24 @@
                                                 />
                                                 <span v-else>{{item.remarks}}</span> -->
                                                 <AppButton
-                                                    v-if="isEditMode"
+                                                    v-if="canEdit(category)"
                                                     size="small"
                                                     color="primary"
-                                                    @click="handleAddItemDetails(type, item)"
+                                                    @click="handleAddItemDetails(division,type, item)"
                                                     variant="outlined"
-                                                    :disabled="!isEditMode"
+                                                    :disabled="!canEdit(category)"
                                                 >
                                                     <v-icon>
                                                         mdi-plus
                                                     </v-icon>
                                                 </AppButton>
                                                 <AppButton
-                                                    v-if="isEditMode"
+                                                    v-if="canEdit(category)"
                                                     size="small"
                                                     color="red"
                                                     @click="handleDeleteItem(type, item)"
                                                     variant="outlined"
-                                                    :disabled="!isEditMode"
+                                                    :disabled="!canEdit(category)"
                                                 >
                                                     <v-icon>
                                                         mdi-delete-outline
@@ -265,12 +265,12 @@
                                       <tr v-for="(detail, e) in (item.details || [])" :key="`detail-${item.id}-${e}`">
                                           <td class="item-description" colspan="2">
                                               <input
-                                                  v-if="isEditMode"
+                                                  v-if="canEdit(category)"
                                                   type="text"
                                                   v-model="detail.details"
                                                   placeholder="Plate / Serial Number"
                                                   class="item-name-input"
-                                                  :disabled="!isEditMode"
+                                                  :disabled="!canEdit(category)"
                                               />
                                               <span v-else class="ml-10">- {{ detail.details }}</span>
                                           </td>
@@ -278,7 +278,7 @@
                                           <td class="text-center">{{ detail.onhand }}</td>
                                           <td class="text-center">
                                               <select
-                                                  v-if="isEditMode"
+                                                  v-if="canEdit(category)"
                                                   v-model="detail.urrs"
                                                   @change="handleUrrsChange(detail)"
                                                   class="te-select"
@@ -294,7 +294,7 @@
                                           <td class="text-center">{{ detail.point }}</td>
                                           <td><div class="d-flex align-center ga-2">
                                                 <input
-                                                    v-if="isEditMode"
+                                                    v-if="canEdit(category)"
                                                     type="text"
                                                     inputmode="numeric"
                                                     v-model="detail.remarks"
@@ -304,12 +304,12 @@
                                                 <span v-else>{{detail.remarks}}</span>
                                                 
                                                 <AppButton
-                                                    v-if="isEditMode"
+                                                    v-if="canEdit(category)"
                                                     size="small"
                                                     color="red"
                                                     @click="handleDeleteDetails(type, detail)"
                                                     variant="outlined"
-                                                    :disabled="!isEditMode"
+                                                    :disabled="!canEdit(category)"
                                                 >
                                                     <v-icon>
                                                         mdi-delete-outline
@@ -349,6 +349,8 @@ const authStore = useAuthStore()
 const filterStore = useFilterStore()
 const { showError, showSuccess } = useSnackbar()
 const isEditMode = ref(false)
+const commsEdit = ref(false)
+const personnelEdit = ref(false)
 const isExist = ref(false)
 const id = ref(null)
 const isSaving = ref(false)
@@ -385,6 +387,50 @@ const searchQuery = ref('')
             })).filter(division => division.types.length > 0) // Remove divisions with no matching types
         })).filter(category => category.divisions.length > 0) // Remove categories with no matching divisions
     })
+
+    const updateBtn = () =>{
+        if(authStore.office === 4){
+            isEditMode.value = true
+            commsEdit.value = true
+            personnelEdit.value = true
+        }
+
+        if(authStore.office === 6){
+            isEditMode.value = false
+            commsEdit.value = true
+            personnelEdit.value = false
+        }
+
+        if(authStore.office === 1){
+            isEditMode.value = false
+            commsEdit.value = false
+            personnelEdit.value = true
+        }
+        
+    }
+
+    const canEdit = (item) =>{
+  
+        if(authStore.office === 4 && commsEdit.value){
+            return true
+        }
+
+        if(authStore.office === 6 && commsEdit.value && item.category_name === 'Communications'){
+            return true
+        }
+
+        if(authStore.office === 1 && personnelEdit.value && (item.category_name === 'Medical' || item.category_name === 'Dental')){
+            return true
+        }
+
+        return false
+    }
+
+    const resetEditMode = () =>{
+        isEditMode.value = false
+        commsEdit.value = false
+        personnelEdit.value = false
+    }
 
 
 
@@ -514,10 +560,9 @@ const searchQuery = ref('')
 
     // ── Item: Add Item Details ────────────────────────────────────
     // Inserts a new item with details at the index after the current item
-    const handleAddItemDetails = (type, item) => {
-        console.log(type, item, 'item details')
+    const handleAddItemDetails = (division,type, item) => {
+        console.log(division,type, item, 'item details')
         const newItemId = generateTempId();
-        const itemIndex = type.items.findIndex((i) => i.id === item.id);
         item.details = item.details || [];
         const newItem = {
             category_id: authStore.user?.category_id,
@@ -525,7 +570,7 @@ const searchQuery = ref('')
             sub_unit_id: authStore.user?.sub_unit_id,
             office_id: authStore.user?.office_id,
             sub_office_id: authStore.user?.sub_office_id,
-            type_id: type.type_id,
+            division_id: division.division_id,
             type_name: type.type_name,
             item_name: item.name,
             code: newItemId,
@@ -737,7 +782,7 @@ const searchQuery = ref('')
             
           if (response?.status == 'success') {
             showSuccess('Equipment  saved successfully')
-            isEditMode.value = false
+            resetEditMode()
               await reportStore.reportGenerate('equipment')
           } else {
               showError(response?.message || 'Failed to save equipment settings')
@@ -755,7 +800,7 @@ const searchQuery = ref('')
         const confirmed = confirm('Are you sure you want to cancel editing? All unsaved changes will be lost.')
         if (!confirmed) return
         
-        isEditMode.value = false
+        resetEditMode()
         displayData.value = []
         isExist.value = false
         id.value = null

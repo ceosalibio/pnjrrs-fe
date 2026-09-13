@@ -219,7 +219,8 @@ const approverItems = ref([
 const officeItems = ref([
   {text : '1 - Personnel', value:1 },
   {text : '8 - Training', value:8 },
-  {text : '4 - Equipment/Maintenance/Communication', value: 4 },
+  {text : '4 - Equipment/Maintenance', value: 4 },
+  {text : '6 - Communication', value: 6 },
   {text : '3 - Consolidated', value:3 },
 ])
 

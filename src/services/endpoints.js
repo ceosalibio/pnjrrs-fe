@@ -109,6 +109,8 @@ export const ENDPOINTS = {
     CREATE: `${BASE_PATH}/settings/equipment-items`,
     UPDATE: (id) => `${BASE_PATH}/settings/equipment-items/${id}`,
     DELETE: (id) => `${BASE_PATH}/settings/equipment-items/${id}`,
+    DIVISION_LIST: `${BASE_PATH}/settings/equipment-items/division-list`,
+    
   },
 
   SETTING_FACILITY: {
@@ -179,6 +181,9 @@ export const ENDPOINTS = {
   REPORT_ALL: {
    SUMMARY_STATS: `${BASE_PATH}/report/summary/stats`,
    SUMMARY_READINESS: `${BASE_PATH}/report/summary/all`,
-   PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/all-export`
+   PRINT_SUMMARY_READINESS: `${BASE_PATH}/report/summary/all-export`,
+   REPORT_CONSOLIDATED : `${BASE_PATH}/report/report-consolidated`,
+   REPORT_CONSOLIDATED_APPROVED : (id) => `${BASE_PATH}/report/report-consolidated/${id}`,
+
   },
 }

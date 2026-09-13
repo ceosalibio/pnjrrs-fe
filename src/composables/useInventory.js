@@ -23,9 +23,9 @@ export const useInventory = () => {
   const fetchData = async (filters = {}) => {
     loading.value = true
     try {
-        const result = await executeReportAction(filters,'equipment','get')
+        const result = await executeReportAction(filters,'equipment','inventory')
 
-        if (!result.success) throw new Error(result.error)
+        // if (!result.success) throw new Error(result.error)
 
         inventories.value = result.data?.data ?? result.data ?? []
         total.value = result?.data?.total ?? result?.data?.length ?? 0
@@ -47,6 +47,7 @@ export const useInventory = () => {
     current_page,
     per_page,
     total,
+    inventories,
     // Methods
     fetchData,
   

@@ -112,23 +112,20 @@ const hasAccess = (item) => {
 
   const userRole = authStore.user.role
   const userOffice = authStore.office
+  const userUnit = authStore.user?.unit_id
 
-  console.log(`Checking ${item.title}: role=${userRole}, office=${userOffice}`, item)
+  console.log(`Checking ${item.title}: role=${userRole}, office=${userOffice}, unit=${userUnit}`, item)
 
   // Check role: if 'all' is in role array, show to everyone
   // Also treat role 0 as admin (can access everything)
-  const roleAllowed = item.role?.includes('all') || item.role.includes(userRole) || userRole === 0
-  const officeAllowed = item.office?.includes(userOffice)
-  console.log(`  Role allowed: ${roleAllowed} (item.role=${item.role}, userRole=${userRole})`)
-  if (!roleAllowed && !officeAllowed) return false
+  const roleAllowed = !item.role || item.role.length === 0 || item.role.includes('all') || item.role.includes(userRole) || userRole === 0
+  const officeAllowed = !item.office || item.office.length === 0 || item.office.includes(userOffice)
+  const unitAllowed = !item.unit || item.unit.length === 0 || item.unit.includes(userUnit)
+  
+  console.log(`  Role allowed: ${roleAllowed}, Office allowed: ${officeAllowed}, Unit allowed: ${unitAllowed}`)
 
-  // Check office: if no office restriction, show it
-  if (!item.office || item.office.length === 0) {
-    console.log(`  Office allowed: true (no restriction)`)
-    return true
-  }
-
-  return true
+  // ALL checks must pass
+  return roleAllowed && officeAllowed && unitAllowed
 }
 
 // Check if child has access (considers both parent and child permissions)
@@ -137,23 +134,25 @@ const childHasAccess = (child, parent) => {
   
   const userRole = authStore.user.role
   const userOffice = authStore.office
+  const userUnit = authStore.user?.unit_id
   
-  // Use child's role/office if defined, otherwise use parent's
-  const itemToCheck = child.role || child.office ? child : parent
+  // Use child's role/office/unit if defined, otherwise use parent's
+  const itemToCheck = {
+    role: child.role || parent.role,
+    office: child.office || parent.office,
+    unit: child.unit || parent.unit
+  }
   
   // Check role: if 'all' is in role array, show to everyone
   // Also treat role 0 as admin (can access everything)
-  const roleAllowed = itemToCheck.role?.includes('all') || itemToCheck.role?.includes(userRole) || userRole === 0
-  const officeAllowed = itemToCheck.office?.includes(userOffice)
+  const roleAllowed = !itemToCheck.role || itemToCheck.role.length === 0 || itemToCheck.role.includes('all') || itemToCheck.role.includes(userRole) || userRole === 0
+  const officeAllowed = !itemToCheck.office || itemToCheck.office.length === 0 || itemToCheck.office.includes(userOffice)
+  const unitAllowed = !itemToCheck.unit || itemToCheck.unit.length === 0 || itemToCheck.unit.includes(userUnit)
   
-  if (!roleAllowed && !officeAllowed) return false
-
-  // Check office: if no office restriction, show it
-  if (!itemToCheck.office || itemToCheck.office.length === 0) {
-    return true
-  }
-
-  return officeAllowed
+  console.log(`  Child ${child.title}: Role allowed: ${roleAllowed}, Office allowed: ${officeAllowed}, Unit allowed: ${unitAllowed}`)
+  
+  // ALL checks must pass
+  return roleAllowed && officeAllowed && unitAllowed
 }
 
 const menuItems = computed(() => {

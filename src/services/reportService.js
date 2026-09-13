@@ -39,6 +39,9 @@ const REPORT_CONFIG = {
     stats: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_ALL.SUMMARY_STATS },
     summary: { method: 'get',  endpoint: () => ENDPOINTS.REPORT_ALL.SUMMARY_READINESS },
     printSummaryReadiness: { method: 'post', endpoint: () => ENDPOINTS.REPORT_ALL.PRINT_SUMMARY_READINESS },
+    consolidated: { method: 'post',  endpoint: () => ENDPOINTS.REPORT_ALL.REPORT_CONSOLIDATED },
+    consolidated_approver: { method: 'put',  endpoint: (id) => ENDPOINTS.REPORT_ALL.REPORT_CONSOLIDATED_APPROVED(id) },
+
   },
 }
 

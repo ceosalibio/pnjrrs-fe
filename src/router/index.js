@@ -195,7 +195,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [3]
+          allowedOffices: [3],
+          allowedUnits: [1]
         }
       },
       {
@@ -205,7 +206,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [3]
+          allowedOffices: [3],
+          allowedUnits: [1]
         }
       },
       {
@@ -215,7 +217,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [1,3]
+          allowedOffices: [1,3],
+          allowedUnits: [1]
         }
       },
       // {
@@ -230,7 +233,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [3,8]
+          allowedOffices: [3,8],
+          allowedUnits: [1]
         }
       },
       {
@@ -240,7 +244,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [4,6,3]
+          allowedOffices: [4,6,3],
+          allowedUnits: [1]
         }
       },
       {
@@ -250,7 +255,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [4,3]
+          allowedOffices: [4,3],
+          allowedUnits: [1]
         }
       },
       {
@@ -260,7 +266,8 @@ const routes = [
         meta: {
           requiresAuth: true,
           allowedRoles: [1],
-          allowedOffices: [4,6,8,3,1]
+          allowedOffices: [4,6,8,3,1],
+          allowedUnits: [1]
         }
       },
     ]

@@ -45,10 +45,11 @@
               <th>Actual</th>
               <th>Quarter</th>
               <th>Date Performed</th>
+              <th>ATR</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(training,i) in reportStore?.tableItems" :key="i" height="90vh">
+            <tr v-for="(training,i) in reportStore?.tableItems" :key="training.id || i" height="90vh">
               <td v-if="shouldShowMetl(i)" class="text-center" :rowspan="getMetlRowspan(i)">{{ training.metl }}</td>
               <td class="text-center">{{ training.met }}</td>
               <td class="text-center">{{ training.required }}</td>
@@ -73,6 +74,53 @@
                   />
                 </div>
                 <span v-else>{{ training.datePerformed }}</span>
+              </td>
+              <td>
+                <div v-if="isEditMode && !training?.status" class="cell-edit atr-edit">
+                  <div class="file-upload-wrapper">
+                    <input
+                      :ref="(el) => fileInputRefs[i] = el"
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx"
+                      @change="(e) => handleFileSelect(i, e)"
+                      style="display: none"
+                    />
+                    <button 
+                      v-if="!editValues[i]?.atr"
+                      @click="fileInputRefs[i]?.click()"
+                      class="file-upload-btn"
+                    >
+                      <span class="upload-icon">📁</span>
+                      <span class="upload-text">Choose File</span>
+                    </button>
+                    <div v-else class="file-selected-display">
+                      <span class="selected-icon">✓</span>
+                      <span class="selected-name">{{ getFileName(editValues[i].atr?.name) }}</span>
+                      <button 
+                        @click="$refs.fileInputs?.[i]?.click()"
+                        class="change-btn"
+                        title="Change file"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div v-else-if="training.atr">
+                  <v-btn
+                    :icon="true"
+                    variant="plain"
+                    color="primary"
+                    :href="training.atr?.url" target="_blank"
+                  >
+                    <v-icon>
+                      mdi-eye
+                    </v-icon>
+                  </v-btn>
+                  
+                  <!-- <a :href="training.atr?.url" target="_blank" class="atr-link">View ATR</a> -->
+                </div>
+                <span v-else>N/A</span>
               </td>
             </tr>
           </tbody>
@@ -102,13 +150,17 @@ const isEditMode = ref(false)
 // Store edit values for each row
 const editValues = ref({})
 
+// Store file input refs for each row
+const fileInputRefs = ref({})
+
 // Initialize edit values from tableItems
 const initializeEditValues = () => {
   const items = reportStore?.tableItems || []
   items.forEach((item, index) => {
     editValues.value[index] = {
       actual: item.actual,
-      datePerformed: item.datePerformed
+      datePerformed: item.datePerformed,
+      atr: item.atr
     }
   })
 }
@@ -166,12 +218,60 @@ const saveChanges = async () => {
     if (editValues.value[index]) {
       item.actual = editValues.value[index].actual
       item.datePerformed = editValues.value[index].datePerformed
+      // Only update ATR if it was explicitly changed (not undefined)
+      if (editValues.value[index].atr !== undefined) {
+        item.atr = editValues.value[index].atr
+      }
     }
   })
-  let payload = {
-    items: items
+  
+  // Create FormData to handle file uploads
+  const formData = new FormData()
+  
+  // Add all items data including original fields
+  items.forEach((item, index) => {
+    console.log(item.atr,'item.atr')
+    // Add all original fields
+    formData.append(`items[${index}][id]`, item.id || '')
+    formData.append(`items[${index}][met]`, item.met || '')
+    formData.append(`items[${index}][metl]`, item.metl || '')
+    formData.append(`items[${index}][metl_id]`, item.metl_id || '')
+    formData.append(`items[${index}][quarter]`, item.quarter || '')
+    formData.append(`items[${index}][required]`, item.required || '')
+    
+    // Add editable fields
+    formData.append(`items[${index}][actual]`, item.actual || '')
+    formData.append(`items[${index}][datePerformed]`, item.datePerformed || '')
+    
+    // Handle file uploads - preserve original value if not changed
+    if (item.atr) {
+      if (item.atr instanceof File) {
+        // New file selected
+        formData.append(`items[${index}][atr]`, item.atr)
+        console.log(`Row ${index + 1}: New file selected - ${item.atr.name}`)
+      } else if (typeof item.atr === 'object' && item.atr.path) {
+        // Existing file object with path - preserve it
+        formData.append(`items[${index}][atr]`, JSON.stringify(item.atr))
+        console.log(`Row ${index + 1}: Existing file object preserved - ${item.atr.path}`)
+      } else if (typeof item.atr === 'string') {
+        // Existing file URL string - preserve it
+        formData.append(`items[${index}][atr]`, item.atr)
+        console.log(`Row ${index + 1}: Existing file URL string preserved - ${item.atr}`)
+      }
+    }
+  })
+
+  // Log FormData for debugging
+  console.log('FormData contents:')
+  for (let [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      console.log(`${key}: [File] ${value.name} (${value.size} bytes)`)
+    } else {
+      console.log(`${key}: ${value}`)
+    }
   }
-  const response = await executeReportAction(payload, 'training', 'update', reportStore.reportId)
+  
+  const response = await executeReportAction(formData, 'training', 'update', reportStore.reportId)
   console.log(response, 'Updated tableItems after saving changes')
   if(response?.status === 'success'){
     reportStore.reportData = response?.data
@@ -210,6 +310,25 @@ const shouldShowMetl = (index) => {
 // Get the rowspan value for a METL cell
 const getMetlRowspan = (index) => {
   return metlRowspans.value[index] || 1
+}
+
+// Handle file selection for ATR
+const handleFileSelect = (index, event) => {
+  const file = event.target.files?.[0]
+  if (file) {
+    // Store the file or file name
+    editValues.value[index].atr = file
+    console.log(`File selected for row ${index}:`, file.name)
+  }
+}
+
+// Get file name from file object or string
+const getFileName = (fileOrString) => {
+  if (fileOrString instanceof File) {
+    return fileOrString.name
+  }
+  // If it's a string (URL), extract just the filename
+  return typeof fileOrString === 'string' ? fileOrString.split('/').pop() : ''
 }
 </script>
 
@@ -300,7 +419,113 @@ const getMetlRowspan = (index) => {
 
 .date-edit {
   justify-content: center;
-  max-width: 150px;
+  max-width: 170px;
   margin: 0 auto;
+}
+
+.atr-edit {
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.file-upload-wrapper {
+  width: 100%;
+}
+
+.file-upload-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px dashed #d9d9d9;
+  border-radius: 4px;
+  background-color: #fafafa;
+  color: #595959;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.file-upload-btn:hover {
+  border-color: #3d7bff;
+  background-color: #f2f6fc;
+  color: #3d7bff;
+}
+
+.file-upload-btn:active {
+  transform: scale(0.98);
+}
+
+.upload-icon {
+  font-size: 16px;
+}
+
+.upload-text {
+  display: inline;
+}
+
+.file-selected-display {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #52c41a;
+  border-radius: 4px;
+  background-color: #f6ffed;
+  color: #22863a;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.selected-icon {
+  font-size: 16px;
+  color: #52c41a;
+  font-weight: bold;
+}
+
+.selected-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.change-btn {
+  padding: 2px 8px;
+  border: 1px solid #52c41a;
+  border-radius: 3px;
+  background-color: #fff;
+  color: #52c41a;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.change-btn:hover {
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.change-btn:active {
+  transform: scale(0.95);
+}
+
+.atr-link {
+  color: #3d7bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.atr-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
 }
 </style>

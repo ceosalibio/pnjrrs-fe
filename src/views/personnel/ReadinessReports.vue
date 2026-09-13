@@ -41,18 +41,18 @@
           </thead>
           <tbody>
             <tr>
-              <td>Personnel Fill-up Rating ({{ readinessTableData?.fillUpRating || 0 }} %)</td>
-              <td class="text-center">80%</td>
+              <td>Personnel Fill-up Rating (60%)</td>
+              <td class="text-center">{{ readinessTableData?.fillUpRating || 0 }} %</td>
               <td class="text-center">{{ readinessTableData?.finalFillUpRating || 0 }}%</td>
             </tr>
             <tr>
-              <td>Personnel Grade Rating ({{ readinessTableData?.gradeRating || 0 }} %)</td>
-              <td class="text-center">85%</td>
+              <td>Personnel Grade Rating (20%)</td>
+              <td class="text-center"> {{ readinessTableData?.gradeRating || 0 }} %</td>
               <td class="text-center">{{ readinessTableData?.finalGradeRating || 0 }}%</td>
             </tr>
             <tr>
-              <td>Personnel Specialty Rating ({{ readinessTableData?.afposRating || 0 }} %)</td>
-              <td class="text-center">100%</td>
+              <td>Personnel Specialty Rating (20%)</td>
+              <td class="text-center">{{ readinessTableData?.afposRating || 0 }} %</td>
               <td class="text-center">{{ readinessTableData?.finalAfposRating || 0 }}%</td>
             </tr>
             <tr class="total-row">

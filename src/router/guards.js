@@ -41,7 +41,7 @@ export const setupRouterGuards = (router) => {
       }
     } else if (authPaths.includes(to.path)) {
       // Auth routes - CAPTCHA verification and password change
-      console.log(`🔐 Auth path detected: ${to.path}`)
+      // console.log(`🔐 Auth path detected: ${to.path}`)
       
       // Change password - only accessible when pending password change
       if (to.path === '/change-password') {
@@ -71,20 +71,22 @@ export const setupRouterGuards = (router) => {
         next('/login')
       }
     } else if (protectedPaths.some(path => to.path.startsWith(path))) {
-      console.log('sdasad')
+      // console.log('sdasad')
       // Protected routes - requires authentication and CAPTCHA verification
       if (authStore.getIsAuthenticated && authStore.getCaptchaVerified) {
         // Check for role and office-based access control
         if (to.meta) {
-          console.log('test')
+          // console.log('test')
           const allowedRoles = to.meta.allowedRoles
           const allowedOffices = to.meta.allowedOffices
+          const alloweUnits = to.meta.allowedUnits
 
           const userRole = authStore.user?.role
           const userOffice = authStore.office
+          const userUnit = authStore.user?.unit_id
 
           // Check if user has required role
-          if (allowedRoles && !allowedRoles.includes(userRole) && allowedOffices && !allowedOffices.includes(userOffice)) {
+          if (allowedRoles && !allowedRoles.includes(userRole) && allowedOffices && !allowedOffices.includes(userOffice) && alloweUnits && !alloweUnits.includes(userUnit)) {
             console.warn(`❌ User role ${userRole} not allowed for ${to.path}`)
             next('/dashboard')
             return

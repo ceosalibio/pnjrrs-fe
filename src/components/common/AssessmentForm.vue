@@ -1,5 +1,6 @@
 <template>
   <div class="assessment-section">
+  
     <h3 class="assessment-title">{{ title }}</h3>
 
     <div class="assessment-item">
@@ -12,7 +13,7 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
-        :readonly="status"
+        :readonly="!isEnabled"
       />
     </div>
 
@@ -26,7 +27,7 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
-        :readonly="status"
+        :readonly="!isEnabled"
       />
     </div>
 
@@ -40,7 +41,7 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
-        :readonly="status"
+        :readonly="!isEnabled"
       />
     </div>
 
@@ -54,11 +55,11 @@
         placeholder="Enter assessment..."
         class="mt-2"
         @update:model-value="emitUpdate"
-        :readonly="status"
+        :readonly="!isEnabled"
       />
     </div>
 
-    <div class="d-flex gap-2 justify-end mt-6" v-if="!status">
+    <div class="d-flex gap-2 justify-end mt-6" v-if="isEnabled">
       <v-btn variant="outlined" @click="handleClear">{{ clearButtonText }}</v-btn>
       <v-btn color="primary" @click="handleSave">{{ saveButtonText }}</v-btn>
     </div>
@@ -66,7 +67,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+
+const authStore = useAuthStore()  
 
 const props = defineProps({
   /**
@@ -133,7 +137,15 @@ const props = defineProps({
   status: {
     type: Number,
     default: 0
+  },
+  hideAction: {
+    type: Boolean,
+    default: false
   }
+})
+
+const isEnabled = computed(() => {
+  return (authStore.user?.approver === props.status && !props.hideAction) || (authStore.user?.approver === 0 && !props.hideAction)
 })
 
 const emit = defineEmits(['update:assessments', 'save', 'clear'])
