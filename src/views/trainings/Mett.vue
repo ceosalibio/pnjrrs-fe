@@ -97,7 +97,7 @@
                       <span class="selected-icon">✓</span>
                       <span class="selected-name">{{ getFileName(editValues[i].atr?.name) }}</span>
                       <button 
-                        @click="$refs.fileInputs?.[i]?.click()"
+                        @click="fileInputRefs[i]?.click()"
                         class="change-btn"
                         title="Change file"
                       >
@@ -274,7 +274,8 @@ const saveChanges = async () => {
   const response = await executeReportAction(formData, 'training', 'update', reportStore.reportId)
   console.log(response, 'Updated tableItems after saving changes')
   if(response?.status === 'success'){
-    reportStore.reportData = response?.data
+    await reportStore.reportGenerate('training')
+    // reportStore.reportData = response?.data
   }
 }
 
