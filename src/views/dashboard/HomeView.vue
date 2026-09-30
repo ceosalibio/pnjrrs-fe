@@ -46,10 +46,10 @@ onMounted(async () => {
 
   while (retryCount < maxRetries) {
     statsStatus.value = await getStatsData()
-    console.log('📊 Dashboard stats status:', statsStatus.value)
+    // console.log('📊 Dashboard stats status:', statsStatus.value)
     
     if (statsStatus.value) {
-      console.log('✅ Dashboard stats loaded successfully')
+      // console.log('✅ Dashboard stats loaded successfully')
       break
     }
 

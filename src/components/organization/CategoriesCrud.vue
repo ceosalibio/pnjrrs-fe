@@ -161,7 +161,7 @@ const editItem = (category) => {
 const saveCategory = async () => {
     // Validate form before saving
     const { valid } = await form.value.validate();
-    console.log('Form valid:', valid);
+    // console.log('Form valid:', valid);
     if (!valid) {
         showError('Please fix all errors before saving');
         return;
@@ -173,7 +173,7 @@ const saveCategory = async () => {
     } else {
         response = await createCategory(formData.value);
     }
-    console.log('Save response:', response?.status);
+    // console.log('Save response:', response?.status);
     if (response?.status == "success") {
         showSuccess(editingId.value ? 'Category updated successfully' : 'Category created successfully');
         closeDialog();

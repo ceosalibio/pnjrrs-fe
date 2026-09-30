@@ -201,10 +201,10 @@
             // };
             
             const response = await getTrainingSettingsByUnit(filterStore.unit);
-            console.log(response, 'response')
+            // console.log(response, 'response')
             if (response?.data?.data?.length > 0) {
                 const items = response?.data?.data?.[0]?.items || [];
-                console.log('Loaded training data:', items);
+                // console.log('Loaded training data:', items);
                 trainingSettingId.value = response?.data?.data?.[0]?.id;
                 
                 const processedItems = items.map(item => {
@@ -399,7 +399,7 @@
             office_id: filterStore.office,
             items: dataToSend
         };
-        console.log(payload, 'payload')
+        // console.log(payload, 'payload')
         try {
             
             let response;

@@ -144,7 +144,7 @@ const { showSuccess, showError } = useSnackbar();
 
 const loadUnits = async (page = 1) => {
     const response = await getUnits(page, perPage.value);
-    console.log('Load Units response:', response);  
+    // console.log('Load Units response:', response);  
     if (response.success) {
         const paginatedData = response.data;
         units.value = paginatedData.data || [];
@@ -182,9 +182,9 @@ const editItem = (unit) => {
 
 const saveUnit = async () => {
     const { valid } = await form.value.validate();
-    console.log('Form valid:', valid);
+    // console.log('Form valid:', valid);
     if (!valid) {
-        console.log('Form validation failed');
+        // console.log('Form validation failed');
         showError('Please fix all errors before saving');
         return;
     }
@@ -193,7 +193,7 @@ const saveUnit = async () => {
     if (editingId.value) {
         response = await updateUnit(editingId.value, formData.value);
     } else {
-        console.log('Creating unit with data:', formData.value);
+        // console.log('Creating unit with data:', formData.value);
         response = await createUnit(formData.value);
     }
     if (response?.status == "success") {
@@ -208,7 +208,7 @@ const saveUnit = async () => {
 const deleteItem = async (id) => {
     if (confirm('Are you sure you want to delete this unit?')) {
         const response = await deleteUnit(id);
-        console.log('Delete Unit response:', response); 
+        // console.log('Delete Unit response:', response); 
         if (response?.success) {
             showSuccess('Unit deleted successfully');
             await loadUnits(currentPage.value);

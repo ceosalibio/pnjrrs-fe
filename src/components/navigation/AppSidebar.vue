@@ -114,7 +114,7 @@ const hasAccess = (item) => {
   const userOffice = authStore.office
   const userUnit = authStore.user?.unit_id
 
-  console.log(`Checking ${item.title}: role=${userRole}, office=${userOffice}, unit=${userUnit}`, item)
+  // console.log(`Checking ${item.title}: role=${userRole}, office=${userOffice}, unit=${userUnit}`, item)
 
   // Check role: if 'all' is in role array, show to everyone
   // Also treat role 0 as admin (can access everything)
@@ -122,7 +122,7 @@ const hasAccess = (item) => {
   const officeAllowed = !item.office || item.office.length === 0 || item.office.includes(userOffice)
   const unitAllowed = !item.unit || item.unit.length === 0 || item.unit.includes(userUnit)
   
-  console.log(`  Role allowed: ${roleAllowed}, Office allowed: ${officeAllowed}, Unit allowed: ${unitAllowed}`)
+  // console.log(`  Role allowed: ${roleAllowed}, Office allowed: ${officeAllowed}, Unit allowed: ${unitAllowed}`)
 
   // ALL checks must pass
   return roleAllowed && officeAllowed && unitAllowed
@@ -149,7 +149,7 @@ const childHasAccess = (child, parent) => {
   const officeAllowed = !itemToCheck.office || itemToCheck.office.length === 0 || itemToCheck.office.includes(userOffice)
   const unitAllowed = !itemToCheck.unit || itemToCheck.unit.length === 0 || itemToCheck.unit.includes(userUnit)
   
-  console.log(`  Child ${child.title}: Role allowed: ${roleAllowed}, Office allowed: ${officeAllowed}, Unit allowed: ${unitAllowed}`)
+  // console.log(`  Child ${child.title}: Role allowed: ${roleAllowed}, Office allowed: ${officeAllowed}, Unit allowed: ${unitAllowed}`)
   
   // ALL checks must pass
   return roleAllowed && officeAllowed && unitAllowed

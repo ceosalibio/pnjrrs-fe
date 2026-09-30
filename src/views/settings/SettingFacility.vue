@@ -93,6 +93,7 @@
                                     <th>Facility Type</th>
                                     <th>Structure Type</th>
                                     <th>Structure Name</th>
+                                    <th>NIF Building</th>
                                     <th v-if="isEditMode">Actions</th>
                                 </tr>
                             </thead>
@@ -113,6 +114,17 @@
                                     <td>
                                         <input v-if="isEditMode" v-model="row.structure_name" class="editable-input" />
                                         <span v-else>{{ row.structure_name }}</span>
+                                    </td>
+                                    <td>
+                                        <AppAutocomplete
+                                            v-if="isEditMode"
+                                            v-model="row.nif_building_id"
+                                            :text="'name'"
+                                            :value="'id'"
+                                            :items="nifSubunitList"
+                                            :clearable="true"
+                                        />
+                                        <span v-else>{{ getNifBuildingName(row.nif_building_id) }}</span>
                                     </td>
                                     <td v-if="isEditMode" class="text-center">
                                         <AppButton
@@ -155,7 +167,7 @@ import {
     updateFacilitySettings,
 } from '@/services/settingService'
 import { buildingRatingData } from '@/utils/list'
-import { getUnits} from '@/services/organizationService'
+import { getUnits, getSubUnits} from '@/services/organizationService'
 
 const filterStore = useFilterStore()
 const appStore = useAppStore()
@@ -170,6 +182,7 @@ const isFromAPI = ref(false)
 const facilitySettingId = ref(null)
 const isEditMode = ref(false)
 const isSaving = ref(false)
+const nifSubunitList = ref([])
 
 // Trigger file input dialog
 const triggerFileInput = () => {
@@ -191,11 +204,11 @@ const loadFacilityData = async () => {
         displayData.value = []
 
         const response = await getFacilitySettingsByUnit(filterStore.unit)
-        console.log(response, 'facility response')
+        // console.log(response, 'facility response')
 
         if (response?.data?.items?.length > 0) {
             const categoryList = response?.data?.items || []
-            console.log('Loaded facility data:', categoryList)
+            // console.log('Loaded facility data:', categoryList)
             facilitySettingId.value = response?.data?.id
 
             // Flatten the nested structure: category -> structure_data items
@@ -208,7 +221,8 @@ const loadFacilityData = async () => {
                             facility_type: structureItem.facility_type || '',
                             structure_type: structureItem.structure_type || '',
                             structure_name: structureItem.structure_name || '',
-                       
+                            structure_rating: structureItem.structure_rating ?? buildingRatingData,
+                            nif_building_id: structureItem.nif_building_id || null,
                         })
                     })
                 }
@@ -226,6 +240,21 @@ const loadFacilityData = async () => {
     }
 }
 
+const getNifBuildingName = (id) => {
+    return nifSubunitList.value.find(item => item.id === id)?.name || ''
+}
+
+const loadSubUnits = async () => {
+    try {
+        const response = await getSubUnits(1,null,13)
+        nifSubunitList.value = response?.data || []
+    } catch (error) {
+        console.error('Error loading sub-units:', error)
+    }
+}
+
+
+
 // Watch for unit filter changes and load data
 watch(() => filterStore.unit, async (newUnit) => {
     if (newUnit) {
@@ -242,7 +271,7 @@ const parseCSV = (csvText) => {
     }
 
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase())
-    console.log(headers,'headers')
+    // console.log(headers,'headers')
     const requiredHeaders = ['category', 'facility_type', 'structure_type', 'structure_name']
 
     if (!requiredHeaders.every(h => headers.includes(h))) {
@@ -265,7 +294,8 @@ const parseCSV = (csvText) => {
 
         if (row.category && row.facility_type && row.structure_type && row.structure_name) {
             row.structure_rating = buildingRatingData
-            console.log(row)
+            row.nif_building_id = null
+            // console.log(row)
             data.push(row)
         }
     }
@@ -331,6 +361,9 @@ const handleSave = async () => {
                 facility_type: displayRow.facility_type,
                 structure_type: displayRow.structure_type,
                 structure_name: displayRow.structure_name,
+                structure_rating: displayRow.structure_rating,
+                nif_building_id: displayRow.nif_building_id,
+                nif_building_name: getNifBuildingName(displayRow.nif_building_id),
             }
         })
     }
@@ -350,7 +383,9 @@ const handleSave = async () => {
             facility_type: item.facility_type,
             structure_type: item.structure_type,
             structure_name: item.structure_name,
-            structure_rating : item.structure_rating
+            structure_rating : item.structure_rating,
+            nif_building_id: item.nif_building_id,
+            nif_building_name: getNifBuildingName(item.nif_building_id),
         })
     })
 
@@ -361,8 +396,7 @@ const handleSave = async () => {
         items: groupedByCategory,
     }
 
-    console.log(payload, 'facility payload')
-
+    // console.log(payload, 'facility payload')
     try {
         let response
 
@@ -413,6 +447,7 @@ const handleDeleteRow = (index) => {
 // Initial load
 onMounted(async () => {
     loadFacilityData()
+   await loadSubUnits()
     const result = await getUnits();
         filterStore.organizationFilterItems.units = result?.data || [];
 })

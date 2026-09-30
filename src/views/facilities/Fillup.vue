@@ -55,7 +55,7 @@
             <th class="text-center">Quantitative<br>(Actual Area/Required)</th>
             <th class="text-center">Qualitative</th>
             <!-- <th class="text-center">Percentage<br>(Quantitative+Qualitative)/2</th> -->
-            <th class="text-center">View</th>
+            <th class="text-center">{{ isEditMode ? 'Edit' : 'View' }}</th>
           </tr>
         </thead>
         <tbody>
@@ -64,7 +64,17 @@
               <td colspan="8" class="bg-light-blue font-weight-bold">{{item.category?.toUpperCase()}}</td>
             </tr>
             <tr  v-for="(structure, i) in item.structure_data" :key="idx">
-              <td class="text-center">{{structure.structure_name}}</td>
+              <td class="text-center">
+                <div class="building-name-container">
+                  <div class="main-name">{{structure.structure_name}}</div>
+                  <div class="building-label" v-if="structure.nif_building_name && !structure.from_sub_unit_name">
+                    {{ structure.nif_building_name || '' }}
+                  </div>
+                  <div class="building-label" v-if="structure.from_sub_unit_name">
+                    {{ structure.from_unit_name || '' }}
+                  </div>
+                </div>
+              </td>
               <td class="text-center">{{structure.facility_type}}</td>
               <td class="text-center">{{structure.structure_type}}</td>
               <td class="text-center">
@@ -93,10 +103,16 @@
               <td class="text-center">
                 <v-btn
                   v-if="!structure.title"
-                  icon
+                 
+                  :color="isEditMode ? 'warning' : 'primary'"
+                  variant="tonal"
+                  size="small"
                   @click="openDialog(structure)"
                 >
-                  <v-icon>mdi-eye</v-icon>
+                  <v-tooltip activator="parent" location="top">
+                    {{ isEditMode ? 'Edit details' : 'View details' }}
+                  </v-tooltip>
+                  <v-icon> {{isEditMode ? 'mdi-pencil' : 'mdi-eye'}}</v-icon>
                 </v-btn>
               </td>
 
@@ -166,9 +182,9 @@ const calculateQuantitative = (item) => {
  * @param {Object} item - Item to edit
  */
 const openDialog = (item) => {
-  console.log(item,'item')
+  // console.log(item,'item')
   currentItem.value = item // Store the current item for later update
-  dialogTitle.value = `Update Details - ${item.structure_name}`
+  dialogTitle.value = `${isEditMode.value ? 'Update' : 'View'} Details - ${item.structure_name}`
   // Set facility data with the building_physical_inspection_report structure
   currentFacilityData.value = {
     categories: item.structure_rating || [],
@@ -183,7 +199,7 @@ const openDialog = (item) => {
  * @param {Object} item - Item with parameter change
  */
 const handleParameterChange = (item) => {
-  console.log('Parameter changed for:', item)
+  // console.log('Parameter changed for:', item)
 }
 
 /**
@@ -223,9 +239,9 @@ const handleDialogSave = async (facilities) => {
       }
     }
     
-    console.log('Updating facility details:', facilities)
-    console.log('Updated item:', currentItem.value)
-    console.log('Updated store:', reportStore.tableItems)
+    // console.log('Updating facility details:', facilities)
+    // console.log('Updated item:', currentItem.value)
+    // console.log('Updated store:', reportStore.tableItems)
   } catch (error) {
     console.error('Error updating facility details:', error)
   }
@@ -421,5 +437,32 @@ const handleClear = () => {
   background-color: #f5f5f5;
   color: #999;
   cursor: not-allowed;
+}
+
+/* Building name styling */
+.building-name-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  letter-spacing: 0.3px;
+}
+
+.building-label {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+  padding: 2px 8px;
+  background-color: #f0f4f8;
+  border-radius: 12px;
+  border-left: 3px solid #2196F3;
+  padding-left: 6px;
 }
 </style>

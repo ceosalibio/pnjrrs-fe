@@ -44,10 +44,10 @@ export const useReportStore = defineStore('report', () => {
                     sub_office_id: authStore.user?.sub_office_id
                 }
             }
-            console.log(payload,'payload')
+            // console.log(payload,'payload')
             
             const response = await executeReportAction (payload, reportType)
-            console.log(response,'response')
+            // console.log(response,'response')
             if(response?.data?.report) {
                 reportData.value = response?.data?.report
                 tableItems.value = response?.data?.report?.items || []
@@ -61,7 +61,7 @@ export const useReportStore = defineStore('report', () => {
                 showError(response?.message || 'Failed to generate report: Invalid response data')
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             console.error('Error generating report:', error)
             showError(error?.response?.data?.message || `Failed to generate ${reportType} report`)
             

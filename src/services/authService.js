@@ -12,7 +12,7 @@ export const login = async (username, password) => {
   try {
     // Actual API call - uncomment when backend is ready
     const response = await api.post(ENDPOINTS.AUTH.LOGIN, { username, password })
-    console.log('API response:', response)
+    // console.log('API response:', response)
     
     // Handle response based on API format
     if (response.data.status === 'error') {

@@ -34,7 +34,7 @@ export const useFilterStore = defineStore('filter', () => {
 
     watch(() => unit.value, async (newUnit, oldUnit) => {
         // if (isHydrating.value) return
-            console.log(newUnit, oldUnit)
+            // console.log(newUnit, oldUnit)
         if (newUnit !== oldUnit && newUnit !== '' && newUnit != null) {
             subunit.value = ''
             office.value = ''
@@ -50,7 +50,7 @@ export const useFilterStore = defineStore('filter', () => {
 
     watch(() => subunit.value, async (newSubUnit, oldSubUnit) => {
         // if (isHydrating.value) return
-        console.log(newSubUnit, oldSubUnit)
+        // console.log(newSubUnit, oldSubUnit)
         if (newSubUnit !== oldSubUnit && newSubUnit !== '' && newSubUnit != null) {
             office.value = ''
             suboffice.value = ''
@@ -79,7 +79,7 @@ export const useFilterStore = defineStore('filter', () => {
 
     const initializeFilterData = async () => {
         // Fetch categories if not already loaded
-        console.log(authStorage)
+        // console.log(authStorage)
         if (authStorage.user.role == 1) {
             const categoryResult = await getCategories()
             organizationFilterItems.value.categories = categoryResult.data
@@ -105,7 +105,7 @@ export const useFilterStore = defineStore('filter', () => {
         isHydrating.value = false
     }
     onMounted(async () => {
-        console.log('test')
+        // console.log('test')
         // Kapag walang naka-save na options sa categories, kunin ang default list
         await initializeFilterData()
     })

@@ -50,24 +50,24 @@ export const setupRouterGuards = (router) => {
         // console.log('   getPendingPassword:', authStore.getPendingPassword ? 'Present' : 'Missing')
         
         if (authStore.getPendingUsername && authStore.getPendingPassword) {
-          console.log('✅ Allowing access to /change-password')
+          // console.log('✅ Allowing access to /change-password')
           next()
         } else {
-          console.log('❌ Redirecting to /login (no pending data)')
+          // console.log('❌ Redirecting to /login (no pending data)')
           next('/login')
         }
       }
       // CAPTCHA verification routes - only accessible after login
       else if (authStore.getIsAuthenticated && !authStore.getCaptchaVerified) {
-        console.log('✅ Allowing access to CAPTCHA verification')
+        // console.log('✅ Allowing access to CAPTCHA verification')
         next()
       } else if (authStore.getIsAuthenticated && authStore.getCaptchaVerified) {
         // If already verified, redirect to dashboard
-        console.log('⚠️ Already verified, redirecting to dashboard')
+        // console.log('⚠️ Already verified, redirecting to dashboard')
         next('/dashboard')
       } else {
         // If not logged in, redirect to login
-        console.log('❌ Not logged in, redirecting to /login')
+        // console.log('❌ Not logged in, redirecting to /login')
         next('/login')
       }
     } else if (protectedPaths.some(path => to.path.startsWith(path))) {

@@ -486,7 +486,7 @@
 
         try {
             appStore.setLoading(true);
-            console.log('Data to send to backend:', payload);
+            // console.log('Data to send to backend:', payload);
             
             let response;
             
@@ -495,14 +495,14 @@
                 response = await updateOrganizationSettings(organizationSettingId.value, payload);
             } else {
                 response = await saveOrganizationSettings(payload);
-                console.log('testtse')
+                // console.log('testtse')
                 csvData.value = [];
                 // await loadOrganizationData()
             }
             
-            console.log('Response from backend:', response);
+            // console.log('Response from backend:', response);
             if(response?.status == 'success') {
-                console.log('testes')
+                // console.log('testes')
                 // showSnackbar('Data saved successfully!', 'success');
                 if(payload?.office_id){
                     const result = await filterStore.getSubOffices(1,null,payload?.office_id);

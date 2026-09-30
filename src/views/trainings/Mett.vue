@@ -230,7 +230,7 @@ const saveChanges = async () => {
   
   // Add all items data including original fields
   items.forEach((item, index) => {
-    console.log(item.atr,'item.atr')
+    // console.log(item.atr,'item.atr')
     // Add all original fields
     formData.append(`items[${index}][id]`, item.id || '')
     formData.append(`items[${index}][met]`, item.met || '')
@@ -248,31 +248,31 @@ const saveChanges = async () => {
       if (item.atr instanceof File) {
         // New file selected
         formData.append(`items[${index}][atr]`, item.atr)
-        console.log(`Row ${index + 1}: New file selected - ${item.atr.name}`)
+        // console.log(`Row ${index + 1}: New file selected - ${item.atr.name}`)
       } else if (typeof item.atr === 'object' && item.atr.path) {
         // Existing file object with path - preserve it
         formData.append(`items[${index}][atr]`, JSON.stringify(item.atr))
-        console.log(`Row ${index + 1}: Existing file object preserved - ${item.atr.path}`)
+        // console.log(`Row ${index + 1}: Existing file object preserved - ${item.atr.path}`)
       } else if (typeof item.atr === 'string') {
         // Existing file URL string - preserve it
         formData.append(`items[${index}][atr]`, item.atr)
-        console.log(`Row ${index + 1}: Existing file URL string preserved - ${item.atr}`)
+        // console.log(`Row ${index + 1}: Existing file URL string preserved - ${item.atr}`)
       }
     }
   })
 
   // Log FormData for debugging
-  console.log('FormData contents:')
+  // console.log('FormData contents:')
   for (let [key, value] of formData.entries()) {
     if (value instanceof File) {
-      console.log(`${key}: [File] ${value.name} (${value.size} bytes)`)
+      // console.log(`${key}: [File] ${value.name} (${value.size} bytes)`)
     } else {
-      console.log(`${key}: ${value}`)
+      // console.log(`${key}: ${value}`)
     }
   }
   
   const response = await executeReportAction(formData, 'training', 'update', reportStore.reportId)
-  console.log(response, 'Updated tableItems after saving changes')
+  // console.log(response, 'Updated tableItems after saving changes')
   if(response?.status === 'success'){
     await reportStore.reportGenerate('training')
     // reportStore.reportData = response?.data
@@ -319,7 +319,7 @@ const handleFileSelect = (index, event) => {
   if (file) {
     // Store the file or file name
     editValues.value[index].atr = file
-    console.log(`File selected for row ${index}:`, file.name)
+    // console.log(`File selected for row ${index}:`, file.name)
   }
 }
 

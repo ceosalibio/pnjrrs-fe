@@ -108,7 +108,7 @@ export const useUser = () => {
     isLoading.value = true
     try {
       const response = await updateUser(id, userData)
-      console.log(response,'asdasdasd')
+      // console.log(response,'asdasdasd')
       if (!response.success) throw new Error(response.error)
 
       const index = users.value.findIndex(u => u.id === id)

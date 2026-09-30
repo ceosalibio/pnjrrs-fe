@@ -83,7 +83,7 @@ const ratingsData = computed(() => {
   const values = lineValue.value.map(item => item.rating)
   const redconStatuses = lineValue.value.map(item => item.redcon)
   
-  console.log('📈 ratingsData:', { labels, values, redconStatuses })
+  // console.log('📈 ratingsData:', { labels, values, redconStatuses })
   
   return {
     labels,

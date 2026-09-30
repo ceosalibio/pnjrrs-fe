@@ -561,7 +561,7 @@ const searchQuery = ref('')
     // ── Item: Add Item Details ────────────────────────────────────
     // Inserts a new item with details at the index after the current item
     const handleAddItemDetails = (division,type, item) => {
-        console.log(division,type, item, 'item details')
+        // console.log(division,type, item, 'item details')
         const newItemId = generateTempId();
         item.details = item.details || [];
         const newItem = {
@@ -778,7 +778,7 @@ const searchQuery = ref('')
           }
 
           const response = await executeReportAction(payload, 'equipment', 'update', reportStore.reportId)
-          console.log(response,'response')
+        //   console.log(response,'response')
             
           if (response?.status == 'success') {
             showSuccess('Equipment  saved successfully')

@@ -276,10 +276,10 @@ const handleSubmit = async () => {
 
     // Get the actual API response (axios wraps it under .data)
     const apiResponse = response
-    console.log('API Response:', apiResponse)
+    // console.log('API Response:', apiResponse)
 
     if (apiResponse?.success) {
-      console.log('check')
+      // console.log('check')
       if (isEditMode.value) {
         emit('user-updated', apiResponse.data)
       } else {
@@ -301,7 +301,7 @@ const handleSubmit = async () => {
  * Handle dialog cancel
  */
 const handleCancel = () => {
-  console.log('cancel')
+  // console.log('cancel')
   // Reset form using Vuetify's form reset
   form.value?.reset()
   

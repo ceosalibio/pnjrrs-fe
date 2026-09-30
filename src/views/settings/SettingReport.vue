@@ -191,7 +191,7 @@ const handleGenerate = async () =>{
         report_month : filterStore.reportMonth,
     }
     const response = await reportStatus(payload)
-    console.log(response,'resss')
+    // console.log(response,'resss')
     displayData.value = response?.data
 }
 

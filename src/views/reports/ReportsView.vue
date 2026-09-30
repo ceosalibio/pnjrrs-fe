@@ -341,7 +341,7 @@ const handleGenerate = async () => {
   }
 
   const result = await executeReportAction(payload,selectedReportType.value, 'summary')
-  console.log(result)
+  // console.log(result)
   tableData.value = result?.data?.report
   approver.value = result?.data?.approver || []
   finalApprover.value = result?.data?.final_approver || null

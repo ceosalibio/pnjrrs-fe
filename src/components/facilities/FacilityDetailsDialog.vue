@@ -475,8 +475,8 @@ const handleParameterChange = (item) => {
     }
   }
   
-  console.log('Parameter changed for:', item)
-  console.log('facilities :', props.facilities)
+  // console.log('Parameter changed for:', item)
+  // console.log('facilities :', props.facilities)
   
   // Update totals
   updateTotals()
@@ -486,7 +486,7 @@ const handleParameterChange = (item) => {
 }
 
 const handleNumericChange = (item) => {
-  console.log('Numerical rating changed for:', item)
+  // console.log('Numerical rating changed for:', item)
   // Set percentage based on numerical_rating
   item.percentage = item.numerical_rating
   
