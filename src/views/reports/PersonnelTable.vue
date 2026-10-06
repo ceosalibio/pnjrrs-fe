@@ -13,10 +13,10 @@
                     <th>PSR<br> (Aligned FOS/Actual x 100)</th>
                     <th>PRR</th>
                     <th></th>
-                    <th>ATS<br>(OFFICER)</th>
-                    <th>ACTUAL / ATS X 100<br>(OFFICER)</th>
-                    <th>ATS<br>(ENLISTED)</th>
-                    <th>ACTUAL / ATS X 100<br>(ENLISTED)</th>
+                    <th v-if="!unit">ATS<br>(OFFICER)</th>
+                    <th v-if="!unit">ACTUAL / ATS X 100<br>(OFFICER)</th>
+                    <th v-if="!unit">ATS<br>(ENLISTED)</th>
+                    <th v-if="!unit">ACTUAL / ATS X 100<br>(ENLISTED)</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,10 +31,10 @@
                     <td class="text-center">{{ item?.afposRating ?? 0}}%</td>
                     <td class="text-center">{{ item?.readiness ?? 0}}%</td>
                     <td class="text-center" :class="red.redStyle(item?.redcon)">{{ item?.redcon}}</td>
-                    <td class="text-center">{{ item?.ats_officer}}</td>
-                    <td class="text-center">{{ item?.ats_officer_rating ?? 0}}%</td>
-                    <td class="text-center">{{ item?.ats_enlisted}}</td>
-                    <td class="text-center">{{ item?.ats_enlisted_rating ?? 0}}%</td>
+                    <td class="text-center" v-if="!unit">{{ item?.ats_officer}}</td>
+                    <td class="text-center" v-if="!unit">{{ item?.ats_officer_rating ?? 0}}%</td>
+                    <td class="text-center" v-if="!unit">{{ item?.ats_enlisted}}</td>
+                    <td class="text-center" v-if="!unit">{{ item?.ats_enlisted_rating ?? 0}}%</td>
                 </tr>
             </tbody>
         </v-table>

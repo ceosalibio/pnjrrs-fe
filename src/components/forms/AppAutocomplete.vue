@@ -10,6 +10,7 @@
       :item-title="text"
       :item-value="itemValueKey"
       :readonly="readonly"
+      :disabled="disabled"
       :rules="rules"
       @update:model-value="handleChange"
       :hide-details="hideDetails"
@@ -55,6 +56,10 @@ const props = defineProps({
     default: false,
   },
   readonly: {
+    type: Boolean,
+    default: false,
+  },
+  disabled: {
     type: Boolean,
     default: false,
   },

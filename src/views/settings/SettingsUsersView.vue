@@ -51,36 +51,42 @@
             density="compact"
             hide-details
           />
-          <AppAutocomplete 
+          <AppAutocomplete
             label="Units"
             v-model="filterStore.unit"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.units"
+            :items="withAll(filterStore.organizationFilterItems.units)"
             class="flex-grow-1"
+            @on-change="onUnitFilterChange"
           />
-          <AppAutocomplete 
+          <AppAutocomplete
             label="Subunits"
             v-model="filterStore.subunit"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.subunits"
+            :items="withAll(filterStore.organizationFilterItems.subunits)"
+            :disabled="!filterStore.unit"
             class="flex-grow-1"
+            @on-change="onSubUnitFilterChange"
           />
-          <AppAutocomplete 
+          <AppAutocomplete
               label="Offices"
               v-model="filterStore.office"
               :text="'name'"
               :value="'id'"
-              :items="filterStore.organizationFilterItems.offices"
+              :items="withAll(filterStore.organizationFilterItems.offices)"
+              :disabled="!filterStore.subunit"
               class="flex-grow-1"
+              @on-change="onOfficeFilterChange"
             />
-            <AppAutocomplete 
+            <AppAutocomplete
               label="Suboffices"
               v-model="filterStore.suboffice"
               :text="'name'"
               :value="'id'"
-              :items="filterStore.organizationFilterItems.suboffices"
+              :items="withAll(filterStore.organizationFilterItems.suboffices)"
+              :disabled="!filterStore.office"
               class="flex-grow-1"
             />
           <v-spacer />
@@ -95,31 +101,50 @@
        
 
         <div class="table-scroll-wrapper">
-          <v-table>
+          <v-table hover class="users-table">
             <thead class="table-header">
               <tr>
-                <th>Name</th>
-                <th>Username</th>
-                <th>Unit</th>
-                <th>Sub Unit</th>
-                <th>Office</th>
-                <th>Sub office</th>
-                <th>Action</th>
+                <th>User</th>
+                <th>Unit / Sub Unit</th>
+                <th>Office / Sub Office</th>
+                <th>Approver</th>
+                <th>Office Role</th>
+                <th class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(user,i) in users" :key="i">
-                <td>{{ user?.rank?.name }}  {{ user.name }}</td>
-                <td>{{ user.email || user.username }}</td>
-                <td>{{ user?.unit?.name }}</td>
-                <td>{{ user?.sub_unit?.name }}</td>
-                <td>{{ user?.office?.name }}</td>
-                <td>{{ user?.sub_office?.name }}</td>
+              <tr v-for="(user,i) in users" :key="user.id ?? i">
                 <td>
-                  <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click="handleEditUser(user)" />
-                  <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="handleDeleteUser(user)" />
-                  <v-btn v-if="authStore.user?.office_role == 3 && authStore.user?.unit_id == 1" icon="mdi-lock-reset" size="small" variant="text" color="error" @click="handleResetPassword(user)" />
+                  <div class="cell-primary">{{ user?.rank?.name }} {{ user.name }}</div>
+                  <div class="cell-secondary">{{ user.email || user.username }}</div>
                 </td>
+                <td>
+                  <div class="cell-primary">{{ user?.unit?.name || '-' }}</div>
+                  <div v-if="user?.sub_unit?.name" class="cell-secondary">{{ user.sub_unit.name }}</div>
+                </td>
+                <td>
+                  <div class="cell-primary">{{ user?.office?.name || '-' }}</div>
+                  <div v-if="user?.sub_office?.name" class="cell-secondary">{{ user.sub_office.name }}</div>
+                </td>
+                <td>
+                  <v-chip size="small" variant="tonal" :color="user?.approver > 0 ? 'primary' : 'grey'">
+                    {{ getOptionText(APPROVER_OPTIONS, user?.approver) }}
+                  </v-chip>
+                </td>
+                <td>
+                  <v-chip v-if="user?.office_role != null" size="small" variant="tonal" color="teal">
+                    {{ getOptionText(OFFICE_ROLE_OPTIONS, user?.office_role) }}
+                  </v-chip>
+                  <span v-else>-</span>
+                </td>
+                <td class="actions-cell">
+                  <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" title="Edit" @click="handleEditUser(user)" />
+                  <v-btn icon="mdi-delete" size="small" variant="text" color="error" title="Delete" @click="handleDeleteUser(user)" />
+                  <v-btn v-if="authStore.user?.office_role == 3 && authStore.user?.unit_id == 1" icon="mdi-lock-reset" size="small" variant="text" color="warning" title="Reset password" @click="handleResetPassword(user)" />
+                </td>
+              </tr>
+              <tr v-if="!users?.length">
+                <td colspan="6" class="text-center py-6 text-medium-emphasis">No users found</td>
               </tr>
             </tbody>
           </v-table>
@@ -151,6 +176,8 @@ import { useFilterStore } from '@/stores/filterStore.js'
 import { useUser } from '@/composables/useUser.js'
 import { useSnackbar } from '@/composables/useSnackbar.js'
 import { resetPassword } from '@/services/authService'
+import { getUnits } from '@/services/organizationService'
+import { APPROVER_OPTIONS, OFFICE_ROLE_OPTIONS } from '@/utils/constants.js'
 
 const filterStore = useFilterStore()
 const authStore = useAuthStore()
@@ -299,6 +326,13 @@ const confirmDeleteUser = async () => {
 }
 
 onMounted(async () => {
+  // Show "All" for empty filters (persisted values may be null)
+  ;['unit', 'subunit', 'office', 'suboffice'].forEach((key) => {
+    if (filterStore[key] == null) filterStore[key] = ''
+  })
+  // Always load the full unit list — the persisted one may be filtered by category
+  const unitsRes = await getUnits()
+  filterStore.organizationFilterItems.units = unitsRes?.data || []
   await loadUsers(1)
 })
 
@@ -352,6 +386,52 @@ watch([() => filterStore.search, () => filterStore.unit, () => filterStore.subun
     }
   }
 )
+/**
+ * Prepend an "All" option to a filter list.
+ * Uses '' as its value — the filterStore watchers and loadUsers both ignore ''
+ */
+const withAll = (items) => [{ id: '', name: 'All' }, ...(items || [])]
+
+/**
+ * When a filter is set to "All", reset the filters below it
+ * (the filterStore watchers only cascade on a specific selection)
+ */
+const onUnitFilterChange = (value) => {
+  if (value) return
+  filterStore.unit = ''
+  filterStore.subunit = ''
+  filterStore.office = ''
+  filterStore.suboffice = ''
+  filterStore.organizationFilterItems.subunits = []
+  filterStore.organizationFilterItems.offices = []
+  filterStore.organizationFilterItems.suboffices = []
+}
+
+const onSubUnitFilterChange = (value) => {
+  if (value) return
+  filterStore.subunit = ''
+  filterStore.office = ''
+  filterStore.suboffice = ''
+  filterStore.organizationFilterItems.offices = []
+  filterStore.organizationFilterItems.suboffices = []
+}
+
+const onOfficeFilterChange = (value) => {
+  if (value) return
+  filterStore.office = ''
+  filterStore.suboffice = ''
+  filterStore.organizationFilterItems.suboffices = []
+}
+
+/**
+ * Get the display label of a value from an options list
+ * (loose compare since API values may come as strings or numbers)
+ */
+const getOptionText = (options, value) => {
+  if (value === null || value === undefined || value === '') return '-'
+  return options.find(o => o.value == value)?.text ?? value
+}
+
 const getRoleColor = (role) => {
   const colors = { admin: 'error', officer: 'primary', user: 'info' }
   return colors[role] || 'secondary'
@@ -370,6 +450,34 @@ const getRoleColor = (role) => {
 .table-header th {
   color: white !important;
   font-weight: 600 !important;
+  white-space: nowrap;
+}
+
+.users-table td {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  vertical-align: middle;
+}
+
+.users-table tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.cell-primary {
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.cell-secondary {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.actions-cell {
+  white-space: nowrap;
+  text-align: center;
 }
 
 .filter-field {
@@ -414,7 +522,7 @@ const getRoleColor = (role) => {
 }
 
 :deep(.v-table) {
-  min-width: 700px; /* para hindi masyadong maliit/paikpik ang mga columns kapag naka-scroll */
+  min-width: 900px; /* para hindi masyadong maliit/paikpik ang mga columns kapag naka-scroll */
 }
 
 @media (max-width: 960px) {

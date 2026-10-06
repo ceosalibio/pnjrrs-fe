@@ -84,6 +84,24 @@ export const MENU_ITEMS = [
   }
 ]
 
+// Drafter uses '0' (string) so the required rule (!!v) still passes
+export const APPROVER_OPTIONS = [
+  { text: 'Drafter', value: '0' },
+  { text: '1st Approver', value: 1 },
+  { text: '2nd Approver', value: 2 },
+  { text: '3rd Approver', value: 3 },
+  { text: '4th Approver', value: 4 },
+  { text: '5th Approver', value: 5 },
+]
+
+export const OFFICE_ROLE_OPTIONS = [
+  { text: '1 - Personnel', value: 1 },
+  { text: '8 - Training', value: 8 },
+  { text: '4 - Equipment/Maintenance', value: 4 },
+  { text: '6 - Communication', value: 6 },
+  { text: '3 - Consolidated', value: 3 },
+]
+
 // export const USER_ROLES = {
 //   ADMIN: 'admin',
 //   OFFICER: 'officer',

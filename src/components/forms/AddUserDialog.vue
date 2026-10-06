@@ -71,45 +71,49 @@
         
         <div class="grid">
           <app-autocomplete
-            v-model="filterStore.category"
+            v-model="formData.category_id"
             label="Category"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.categories"
+            :items="orgItems.categories"
             :rules="[(v) => !!v || 'Category is required']"
             :hideDetails="false"
+            @on-change="onCategoryChange"
             />
           <app-autocomplete
             label="Units"
-            v-model="filterStore.unit"
+            v-model="formData.unit_id"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.units"
+            :items="orgItems.units"
             :rules="[(v) => !!v || 'Unit is required']"
             :hideDetails="false"
+            @on-change="onUnitChange"
             />
           <app-autocomplete
             label="Subunits"
-            v-model="filterStore.subunit"
+            v-model="formData.sub_unit_id"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.subunits"
+            :items="orgItems.subunits"
             :clearable="true"
+            @on-change="onSubUnitChange"
           />
           <app-autocomplete
             label="Offices"
-            v-model="filterStore.office"
+            v-model="formData.office_id"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.offices"
+            :items="orgItems.offices"
             :clearable="true"
+            @on-change="onOfficeChange"
           />
           <app-autocomplete
             label="Suboffices"
-            v-model="filterStore.suboffice"
+            v-model="formData.sub_office_id"
             :text="'name'"
             :value="'id'"
-            :items="filterStore.organizationFilterItems.suboffices"
+            :items="orgItems.suboffices"
             :clearable="true"
           />
 
@@ -156,19 +160,28 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import AppTextField from '@/components/forms/AppTextField.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import { useUser } from '@/composables/useUser'
-import { useFilterStore } from '@/stores/filterStore.js'
 import {getCategories, getUnits, getSubUnits, getOffices, getSubOffices} from '@/services/organizationService'
 import { useAuthStore } from '@/stores/authStore.js'
+import { APPROVER_OPTIONS, OFFICE_ROLE_OPTIONS } from '@/utils/constants.js'
 
 const authStore = useAuthStore()
 // Initialize useUser composable
 const { rankItems, isLoading, addUser, editUser, fetchRank } = useUser()
-const filterStore = useFilterStore()
+
+// Organization dropdown items — local to the dialog so it doesn't
+// touch the page filters (filterStore) or trigger their cascade watchers
+const orgItems = ref({
+  categories: [],
+  units: [],
+  subunits: [],
+  offices: [],
+  suboffices: []
+})
 
 // Dialog state
 const isDialogOpen = defineModel('open', {
@@ -187,7 +200,7 @@ const emit = defineEmits(['user-created', 'user-updated', 'error'])
 const form = ref(null)
 
 // Form data
-const formData = ref({
+const emptyForm = () => ({
   rank_id: null,
   name: '',
   position: '',
@@ -195,36 +208,59 @@ const formData = ref({
   password: '',
   category_id: null,
   unit_id: null,
-  subunit_id: null,
+  sub_unit_id: null,
   office_id: null,
-  suboffice_id: null,
+  sub_office_id: null,
   approver: null,
   office_role: null,
   role : 0
-  
 })
+const formData = ref(emptyForm())
 
 // Password visibility toggle
 const showPassword = ref(false)
 
-const approverItems = ref([
-  {text : 'Drafter', value:'0' },
-  {text : '1st Approver', value:1 },
-  {text : '2nd Approver', value:2 },
-  {text : '3rd Approver', value:3 },
-  {text : '4th Approver', value:4 },
-  {text : '5th Approver', value:5 },
-])
-
-const officeItems = ref([
-  {text : '1 - Personnel', value:1 },
-  {text : '8 - Training', value:8 },
-  {text : '4 - Equipment/Maintenance', value: 4 },
-  {text : '6 - Communication', value: 6 },
-  {text : '3 - Consolidated', value:3 },
-])
+const approverItems = APPROVER_OPTIONS
+const officeItems = OFFICE_ROLE_OPTIONS
 
 const roleItems = ref([{text : 'Yes', value:1 },{text : 'No', value:0 }])
+
+/**
+ * Cascade handlers — only fired on user selection (not on programmatic set),
+ * so populating the form in edit mode won't wipe the child fields
+ */
+const onCategoryChange = async (categoryId) => {
+  formData.value.unit_id = null
+  formData.value.sub_unit_id = null
+  formData.value.office_id = null
+  formData.value.sub_office_id = null
+  orgItems.value.subunits = []
+  orgItems.value.offices = []
+  orgItems.value.suboffices = []
+  const res = await getUnits(1, null, categoryId)
+  orgItems.value.units = res?.data || []
+}
+
+const onUnitChange = async (unitId) => {
+  formData.value.sub_unit_id = null
+  formData.value.office_id = null
+  formData.value.sub_office_id = null
+  orgItems.value.offices = []
+  orgItems.value.suboffices = []
+  orgItems.value.subunits = unitId ? (await getSubUnits(1, null, unitId))?.data || [] : []
+}
+
+const onSubUnitChange = async (subUnitId) => {
+  formData.value.office_id = null
+  formData.value.sub_office_id = null
+  orgItems.value.suboffices = []
+  orgItems.value.offices = subUnitId ? (await getOffices(1, null, subUnitId))?.data || [] : []
+}
+
+const onOfficeChange = async (officeId) => {
+  formData.value.sub_office_id = null
+  orgItems.value.suboffices = officeId ? (await getSubOffices(1, null, officeId))?.data || [] : []
+}
 
 
 
@@ -245,11 +281,11 @@ const handleSubmit = async () => {
       name: formData.value.name,
       position: formData.value.position,
       username: formData.value.username,
-      category_id: filterStore.category,
-      unit_id: filterStore.unit,
-      sub_unit_id: filterStore.subunit,
-      office_id: filterStore.office,
-      sub_office_id: filterStore.suboffice,
+      category_id: formData.value.category_id,
+      unit_id: formData.value.unit_id,
+      sub_unit_id: formData.value.sub_unit_id,
+      office_id: formData.value.office_id,
+      sub_office_id: formData.value.sub_office_id,
       approver: formData.value.approver,
       office_role: formData.value.office_role,
       role: formData.value.role || (formData.value.approver == "0" ? 0 : 2)
@@ -302,23 +338,31 @@ const handleSubmit = async () => {
  */
 const handleCancel = () => {
   // console.log('cancel')
-  // Reset form using Vuetify's form reset
-  form.value?.reset()
-  
+  // Clear form values and validation messages
+  formData.value = emptyForm()
+  form.value?.resetValidation()
+
   // Reset edit mode
   isEditMode.value = false
   editingUserId.value = null
   showPassword.value = false
-  
-  // Reset organization filter store values
-  filterStore.category = null
-  filterStore.unit = null
-  filterStore.subunit = null
-  filterStore.office = null
-  filterStore.suboffice = null
-  
+
   // Close dialog
   isDialogOpen.value = false
+}
+
+/**
+ * Load categories and units for a fresh (add mode) form
+ */
+const loadAddModeOrgItems = async () => {
+  const [categoriesRes, unitsRes] = await Promise.all([getCategories(), getUnits()])
+  orgItems.value = {
+    categories: categoriesRes?.data || [],
+    units: unitsRes?.data || [],
+    subunits: [],
+    offices: [],
+    suboffices: []
+  }
 }
 
 /**
@@ -348,67 +392,50 @@ const openEditDialog = async (user) => {
     password: '', // Leave empty for edit mode
     category_id: user.category_id,
     unit_id: user.unit_id,
-    subunit_id: user.sub_unit_id,
+    sub_unit_id: user.sub_unit_id,
     office_id: user.office_id,
-    suboffice_id: user.sub_office_id,
-    approver: user.approver == 0 ? "0" : user.approver,
-    office_role: user.office_role
+    sub_office_id: user.sub_office_id,
+    // Match the option value types (Drafter is '0', the rest are numbers)
+    approver: user.approver == null ? null : (user.approver == 0 ? '0' : Number(user.approver)),
+    office_role: user.office_role == null ? null : Number(user.office_role),
+    role: user.role ?? 0
   }
-  
-  
-  
-  // Load all organization data first, then set filter values
+
+  // Load the dropdown items for the user's current organization path
   try {
-    // Load categories
-    const categoriesRes = await getCategories()
-    filterStore.organizationFilterItems.categories = categoriesRes.data
-
-    // Load units
-    const unitsRes = await getUnits()
-    filterStore.organizationFilterItems.units = unitsRes.data
-
-    // Load subunits
-    const subunitsRes = await getSubUnits(1, null, user.unit_id)
-    filterStore.organizationFilterItems.subunits = subunitsRes.data
-
-    // Load offices
-    const officesRes = await getOffices(1, null, user.sub_unit_id)
-    filterStore.organizationFilterItems.offices = officesRes.data
-
-    // Load suboffices
-    const subofficesRes = await getSubOffices(1, null, user.office_id)
-    filterStore.organizationFilterItems.suboffices = subofficesRes.data
-
-    // NOW set the filter values after data is loaded
-    filterStore.category = user.category_id
-    filterStore.unit = user.unit_id
-    filterStore.subunit = user.sub_unit_id
-    filterStore.office = user.office_id
-    filterStore.suboffice = user.sub_office_id
+    const [categoriesRes, unitsRes, subunitsRes, officesRes, subofficesRes] = await Promise.all([
+      getCategories(),
+      getUnits(),
+      getSubUnits(1, null, user.unit_id),
+      getOffices(1, null, user.sub_unit_id),
+      getSubOffices(1, null, user.office_id),
+      loadRankItems()
+    ])
+    orgItems.value = {
+      categories: categoriesRes?.data || [],
+      units: unitsRes?.data || [],
+      subunits: subunitsRes?.data || [],
+      offices: officesRes?.data || [],
+      suboffices: subofficesRes?.data || []
+    }
 
     showPassword.value = false
-  isDialogOpen.value = true
+    isDialogOpen.value = true
   } catch (error) {
     console.error('Failed to load organization data:', error)
     emit('error', 'Failed to load organization data')
   }
-
-  loadRankItems()
 }
 
 // Expose openEditDialog to parent components
 defineExpose({ openEditDialog })
 
-// Load rank items when dialog opens
+// Load rank and organization items when dialog opens in add mode
 watch(isDialogOpen, (newVal) => {
   if (newVal && !isEditMode.value) {
     loadRankItems()
+    loadAddModeOrgItems()
   }
-})
-
-onMounted(async () => {
-  const response = await getCategories()
-  filterStore.organizationFilterItems.categories = response.data
 })
 
 

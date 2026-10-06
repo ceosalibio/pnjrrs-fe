@@ -7,80 +7,47 @@
 
       <v-card-text>
         <!-- Report Type Selection Buttons -->
-        <v-row class="mb-6">
-          <v-col cols="12" :md="adminAccess ? '2':'3'">
-            <v-btn
-              class="report-btn h-100"
-              :color="selectedReportType === 'personnel' ? 'info' : 'grey-lighten-2'"
-              :text="selectedReportType !== 'personnel'"
-              @click="selectedReportType = 'personnel'"
-              :disabled="authStore.office != 1 && !adminAccess"
-
+        <div class="report-type-label">Report Type</div>
+        <div class="report-types mb-6">
+          <div
+            v-for="type in reportTypes"
+            :key="type.key"
+            :title="type.disabled ? 'Not available for your office' : undefined"
+          >
+            <v-card
+              class="report-type"
+              :class="{ 'report-type--active': selectedReportType === type.key }"
+              :color="selectedReportType === type.key ? type.color : undefined"
+              :variant="selectedReportType === type.key ? 'tonal' : 'outlined'"
+              :disabled="type.disabled"
+              @click="selectedReportType = type.key"
             >
-              <div class="btn-content">
-                <div class="text-h4">Personnel</div>
-                <!-- <div class="text-subtitle2">{{ reportStats.personnel }} Reports</div> -->
+              <div class="report-type__body">
+                <v-avatar
+                  :color="type.disabled ? 'grey' : type.color"
+                  :variant="selectedReportType === type.key ? 'flat' : 'tonal'"
+                  size="40"
+                  rounded="lg"
+                >
+                  <v-icon :icon="type.icon" size="22" />
+                </v-avatar>
+                <span class="report-type__label">{{ type.label }}</span>
+                <v-icon
+                  v-if="selectedReportType === type.key"
+                  icon="mdi-check-circle"
+                  size="20"
+                  class="report-type__status"
+                />
+                <v-icon
+                  v-else-if="type.disabled"
+                  icon="mdi-lock-outline"
+                  size="18"
+                  class="report-type__status"
+                />
               </div>
-            </v-btn>
-          </v-col>
-          <v-col cols="12" :md="adminAccess ? '2':'3'">
-            <v-btn
-              class="report-btn h-100"
-              :color="selectedReportType === 'training' ? 'success' : 'grey-lighten-2'"
-              :text="selectedReportType !== 'training'"
-              @click="selectedReportType = 'training'"
-              :disabled="authStore.office != 8 && !adminAccess"
-            >
-              <div class="btn-content">
-                <div class="text-h4">Training</div>
-                <!-- <div class="text-subtitle2">{{ reportStats.training }} Reports</div> -->
-              </div>
-            </v-btn>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-btn
-              class="report-btn h-100"
-              :color="selectedReportType === 'equipment' ? 'warning' : 'grey-lighten-2'"
-              :text="selectedReportType !== 'equipment'"
-              @click="selectedReportType = 'equipment'"
-              :disabled="![4, 6, 8].includes(authStore.office) && !adminAccess"
-            >
-              <div class="btn-content">
-                <div class="text-h5">Equipment & Maintenance</div>
-                <!-- <div class="text-subtitle2">{{ reportStats.equipment }} Reports</div> -->
-              </div>
-            </v-btn>
-          </v-col>
-          
-          <v-col cols="12" md="3">
-            <v-btn
-              class="report-btn h-100"
-              :color="selectedReportType === 'facilities' ? 'error' : 'grey-lighten-2'"
-              :text="selectedReportType !== 'facilities'"
-              @click="selectedReportType = 'facilities'"
-              :disabled="![4, 6, 8].includes(authStore.office) && !adminAccess"
-            >
-              <div class="btn-content">
-                <div class="text-h4">Facilities</div>
-                <!-- <div class="text-subtitle2">{{ reportStats.facilities }} Reports</div> -->
-              </div>
-            </v-btn>
-          </v-col>
-
-          <v-col cols="12" md="2" v-if="adminAccess">
-            <v-btn
-              class="report-btn h-100"
-              :color="selectedReportType === 'all' ? 'blue-darken-4' : 'grey-lighten-2'"
-              :text="selectedReportType !== 'all'"
-              @click="selectedReportType = 'all'"
-            >
-              <div class="btn-content">
-                <div class="text-h4">ALL</div>
-                <!-- <div class="text-subtitle2">{{ reportStats.facilities }} Reports</div> -->
-              </div>
-            </v-btn>
-          </v-col>
-        </v-row>
+            </v-card>
+          </div>
+        </div>
 
         <v-divider class="my-6" />
 
@@ -96,7 +63,8 @@
                   :value="'id'"
                   :items="unitList"
                   style="width: 250px"
-                  :clearable="true"
+                  :clearable="hpnAccess"
+                  :disabled="!hpnAccess"
               />
             </div>
             
@@ -282,9 +250,28 @@ const approver = ref([])
 const consolidated = ref({})
 const consolidated_personnel = ref({})
 
+const hpnAccess = computed(()=>{
+  return authStore.user?.role == 1 || authStore.user?.unit_id == 1
+})
 
 const adminAccess = computed(()=>{
   return authStore.user?.role == 1 || authStore.n3_access
+})
+
+// Report type cards — same enable/disable rules as the old buttons
+const reportTypes = computed(() => {
+  const office = authStore.office
+  const admin = adminAccess.value
+  const types = [
+    { key: 'personnel', label: 'Personnel', icon: 'mdi-account-multiple', color: 'info', disabled: office != 1 && !admin },
+    { key: 'training', label: 'Training', icon: 'mdi-bullseye-arrow', color: 'success', disabled: office != 8 && !admin },
+    { key: 'equipment', label: 'Equipment & Maintenance', icon: 'mdi-toolbox', color: 'warning', disabled: ![4, 6, 8].includes(office) && !admin },
+    { key: 'facilities', label: 'Facilities', icon: 'mdi-home-city', color: 'error', disabled: ![4, 6, 8].includes(office) && !admin }
+  ]
+  if (admin) {
+    types.push({ key: 'all', label: 'All Reports', icon: 'mdi-view-grid-outline', color: 'blue-darken-4', disabled: false })
+  }
+  return types
 })
 
 const timelineItems = computed(() => {
@@ -439,6 +426,9 @@ watch(() => selectedReportType.value, async (newCategory, __oldCategory) => {
 onMounted(async () => {
     const result = await getUnits();
     filterStore.organizationFilterItems.units = result?.data || [];
+    if (!hpnAccess.value) {
+      unit.value = authStore.user?.unit_id
+    }
     // Set initial report type based on user's office
     selectedReportType.value = getInitialReportType()
 
@@ -450,39 +440,57 @@ onMounted(async () => {
   padding: 1rem;
 }
 
-.report-btn {
-  width: 100%;
-  height: 120px !important;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+/* Report type cards */
+.report-type-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
 }
 
-.report-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.report-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
 }
 
-.btn-content {
+.report-type {
+  position: relative;
+  height: 100%;
+  border-radius: 10px;
+  border-width: 1px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.report-type:not(.v-card--disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 31, 84, 0.1);
+}
+
+.report-type--active {
+  border: 2px solid currentColor;
+}
+
+.report-type__body {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  gap: 8px;
-  overflow: hidden;
-  padding: 8px;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 68px;
 }
 
-.btn-content .text-h4 {
-  font-size: 1.5rem !important;
-  line-height: 1.2;
-  text-wrap: balance;
+.report-type__label {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
-.btn-content .text-h5 {
-  font-size: 1.25rem !important;
-  line-height: 1.2;
-  text-wrap: balance;
+.report-type__status {
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .filters-section {
@@ -539,17 +547,6 @@ onMounted(async () => {
     width: 100%;
   }
 
-  .report-btn {
-    height: 100px !important;
-  }
-
-  .btn-content .text-h4 {
-    font-size: 1.25rem !important;
-  }
-
-  .btn-content .text-h5 {
-    font-size: 1.1rem !important;
-  }
 }
 
 @media (max-width: 600px) {
@@ -557,29 +554,27 @@ onMounted(async () => {
     flex-direction: column;
   }
 
-  .report-btn {
-    height: 80px !important;
+  /* Two cards per row on phones */
+  .report-types {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
-  .btn-content {
-    gap: 4px;
-    padding: 6px;
+  .report-type__body {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+    padding: 10px 8px;
   }
 
-  .btn-content .text-h4 {
-    font-size: 1rem !important;
+  .report-type__label {
+    font-size: 0.8rem;
   }
 
-  .btn-content .text-h5 {
-    font-size: 0.9rem !important;
-  }
-
-  .btn-content .text-h6 {
-    font-size: 1rem !important;
-  }
-
-  .btn-content .text-subtitle2 {
-    font-size: 0.75rem !important;
+  .report-type__status {
+    position: absolute;
+    top: 6px;
+    right: 6px;
   }
 }
 </style>
