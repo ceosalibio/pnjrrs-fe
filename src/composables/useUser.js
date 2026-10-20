@@ -181,8 +181,8 @@ export const useUser = () => {
       if (!response.success) throw new Error(response.error)
 
       rankItems.value = response.data
-      console.log('Fetched ranks:', rankItems.value)
-      console.log('Rank items structure:', rankItems.value.length > 0 ? rankItems.value[0] : 'empty')
+      // console.log('Fetched ranks:', rankItems.value)
+      // console.log('Rank items structure:', rankItems.value.length > 0 ? rankItems.value[0] : 'empty')
       return response
     } catch (error) {
       const errorMessage = error.message || 'Failed to fetch rank'
