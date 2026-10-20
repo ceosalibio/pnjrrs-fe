@@ -77,6 +77,15 @@ export const useFilterStore = defineStore('filter', () => {
         }
     }, { immediate: false })
 
+    watch(() => reportMonth.value, (newMonth, oldMonth) => {
+        if (newMonth !== oldMonth) {
+            if (reportStore) {
+                reportStore.reportData = []
+                reportStore.tableItems = []
+            }
+        }
+    }, { immediate: false })
+
     const initializeFilterData = async () => {
         // Fetch categories if not already loaded
         // console.log(authStorage)

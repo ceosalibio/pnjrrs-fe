@@ -13,10 +13,10 @@
                                 <AppAutocomplete 
                                    
                                     label="Units"
-                                    v-model="filterStore.unit"
+                                    v-model="selectedUnit"
                                     :text="'name'"
                                     :value="'id'"
-                                    :items="filterStore.organizationFilterItems.units || []"
+                                    :items="unitItems"
                                 />
                             </div>
 
@@ -128,6 +128,12 @@ const isFinal = ref(false);
 
 const reportList = ref([])
 
+const selectedUnit = ref('all')
+const unitItems = computed(() => [
+    { id: 'all', name: 'All' },
+    ...(filterStore.organizationFilterItems.units || [])
+])
+
 const isFinalList = [
     {text:'Submitted', value:true},
     {text:'Not Submitted', value:false},
@@ -163,7 +169,7 @@ const getReportType = () => {
 }
 
 // Watch for filter changes to clear display data
-watch(() => filterStore.unit, () => {
+watch(selectedUnit, () => {
     displayData.value = []
 })
 
@@ -187,7 +193,9 @@ const handleGenerate = async () =>{
     let payload = {
         report_type : reportType.value,
         is_final : isFinal.value,
-        unit_id : authStore.hpn ?filterStore.unit : authStore.user?.unit_id,
+        unit_id : authStore.hpn
+            ? (selectedUnit.value === 'all' ? null : selectedUnit.value)
+            : authStore.user?.unit_id,
         report_month : filterStore.reportMonth,
     }
     const response = await reportStatus(payload)

@@ -48,6 +48,15 @@
                             >
                                 ✏️ Update
                             </AppButton>
+                            <!-- Delete Button (Only for saved settings) -->
+                            <AppButton
+                                v-if="isFromAPI && !isEditMode"
+                                @click="handleDeleteAll"
+                                color="red"
+                                :loading="isDeleting"
+                            >
+                                Delete
+                            </AppButton>
                             <AppButton
                                 v-if="isEditMode"
                                 @click="handleSave"
@@ -150,6 +159,7 @@
     const isFromAPI = ref(false);
     const trainingSettingId = ref(null);
     const isEditMode = ref(false);
+    const isDeleting = ref(false);
 
     /**
      * Calculate rowspan for METL column by grouping consecutive rows with same METL
@@ -436,6 +446,29 @@
         isEditMode.value = false;
         if (fileInput.value) {
             fileInput.value.value = '';
+        }
+    };
+
+    // Delete the whole saved training settings of the selected unit
+    const handleDeleteAll = async () => {
+        if (!trainingSettingId.value) return;
+        const confirmed = confirm('Are you sure you want to delete all training settings for this unit? This cannot be undone.');
+        if (!confirmed) return;
+
+        isDeleting.value = true;
+        try {
+            const response = await deleteTrainingSettings(trainingSettingId.value);
+            if (response?.status === 'success') {
+                showSuccess('Training settings deleted successfully');
+                handleClear();
+            } else {
+                showError(response?.message || 'Failed to delete training settings');
+            }
+        } catch (error) {
+            console.error('Error deleting training settings:', error);
+            showError('Error deleting training settings');
+        } finally {
+            isDeleting.value = false;
         }
     };
 

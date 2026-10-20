@@ -20,10 +20,10 @@
         <stat-card label="Actual Personnel" :value="personnelStats.actual" icon="mdi-account-check-outline" color="primary" :loading="loading" />
       </v-col>
       <v-col cols="6" md="3">
-        <stat-card label="Submitted Report" :value="personnelStats.submitted" icon="mdi-file-check-outline" color="success" :progress="submittedPercent" :loading="loading" />
+        <stat-card label="Submitted Report" :value="submission.submitted" icon="mdi-file-check-outline" color="success" :progress="submittedPercent" :loading="loading" />
       </v-col>
       <v-col cols="6" md="3">
-        <stat-card label="Not Yet Submitted" :value="personnelStats.not_submitted" icon="mdi-file-clock-outline" color="warning" :loading="loading" />
+        <stat-card label="Not Yet Submitted" :value="submission.not_submitted" icon="mdi-file-clock-outline" color="warning" :loading="loading" />
       </v-col>
     </v-row>
 
@@ -46,11 +46,17 @@ import ReadinessGraph from './ReadinessGraph.vue'
 import RatingsLineGraph from './RatingsLineGraph.vue'
 import StatCard from './StatCard.vue'
 import {currentDate , getCurrentMonth} from "@/utils/dateFormatter.js"
-import { getSubmittedPercent } from './chartTheme.js'
+import { getSubmittedPercent, getUnitSubmissionRow } from './chartTheme.js'
+import { useAuthStore } from '@/stores/authStore.js'
 const props = defineProps({
   data: {
     type: Object,
     required: true
+  },
+  // Report month (MM/YYYY) shown in the stat cards
+  month: {
+    type: String,
+    default: () => getCurrentMonth()
   },
   loading: {
     type: Boolean,
@@ -61,14 +67,18 @@ const props = defineProps({
 
 
 const personnelStats = computed(() => {
-  const currentMonth = getCurrentMonth()
+  const currentMonth = props.month
   const result = props.data?.personnel?.find(r => r.report_month == currentMonth && r.is_total) || {}
   // console.log('📊 PersonnelStats filtered:', { currentMonth, result })
   return result
 })
 
+// Submitted / not submitted counts are limited to the user's own unit
+const authStore = useAuthStore()
+const submission = computed(() => getUnitSubmissionRow(props.data?.personnel, props.month, authStore.user?.unit_id))
+
 // Display only: share of submitted reports for the progress bar
-const submittedPercent = computed(() => getSubmittedPercent(personnelStats.value))
+const submittedPercent = computed(() => getSubmittedPercent(submission.value))
 
 const personnelValue = computed(() => {
   const result = props.data?.personnel?.filter(r => r.is_total) || []

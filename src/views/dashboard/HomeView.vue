@@ -9,6 +9,9 @@
           {{ currentDate }}
         </p>
       </div>
+      <div class="dashboard-month">
+        <AppMonthYearPicker v-model="selectedMonth" label="Report Month" />
+      </div>
     </div>
 
     <v-alert
@@ -31,7 +34,7 @@
 
       <v-window v-model="activeTab">
         <v-window-item v-for="section in sections" :key="section.key" :value="section.key">
-          <component :is="section.component" :data="dashboardData || {}" :loading="isLoading" />
+          <component :is="section.component" :data="dashboardData || {}" :month="selectedMonth" :loading="isLoading" />
         </v-window-item>
       </v-window>
     </template>
@@ -41,16 +44,19 @@
       v-else-if="sections.length === 1"
       :is="sections[0].component"
       :data="dashboardData || {}"
+      :month="selectedMonth"
       :loading="isLoading"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore.js'
 import { executeReportAction } from '@/services/reportService.js'
+import { getCurrentMonth } from '@/utils/dateFormatter.js'
+import AppMonthYearPicker from '@/components/forms/AppMonthYearPicker.vue'
 
 import PersonnelReportView from './PersonnelReportView.vue'
 import TrainingReportView from './TrainingReportView.vue'
@@ -81,6 +87,11 @@ const sections = computed(() => [
   { key: 'facilities', label: 'Facilities', icon: 'mdi-home-city', component: FacilitiesReportView, offices: [4, 6, 3] }
 ].filter(section => section.offices.includes(authStore.office)))
 
+// Report month shown in every section's stat cards (MM/YYYY), defaults to the current month
+const selectedMonth = ref(getCurrentMonth())
+const yearOf = (month) => month?.split('/')[1]
+const currentYear = yearOf(getCurrentMonth())
+
 const getStatsData = async () =>{
   // If admin (hpn=true), see all data (unit_id=null). Otherwise, filter by own unit
   // Derived from the persisted user (authStore.hpn isn't persisted, so it's null after a reload)
@@ -88,10 +99,27 @@ const getStatsData = async () =>{
   const payload = {
     unit_id: isAdmin ? null : authStore.user?.unit_id
   }
+  // Without report_month the API returns every month of the current year;
+  // a month from another year has to be requested on its own
+  if (yearOf(selectedMonth.value) !== currentYear) {
+    payload.report_month = selectedMonth.value
+  }
   const response = await executeReportAction(payload, 'all','stats')
   dashboardData.value = response.data
   return response.status == 'success' ? true : false
 }
+
+// Current-year months are already loaded; only refetch when the year actually changes
+watch(selectedMonth, async (newMonth, oldMonth) => {
+  if (yearOf(newMonth) === currentYear && yearOf(oldMonth) === currentYear) return
+  isLoading.value = true
+  try {
+    statsStatus.value = await getStatsData()
+  } finally {
+    isLoading.value = false
+    loadFailed.value = !statsStatus.value
+  }
+})
 
 onMounted(async () => {
   const maxRetries = 5
@@ -149,6 +177,10 @@ onMounted(async () => {
   color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
 }
 
+.dashboard-month {
+  width: 200px;
+}
+
 .dashboard-tabs {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
@@ -160,6 +192,10 @@ onMounted(async () => {
 
   .dashboard-date {
     font-size: 0.8rem;
+  }
+
+  .dashboard-month {
+    width: 100%;
   }
 }
 </style>

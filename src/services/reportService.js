@@ -1,5 +1,6 @@
 import api from './axiosConfig'
 import { ENDPOINTS } from './endpoints'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 const REPORT_CONFIG = {
   personnel: {
@@ -70,7 +71,7 @@ export const executeReportAction  = async (payload, reportType, action = 'create
     return {
       success: false,
       error: error.message || `Failed to ${action} ${reportType} report`,
-      message: error.response?.data?.message || error.message || `Failed to ${action} ${reportType} report`,
+      message: getErrorMessage(error, `Failed to ${action} ${reportType} report`),
     }
   }
 }
@@ -124,10 +125,7 @@ export const printReportReadiness = async (
     return {
       success: false,
       error: error.message || `Failed to print readiness for ${reportType} report`,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        `Failed to print readiness for ${reportType} report`,
+      message: getErrorMessage(error, `Failed to print readiness for ${reportType} report`),
     }
   }
 }
@@ -182,10 +180,7 @@ export const printSummaryReportReadiness = async (
     return {
       success: false,
       error: error.message || `Failed to print readiness for ${reportType} report`,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        `Failed to print readiness for ${reportType} report`,
+      message: getErrorMessage(error, `Failed to print readiness for ${reportType} report`),
     }
   }
 }

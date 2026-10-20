@@ -1,5 +1,6 @@
 import api from './axiosConfig'
 import { ENDPOINTS } from './endpoints'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 /**
  * Get all users with optional filters
@@ -13,7 +14,7 @@ export const getUsers = async (filters = {}) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to fetch users'
+        error: getErrorMessage(response.data, 'Failed to fetch users')
       }
     }
     
@@ -24,7 +25,7 @@ export const getUsers = async (filters = {}) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to fetch users'
+      error: getErrorMessage(error, 'Failed to fetch users')
     }
   }
 }
@@ -41,7 +42,7 @@ export const getUserById = async (id) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to fetch user'
+        error: getErrorMessage(response.data, 'Failed to fetch user')
       }
     }
     
@@ -52,7 +53,7 @@ export const getUserById = async (id) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to fetch user'
+      error: getErrorMessage(error, 'Failed to fetch user')
     }
   }
 }
@@ -69,7 +70,7 @@ export const createUser = async (userData) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to create user'
+        error: getErrorMessage(response.data, 'Failed to create user')
       }
     }
     
@@ -80,7 +81,7 @@ export const createUser = async (userData) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to create user'
+      error: getErrorMessage(error, 'Failed to create user')
     }
   }
 }
@@ -98,7 +99,7 @@ export const updateUser = async (id, userData) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to update user'
+        error: getErrorMessage(response.data, 'Failed to update user')
       }
     }
     
@@ -109,7 +110,7 @@ export const updateUser = async (id, userData) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to update user'
+      error: getErrorMessage(error, 'Failed to update user')
     }
   }
 }
@@ -126,7 +127,7 @@ export const deleteUser = async (id) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to delete user'
+        error: getErrorMessage(response.data, 'Failed to delete user')
       }
     }
     
@@ -137,7 +138,7 @@ export const deleteUser = async (id) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to delete user'
+      error: getErrorMessage(error, 'Failed to delete user')
     }
   }
 }
@@ -154,7 +155,7 @@ export const getUsersByRank = async (rankId) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to fetch users by rank'
+        error: getErrorMessage(response.data, 'Failed to fetch users by rank')
       }
     }
     
@@ -165,7 +166,7 @@ export const getUsersByRank = async (rankId) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to fetch users by rank'
+      error: getErrorMessage(error, 'Failed to fetch users by rank')
     }
   }
 }
@@ -181,7 +182,7 @@ export const getRank = async () => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to fetch ranks'
+        error: getErrorMessage(response.data, 'Failed to fetch ranks')
       }
     }
     
@@ -192,7 +193,7 @@ export const getRank = async () => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to fetch ranks'
+      error: getErrorMessage(error, 'Failed to fetch ranks')
     }
   }
 }

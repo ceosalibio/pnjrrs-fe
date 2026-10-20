@@ -1,6 +1,7 @@
 import api from './axiosConfig'
 import { ENDPOINTS } from './endpoints'
 import { mockUsers } from '@/utils/mockData'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 /**
  * Login with username and password
@@ -18,7 +19,8 @@ export const login = async (username, password) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Login failed',
+        error: getErrorMessage(response.data, 'Login failed'),
+        message: response.data.message,
         errors: response.data.errors
       }
     }
@@ -32,7 +34,9 @@ export const login = async (username, password) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Login failed'
+      error: getErrorMessage(error, 'Login failed'),
+      message: error.apiMessage,
+      errors: error.response?.data?.errors
     }
   }
 }
@@ -145,7 +149,7 @@ export const changePassword = async (token, temporaryPassword, newPassword) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to change password'
+        error: getErrorMessage(response.data, 'Failed to change password')
       }
     }
 
@@ -156,7 +160,7 @@ export const changePassword = async (token, temporaryPassword, newPassword) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to change password'
+      error: getErrorMessage(error, 'Failed to change password')
     }
   }
 }
@@ -190,7 +194,7 @@ export const forceChangePassword = async (username, temporaryPassword, newPasswo
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to change password'
+        error: getErrorMessage(response.data, 'Failed to change password')
       }
     }
 
@@ -201,7 +205,7 @@ export const forceChangePassword = async (username, temporaryPassword, newPasswo
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to change password'
+      error: getErrorMessage(error, 'Failed to change password')
     }
   }
 }
@@ -225,7 +229,7 @@ export const resetPassword = async (id) => {
     if (response.data.status === 'error') {
       return {
         success: false,
-        error: response.data.message || 'Failed to reset password'
+        error: getErrorMessage(response.data, 'Failed to reset password')
       }
     }
 
@@ -236,7 +240,7 @@ export const resetPassword = async (id) => {
   } catch (error) {
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Failed to reset password'
+      error: getErrorMessage(error, 'Failed to reset password')
     }
   }
 }

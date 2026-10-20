@@ -2,8 +2,8 @@
     <div>
         <v-card class="pa-4" outlined>
             <div class="d-flex ga-4 flex-wrap align-center">
-                <div class="filter-input-wrapper">
-                    <AppAutocomplete 
+                <div class="filter-input-wrapper" :class="{ 'filter-input-compact': hideOffice }">
+                    <AppAutocomplete
                         label="Units"
                         v-model="filterStore.unit"
                         :text="'name'"
@@ -21,8 +21,8 @@
                         :items="filterStore.organizationFilterItems.subunits"
                     />
                 </div>
-                <div class="filter-input-wrapper">
-                    <AppAutocomplete 
+                <div class="filter-input-wrapper" v-if="!hideOffice">
+                    <AppAutocomplete
                         v-if="filterStore.organizationFilterItems.offices?.length > 0"
                         label="Offices"
                         v-model="filterStore.office"
@@ -32,8 +32,8 @@
                         :clearable="true"
                     />
                 </div>
-                <div class="filter-input-wrapper">
-                    <AppAutocomplete 
+                <div class="filter-input-wrapper" v-if="!hideOffice">
+                    <AppAutocomplete
                         v-if="filterStore.organizationFilterItems.suboffices?.length > 0"
                         label="Suboffices"
                         v-model="filterStore.suboffice"
@@ -99,6 +99,7 @@
     </div>
 </template>
 <script setup>
+import { getErrorMessage } from '@/utils/errorHandler'
     import { ref, onMounted } from 'vue'
     import AppAutocomplete from '../forms/AppAutocomplete.vue'
     import AppButton from '../common/AppButton.vue'
@@ -129,6 +130,10 @@
         hideFilter : {
             type : Boolean,
             default : false
+        },
+        hideOffice : {
+            type : Boolean,
+            default : false
         }
     })
 
@@ -147,7 +152,7 @@
             })
             return response.data
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Upload failed')
+            throw new Error(getErrorMessage(error, 'Upload failed'))
         }
     }
 
@@ -176,5 +181,9 @@
 .filter-input-wrapper {
     flex: 1;
     min-width: 180px;
+}
+
+.filter-input-compact {
+    flex: 0 1 320px;
 }
 </style>

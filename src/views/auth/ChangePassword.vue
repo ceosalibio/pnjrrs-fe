@@ -87,6 +87,7 @@
 </template>
 
 <script setup>
+import { getErrorMessage } from '@/utils/errorHandler'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
@@ -159,7 +160,7 @@ const handleChangePassword = async () => {
   } catch (error) {
     console.error('Error changing password:', error)
     appStore.showSnackbar(
-      error?.response?.data?.message || 'An error occurred while changing password',
+      getErrorMessage(error, 'An error occurred while changing password'),
       'error'
     )
   } finally {

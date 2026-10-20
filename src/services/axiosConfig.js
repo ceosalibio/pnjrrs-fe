@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAppStore } from '@/stores/appStore'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 /**
  * Global Axios Instance Configuration
@@ -87,6 +88,13 @@ api.interceptors.response.use(
   (error) => {
     if (error.config?._loadingStarted) {
       stopLoading()
+    }
+
+    // Normalize error.message to the most specific API message
+    // (e.g. first validation error instead of a generic "Validation failed")
+    if (error.response?.data) {
+      error.apiMessage = error.response.data.message
+      error.message = getErrorMessage(error, error.message)
     }
 
     // Handle 401 Unauthorized

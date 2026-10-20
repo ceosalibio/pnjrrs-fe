@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore.js';
 import { useFilterStore } from '@/stores/filterStore.js';
 import { executeReportAction  } from '@/services/reportService'
 import { useSnackbar } from '@/composables/useSnackbar'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 export const useReportStore = defineStore('report', () => {
     // const personnelReportData = ref([])
@@ -63,7 +64,7 @@ export const useReportStore = defineStore('report', () => {
         } catch (error) {
             // console.log(error)
             console.error('Error generating report:', error)
-            showError(error?.response?.data?.message || `Failed to generate ${reportType} report`)
+            showError(getErrorMessage(error, `Failed to generate ${reportType} report`))
             
             // Clear data on error
             reportData.value = []

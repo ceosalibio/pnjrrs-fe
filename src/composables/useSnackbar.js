@@ -1,4 +1,5 @@
 import { useAppStore } from '@/stores/appStore'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 export const useSnackbar = () => {
   const appStore = useAppStore()
@@ -7,8 +8,9 @@ export const useSnackbar = () => {
     appStore.showSnackbar(message, 'success', timeout)
   }
 
+  // Accepts a string, an axios error, or an API response body
   const showError = (message, timeout = 3000) => {
-    appStore.showSnackbar(message, 'error', timeout)
+    appStore.showSnackbar(getErrorMessage(message), 'error', timeout)
   }
 
   const showWarning = (message, timeout = 3000) => {

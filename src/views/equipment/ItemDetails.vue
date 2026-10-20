@@ -333,6 +333,7 @@
 </template>
 
 <script setup>
+import { getErrorMessage } from '@/utils/errorHandler'
 import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
 import { ref, computed } from 'vue'
 import AppButton from '@/components/common/AppButton.vue';
@@ -789,7 +790,7 @@ const searchQuery = ref('')
           }
         } catch (error) {
             console.error('Error saving equipment settings:', error)
-            showError(error?.response?.data?.message || 'An error occurred while saving')
+            showError(getErrorMessage(error, 'An error occurred while saving'))
         } finally {
             isSaving.value = false
         }

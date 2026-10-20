@@ -23,6 +23,18 @@ export const getSubmittedPercent = (stats) => {
   return Math.round((submitted / total) * 100)
 }
 
+/**
+ * Stats row holding the submitted / not submitted counts of the user's own unit for a month.
+ * Non-HPN responses are already scoped to the unit (total row); HPN responses list every
+ * unit, so the unit's own row is used instead of the all-units total.
+ */
+export const getUnitSubmissionRow = (rows, month, unitId) => {
+  const monthRows = (rows || []).filter(r => r.report_month == month)
+  const total = monthRows.find(r => r.is_total)
+  if (total && total.unit_id == unitId) return total
+  return monthRows.find(r => !r.is_total && r.unit_id == unitId) || {}
+}
+
 const MONTHS =['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 /**

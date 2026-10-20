@@ -15,6 +15,7 @@
           <AppButton
             v-if="!reportStore.reportData?.status && reportStore.tableItems?.length > 0 && !authtStore.hideUpdateBtn"
             :color="isEditMode ? 'success' : 'primary'"
+            :loading="isSaving"
             @click="toggleEditMode"
             
           >
@@ -23,6 +24,7 @@
           <AppButton
             v-if="isEditMode"
             :color="'grey'"
+            :disabled="isSaving"
             @click="isEditMode = false"
             >
             Cancel
@@ -53,7 +55,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, i) in reportStore.tableItems" :key="i">
+            <tr v-for="(item, i) in visibleItems" :key="pageOffset + i">
               <td v-if="!item?.office">{{ item.description }}</td>
               <td v-if="!item?.office" :class="{ 'editable-cell': isEditMode && item.grade }">
                   <div v-if="isEditMode && item.grade">
@@ -72,6 +74,7 @@
                         label="Name"
                         class="input-field"
                         :hideDetails="true"
+                        @update:model-value="markUnsavedChanges"
                       />
 
                       <AppTextField
@@ -79,6 +82,7 @@
                         label="Serial"
                         class="input-field-serial"
                         :hideDetails="true"
+                        @update:model-value="markUnsavedChanges"
                       />
                       <AppAutocomplete
                         v-model="item.type"
@@ -87,6 +91,7 @@
                         :value="'value'"
                         label="Type"
                         density="compact"
+                        @update:model-value="markUnsavedChanges"
                       />
                     </div>
                     
@@ -120,6 +125,13 @@
             </tr>
           </tbody>
         </v-table>
+        <!-- Paginate only in edit mode; rendering inputs for every row freezes the page -->
+        <AppPagination
+          v-if="isEditMode && reportStore.tableItems?.length > 0"
+          v-model:current-page="currentPage"
+          :last-page="lastPage"
+          :total-items="reportStore.tableItems.length"
+        />
       </v-card-text>
     </v-card>
   </div>
@@ -127,13 +139,15 @@
 
 <script setup>
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
-import { ref, onBeforeUnmount, computed, watch } from 'vue'
+import AppPagination from '@/components/common/AppPagination.vue'
+import { ref, shallowRef, onBeforeUnmount, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import AppFilterHeader from '@/components/layouts/AppFilterHeader.vue'
 import AppButton from '@/components/common/AppButton.vue'
 import AppAutocomplete from '@/components/forms/AppAutocomplete.vue'
 import { useReportStore } from '@/stores/reportStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useAppStore } from '@/stores/appStore'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { executeReportAction  } from '@/services/reportService'
 import { getRank } from '@/services/userService'
@@ -147,14 +161,40 @@ import {
 
 const reportStore = useReportStore()
 const authtStore = useAuthStore()
+const appStore = useAppStore()
 const router = useRouter()
 const { showSuccess, showError } = useSnackbar()
 
-const rankItems = ref([])
-const afposItems = ref([])
+const rankItems = shallowRef([])
+const afposItems = shallowRef([])
 const isEditMode = ref(false)
 const hasUnsavedChanges = ref(false)
+const isSaving = ref(false)
 
+const PAGE_SIZE = 25
+const currentPage = ref(1)
+const lastPage = computed(() =>
+  Math.ceil((reportStore.tableItems?.length || 0) / PAGE_SIZE) || 1
+)
+const pageOffset = computed(() => isEditMode.value ? (currentPage.value - 1) * PAGE_SIZE : 0)
+const visibleItems = computed(() => {
+  const items = reportStore.tableItems || []
+  return isEditMode.value ? items.slice(pageOffset.value, pageOffset.value + PAGE_SIZE) : items
+})
+
+watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
+
+// Table gets cleared when a filter (e.g. date) changes; drop out of edit mode with it
+watch(
+  () => reportStore.tableItems?.length,
+  (length) => {
+    if (!length && !isSaving.value) {
+      isEditMode.value = false
+      hasUnsavedChanges.value = false
+      currentPage.value = 1
+    }
+  }
+)
 
 
 
@@ -174,6 +214,7 @@ const typeList = ref([
 
 const handleGenerate = async () => {
   isEditMode.value = false
+  currentPage.value = 1
   // reportStore.tableItems = []
   // const payload = filterStore.getGenrateReportPayload()
   // const response = await executeReportAction (payload, 'personnel')
@@ -189,24 +230,21 @@ const toggleEditMode = async () => {
     // Save mode - persist changes
     await handleSave()
   } else {
-    // Enter edit mode
-    isEditMode.value = true
+    // Enter edit mode - fetch dropdown lists once, in parallel
+    if (!rankItems.value?.length || !afposItems.value?.length) {
+      const [rankResponse, afpos] = await Promise.all([getRank(), getAfposItems()])
+      rankItems.value = rankResponse?.data || []
+      afposItems.value = afpos || []
+    }
+
+    currentPage.value = 1
     hasUnsavedChanges.value = false
-    const response = await getRank()
-    rankItems.value = response?.data
-    const afpos = await getAfposItems()
-    afposItems.value = afpos
-    
-    // Initialize rank, name, type properties on each item
-    reportStore.tableItems.forEach((item) => {
-      if (!item.rank) item.rank = null
-      if (!item.name) item.name = ''
-      if (!item.type) item.type = null
-    })
+    isEditMode.value = true
   }
 }
 
 const onRankChange = (item, selectedName) => {
+  markUnsavedChanges()
   const found = rankItems.value.find((r) => r.name === selectedName)
   item.grade_name = found?.grade?.name || ''
   item.division = found?.division_id
@@ -221,6 +259,7 @@ const onRankChange = (item, selectedName) => {
 
 const onAfposChange = (item, selectedId) => {
   // console.log(item,'itemmm',selectedId,'selectedId')
+  markUnsavedChanges()
   const found = afposItems.value.find((r) => r.id === selectedId)
   // console.log(found,'found')
   item.afpos_actual_name = found?.name || ''
@@ -258,6 +297,12 @@ const onAfposChange = (item, selectedId) => {
 
 
 const handleSave = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
+  appStore.setLoading(true)
+  // Let the overlay paint before the synchronous work over all rows below
+  await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve)))
+
   try {
     // Check for duplicate serials
     const serialMap = new Map()
@@ -286,9 +331,12 @@ const handleSave = async () => {
       return
     }
 
-    // Format all names based on division before saving
+    // Initialize rank/name/type here instead of on entering edit mode, so
+    // clicking Update doesn't mutate every row up front
     reportStore.tableItems.forEach((item) => {
-      item.name = formatPersonnelName(item.name, item.division)
+      if (!item.rank) item.rank = null
+      if (!item.type) item.type = null
+      item.name = formatPersonnelName(item.name || '', item.division)
     })
 
     // Calculate summary statistics
@@ -310,6 +358,8 @@ const handleSave = async () => {
     
     
     const response = await executeReportAction(payload, 'personnel', 'update', reportStore.reportId)
+    // The axios interceptor hides the overlay once a request finishes; keep it up until reload is done
+    appStore.setLoading(true)
     // console.log(response, 'response')
     
     // Check if response contains an error
@@ -326,22 +376,19 @@ const handleSave = async () => {
     showError('Error saving data: ' + error.message)
     // Re-enter edit mode if save failed
     isEditMode.value = true
+  } finally {
+    isSaving.value = false
+    appStore.setLoading(false)
   }
 }
 
-// Watch for unsaved changes
-const markUnsavedChanges = () => {
+// Called from the edit inputs instead of a deep watcher on tableItems,
+// which re-traversed every row on each keystroke
+function markUnsavedChanges() {
   if (isEditMode.value) {
     hasUnsavedChanges.value = true
   }
 }
-
-// Watch reportStore.tableItems for changes in edit mode
-watch(
-  () => reportStore.tableItems,
-  () => markUnsavedChanges(),
-  { deep: true }
-)
 
 // Guard against unsaved changes on route leave
 router.beforeEach((to, from, next) => {

@@ -50,6 +50,15 @@
                         >
                             ✏️ Update
                         </AppButton>
+                        <!-- Delete Button (Only for saved settings) -->
+                        <AppButton
+                            v-if="isFromAPI && !isEditMode"
+                            @click="handleDeleteAll"
+                            color="red"
+                            :loading="isDeleting"
+                        >
+                            Delete
+                        </AppButton>
                         <AppButton
                             v-if="isEditMode"
                             @click="handleSave"
@@ -165,6 +174,7 @@ import {
     getFacilitySettingsByUnit,
     saveFacilitySettings,
     updateFacilitySettings,
+    deleteFacilitySettings,
 } from '@/services/settingService'
 import { buildingRatingData } from '@/utils/list'
 import { getUnits, getSubUnits} from '@/services/organizationService'
@@ -182,6 +192,7 @@ const isFromAPI = ref(false)
 const facilitySettingId = ref(null)
 const isEditMode = ref(false)
 const isSaving = ref(false)
+const isDeleting = ref(false)
 const nifSubunitList = ref([])
 
 // Trigger file input dialog
@@ -432,6 +443,29 @@ const handleClear = () => {
     isEditMode.value = false
     if (fileInput.value) {
         fileInput.value.value = ''
+    }
+}
+
+// Delete the whole saved facility settings of the selected unit
+const handleDeleteAll = async () => {
+    if (!facilitySettingId.value) return
+    const confirmed = confirm('Are you sure you want to delete all facility settings for this unit? This cannot be undone.')
+    if (!confirmed) return
+
+    isDeleting.value = true
+    try {
+        const response = await deleteFacilitySettings(facilitySettingId.value)
+        if (response?.status === 'success') {
+            showSuccess('Facility settings deleted successfully')
+            handleClear()
+        } else {
+            showError(response?.message || 'Failed to delete facility settings')
+        }
+    } catch (error) {
+        console.error('Error deleting facility settings:', error)
+        showError('Error deleting facility settings')
+    } finally {
+        isDeleting.value = false
     }
 }
 

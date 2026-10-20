@@ -136,6 +136,7 @@
 </template>
 
 <script setup>
+import { getErrorMessage } from '@/utils/errorHandler'
     import { ref, onMounted, watch, computed } from 'vue';
     import AppSettingHeader from '@/components/layouts/AppSettingHeader.vue';
     import AppCard from '@/components/common/AppCard.vue';
@@ -517,7 +518,7 @@
             } 
         } catch (error) {
             console.error('Error saving data:', error);
-            const errorMessage = error.response?.data?.message || error.message || 'Error saving data';
+            const errorMessage = getErrorMessage(error, 'Error saving data');
             // showSnackbar(errorMessage, 'error');
         } finally {
             appStore.setLoading(false);

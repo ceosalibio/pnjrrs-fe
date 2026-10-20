@@ -6,6 +6,7 @@ import { useAppStore } from '@/stores/appStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useReportStore } from '@/stores/reportStore'
 import { login as loginService, logout as logoutService } from '@/services/authService'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 export const useAuth = () => {
   const router = useRouter()
@@ -28,7 +29,7 @@ export const useAuth = () => {
       // console.log(result,'result')
       
       // Check if password change is required
-      if(result?.error == "Password change required"){
+      if(result?.message == "Password change required" || result?.error == "Password change required"){
         // console.log('✅ Password change required detected')
         // console.log('📝 Username:', username)
         // console.log('🔒 Temporary Password:', password ? 'Present' : 'Missing')
@@ -53,18 +54,9 @@ export const useAuth = () => {
       }
       
       if (!result?.success) {
-        // Extract error message - handle nested errors from API
-        let errorMsg = result.error
-        
-        if (result.errors) {
-          
-          // If there are field-specific errors, show first one
-          const firstErrorKey = Object.keys(result.errors)[0]
-          if (result.errors[firstErrorKey]) {
-            errorMsg = result.errors[firstErrorKey][0] || errorMsg
-          }
-        }
-        
+        // result.error already holds the most specific message (see getErrorMessage)
+        const errorMsg = result.error
+
         error.value = errorMsg
         appStore.showSnackbar(errorMsg, 'error')
         return false
@@ -84,8 +76,8 @@ export const useAuth = () => {
       await router.push('/captcha-verification')
       return true
     } catch (err) {
-      error.value = err.message
-      appStore.showSnackbar(err.message, 'error')
+      error.value = getErrorMessage(err, 'Login failed')
+      appStore.showSnackbar(error.value, 'error')
       return false
     } finally {
       isLoading.value = false

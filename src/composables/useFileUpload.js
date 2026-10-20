@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import api from '@/services/axiosConfig'
+import { getErrorMessage } from '@/utils/errorHandler'
 
 /**
  * Composable for handling file uploads
@@ -52,7 +53,7 @@ export const useFileUpload = (endpoint, options = {}) => {
         throw new Error(response.data.error || 'Upload failed')
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.message || 'File upload failed'
+      const errorMessage = getErrorMessage(error, 'File upload failed')
       uploadError.value = errorMessage
       if (onError) onError(error)
       throw error
