@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    base: '/pnjrrs-fe/', //uncomment this when deploting in apache
+    // base: '/pnjrrs-fe/', //uncomment this when deploting in apache
     plugins: [
       vue(),
       vueDevTools(),
