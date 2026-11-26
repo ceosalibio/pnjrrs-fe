@@ -265,8 +265,8 @@ const reportTypes = computed(() => {
   const types = [
     { key: 'personnel', label: 'Personnel', icon: 'mdi-account-multiple', color: 'info', disabled: office != 1 && !admin },
     { key: 'training', label: 'Training', icon: 'mdi-bullseye-arrow', color: 'success', disabled: office != 8 && !admin },
-    { key: 'equipment', label: 'Equipment & Maintenance', icon: 'mdi-toolbox', color: 'warning', disabled: ![4, 6, 8].includes(office) && !admin },
-    { key: 'facilities', label: 'Facilities', icon: 'mdi-home-city', color: 'error', disabled: ![4, 6, 8].includes(office) && !admin }
+    { key: 'equipment', label: 'Equipment & Maintenance', icon: 'mdi-toolbox', color: 'warning', disabled: ![4, 6].includes(office) && !admin },
+    { key: 'facilities', label: 'Facilities', icon: 'mdi-home-city', color: 'error', disabled: ![4, 6].includes(office) && !admin }
   ]
   if (admin) {
     types.push({ key: 'all', label: 'All Reports', icon: 'mdi-view-grid-outline', color: 'blue-darken-4', disabled: false })
